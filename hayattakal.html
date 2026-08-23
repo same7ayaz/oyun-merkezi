@@ -45,6 +45,27 @@
       color: #2e0000; padding: 12px 26px; font-size: 16px;
       font-weight: 700; border-radius: 10px; cursor: pointer;
     }
+    #siralamaKutusu {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0,0,0,0.5);
+      border: 1px solid #ff5252;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      text-align: left;
+      z-index: 10;
+      min-width: 110px;
+    }
+    #siralamaKutusu div {
+      margin: 2px 0;
+      white-space: nowrap;
+    }
+    #siralamaKutusu .ben {
+      color: #ffe082;
+      font-weight: 700;
+    }
     a { color: #ff5252; display: inline-block; margin-top: 20px; text-decoration: none; }
   </style>
 </head>
@@ -53,6 +74,7 @@
   <p id="skor">Boyut: 10</p>
   <div id="oyunKapsayici">
     <canvas id="oyunAlani" width="360" height="440"></canvas>
+    <div id="siralamaKutusu"></div>
     <div id="joystickTaban"><div id="joystickTop"></div></div>
   </div>
   <p id="durum">Joystick ile yön ver</p>
@@ -69,7 +91,8 @@ const MAKS_BOT = 70;
 const ALGILAMA_MESAFESI = 300;
 const TAKIP_SURESI = 10000;
 const RENKLER = ["#ff8a65","#4fc3f7","#ba68c8","#ffd54f","#4db6ac","#f06292","#90a4ae","#aed581"];
-
+const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira"];
+    
 let oyuncu, botlar, yemler, oyunAktif, animasyonId;
 let kamera = { x: 0, y: 0 };
 let zoom = 1;
@@ -118,6 +141,7 @@ function botUret() {
     yonSayaci: 0,
     davranisBasi: 0,
     renk: RENKLER[Math.floor(Math.random() * RENKLER.length)]
+    isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)]
   });
 }
 
@@ -275,6 +299,7 @@ function dongu() {
   }
 
   document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
+  siralamaGuncelle();
   cizim();
   animasyonId = requestAnimationFrame(dongu);
 }
@@ -283,7 +308,20 @@ function oyunBitti() {
   oyunAktif = false;
   document.getElementById("durum").textContent = "Yakalandın! Boyut: " + Math.round(oyuncu.r);
 }
-
+function siralamaGuncelle() {
+  const herkes = botlar.map(function(b) { return { r: b.r, isim: b.isim, ben: false }; });
+  herkes.push({ r: oyuncu.r, isim: "Sen", ben: true });
+  herkes.sort(function(a, b) { return b.r - a.r; });
+  const ilkBes = herkes.slice(0, 5);
+  let html = "<div style='opacity:0.7;margin-bottom:4px;'>🏆 Sıralama</div>";
+  for (let i = 0; i < ilkBes.length; i++) {
+    const kisi = ilkBes[i];
+    const sinif = kisi.ben ? " class='ben'" : "";
+    html += "<div" + sinif + ">" + (i+1) + ". " + kisi.isim + " (" + Math.round(kisi.r) + ")</div>";
+  }
+  document.getElementById("siralamaKutusu").innerHTML = html;
+}
+    
 function cizim() {
   ctx.fillStyle = "#1a0505";
   ctx.fillRect(0, 0, W, H);
