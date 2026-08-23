@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Taş Kağıt Makas</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientAkis 15s ease infinite;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 60px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      color: #00fff2;
+      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+    }
+    button {
+      background-color: #00fff2;
+      border: none;
+      padding: 15px 20px;
+      font-size: 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    #sonuc {
+      font-size: 22px;
+      margin-top: 30px;
+    }
+    a {
+      color: #00fff2;
+      display: block;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Taş Kağıt Makas</h1>
+  <p>Bir seçim yap:</p>
+
+  <button onclick="oyna('taş')">✊</button>
+  <button onclick="oyna('kağıt')">✋</button>
+  <button onclick="oyna('makas')">✌️</button>
+
+  <p id="sonuc"></p>
+
+  <a href="index.html">⬅ Ana sayfaya dön</a>
+
+  <script>
+    function oyna(oyuncu) {
+      let secenekler = ["taş", "kağıt", "makas"];
+      let bilgisayar = secenekler[Math.floor(Math.random() * 3)];
+      let sonucYazisi = document.getElementById("sonuc");
+      let sonuc = "";
+
+      if (oyuncu === bilgisayar) {
+        sonuc = "Berabere! İkimiz de " + bilgisayar + " seçtik.";
+      } else if (
+        (oyuncu === "taş" && bilgisayar === "makas") ||
+        (oyuncu === "kağıt" && bilgisayar === "taş") ||
+        (oyuncu === "makas" && bilgisayar === "kağıt")
+      ) {
+        sonuc = "Kazandın! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+      } else {
+        sonuc = "Kaybettin! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+      }
+
+      sonucYazisi.innerHTML = sonuc;
+    }
+  </script>
+</body>
+</html>
