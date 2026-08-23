@@ -37,7 +37,28 @@
     #skor {
       font-size: 17px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+    }
+    .zorluklar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .zorluklar button {
+      background-color: rgba(255,255,255,0.08);
+      border: 2px solid #7cfc00;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    .zorluklar button.secili {
+      background-color: #7cfc00;
+      color: #142400;
     }
     canvas {
       background-color: rgba(0,0,0,0.35);
@@ -101,9 +122,15 @@
   <h1>🐍 Yılan Oyunu</h1>
   <p id="skor">Skor: 0</p>
 
+  <div class="zorluklar">
+    <button id="btnKolay" onclick="zorlukSec('kolay')">Kolay</button>
+    <button id="btnOrta" class="secili" onclick="zorlukSec('orta')">Orta</button>
+    <button id="btnZor" onclick="zorlukSec('zor')">Zor</button>
+  </div>
+
   <canvas id="oyunAlani" width="300" height="300"></canvas>
 
-  <p id="durum">Başlamak için "Başlat"a bas</p>
+  <p id="durum">Zorluk seç ve "Başlat"a bas</p>
   <button class="baslat" onclick="oyunuBaslat()">▶ Başlat</button>
 
   <div class="kontroller">
@@ -121,7 +148,16 @@
     const kutuBoyutu = 15;
     const kutuSayisi = canvas.width / kutuBoyutu;
 
+    const hizlar = { kolay: 200, orta: 130, zor: 80 };
+    let seciliZorluk = "orta";
+
     let yilan, yon, sonrakiYon, yem, skor, oyunAktif, oyunDongusu;
+
+    function zorlukSec(zorluk) {
+      seciliZorluk = zorluk;
+      document.querySelectorAll(".zorluklar button").forEach(b => b.classList.remove("secili"));
+      document.getElementById("btn" + zorluk.charAt(0).toUpperCase() + zorluk.slice(1)).classList.add("secili");
+    }
 
     function oyunuBaslat() {
       yilan = [{x: 7, y: 7}];
@@ -134,7 +170,7 @@
       yemUret();
 
       if (oyunDongusu) clearInterval(oyunDongusu);
-      oyunDongusu = setInterval(oyunAdimi, 140);
+      oyunDongusu = setInterval(oyunAdimi, hizlar[seciliZorluk]);
     }
 
     function yemUret() {
@@ -202,16 +238,29 @@
       document.getElementById("durum").textContent = "💀 Oyun bitti! Skor: " + skor;
     }
 
+    function yuvarlatilmisKare(x, y, boyut, yaricap) {
+      ctx.beginPath();
+      ctx.moveTo(x + yaricap, y);
+      ctx.arcTo(x + boyut, y, x + boyut, y + boyut, yaricap);
+      ctx.arcTo(x + boyut, y + boyut, x, y + boyut, yaricap);
+      ctx.arcTo(x, y + boyut, x, y, yaricap);
+      ctx.arcTo(x, y, x + boyut, y, yaricap);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     function cizim() {
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = "#ff4d4d";
-      ctx.fillRect(yem.x * kutuBoyutu, yem.y * kutuBoyutu, kutuBoyutu - 2, kutuBoyutu - 2);
+      yuvarlatilmisKare(yem.x * kutuBoyutu + 1, yem.y * kutuBoyutu + 1, kutuBoyutu - 2, 6);
 
-      ctx.fillStyle = "#7cfc00";
-      for (let parca of yilan) {
-        ctx.fillRect(parca.x * kutuBoyutu, parca.y * kutuBoyutu, kutuBoyutu - 2, kutuBoyutu - 2);
+      for (let i = 0; i < yilan.length; i++) {
+        const parca = yilan[i];
+        ctx.fillStyle = i === 0 ? "#a6ff33" : "#7cfc00";
+        const yaricap = i === 0 ? 6 : 5;
+        yuvarlatilmisKare(parca.x * kutuBoyutu + 1, parca.y * kutuBoyutu + 1, kutuBoyutu - 2, yaricap);
       }
     }
 
