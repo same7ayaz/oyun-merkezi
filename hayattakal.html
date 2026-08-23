@@ -1,88 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Hayatta Kal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      background: #2e0000;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 20px 12px;
-      margin: 0;
-    }
-    h1 { color: #ff5252; font-size: 24px; }
-    #oyunKapsayici {
-      position: relative;
-      width: 360px;
-      max-width: 100%;
-      height: 440px;
-      margin: 0 auto;
-      border: 3px solid #ff5252;
-      border-radius: 14px;
-      overflow: hidden;
-      touch-action: none;
-    }
-    canvas { display: block; width: 100%; height: 100%; background-color: #1a0505; }
-    #joystickTaban {
-      position: absolute; left: 20px; bottom: 20px;
-      width: 90px; height: 90px; border-radius: 50%;
-      background-color: rgba(255,255,255,0.1);
-      border: 2px solid rgba(255,82,82,0.6);
-      z-index: 10;
-    }
-    #joystickTop {
-      position: absolute; left: 50%; top: 50%;
-      width: 40px; height: 40px; border-radius: 50%;
-      background-color: rgba(255,82,82,0.85);
-      transform: translate(-50%, -50%);
-    }
-    button.baslat {
-      margin-top: 10px; background-color: #ff5252; border: none;
-      color: #2e0000; padding: 12px 26px; font-size: 16px;
-      font-weight: 700; border-radius: 10px; cursor: pointer;
-    }
-    #siralamaKutusu {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(0,0,0,0.5);
-      border: 1px solid #ff5252;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 11px;
-      text-align: left;
-      z-index: 10;
-      min-width: 110px;
-    }
-    #siralamaKutusu div {
-      margin: 2px 0;
-      white-space: nowrap;
-    }
-    #siralamaKutusu .ben {
-      color: #ffe082;
-      font-weight: 700;
-    }
-    a { color: #ff5252; display: inline-block; margin-top: 20px; text-decoration: none; }
-  </style>
+<meta charset="UTF-8">
+<title>Hayatta Kal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* { box-sizing: border-box; }
+body { background: #2e0000; color: white; font-family: sans-serif; text-align: center; padding: 20px 12px; margin: 0; }
+h1 { color: #ff5252; font-size: 24px; }
+#oyunKapsayici { position: relative; width: 360px; max-width: 100%; height: 440px; margin: 0 auto; border: 3px solid #ff5252; border-radius: 14px; overflow: hidden; touch-action: none; }
+canvas { display: block; width: 100%; height: 100%; background-color: #1a0505; }
+#siralamaKutusu { position: absolute; top: 10px; right: 10px; background-color: rgba(0,0,0,0.5); border: 1px solid #ff5252; border-radius: 8px; padding: 8px 10px; font-size: 11px; text-align: left; z-index: 10; min-width: 110px; color: white; }
+#siralamaKutusu div { margin: 2px 0; white-space: nowrap; }
+#siralamaKutusu .ben { color: #ffe082; font-weight: 700; }
+#joystickTaban { position: absolute; left: 20px; bottom: 20px; width: 90px; height: 90px; border-radius: 50%; background-color: rgba(255,255,255,0.1); border: 2px solid rgba(255,82,82,0.6); z-index: 10; }
+#joystickTop { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(255,82,82,0.85); transform: translate(-50%, -50%); }
+button.baslat { margin-top: 10px; background-color: #ff5252; border: none; color: #2e0000; padding: 12px 26px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; }
+a { color: #ff5252; display: inline-block; margin-top: 20px; text-decoration: none; }
+</style>
 </head>
 <body>
-  <h1>🔴 Hayatta Kal</h1>
-  <p id="skor">Boyut: 10</p>
-  <div id="oyunKapsayici">
-    <canvas id="oyunAlani" width="360" height="440"></canvas>
-    <div id="siralamaKutusu"></div>
-    <div id="joystickTaban"><div id="joystickTop"></div></div>
-  </div>
-  <p id="durum">Joystick ile yön ver</p>
-  <button class="baslat" onclick="oyunuBaslat()">▶ Başlat</button>
-  <a href="index.html">⬅ Ana sayfaya dön</a>
-  <script>
-
-  const canvas = document.getElementById("oyunAlani");
+<h1>🔴 Hayatta Kal</h1>
+<p id="skor">Boyut: 10</p>
+<div id="oyunKapsayici">
+<canvas id="oyunAlani" width="360" height="440"></canvas>
+<div id="siralamaKutusu"></div>
+<div id="joystickTaban"><div id="joystickTop"></div></div>
+</div>
+<p id="durum">Joystick ile yön ver</p>
+<button class="baslat" onclick="oyunuBaslat()">▶ Başlat</button>
+<a href="index.html">⬅ Ana sayfaya dön</a>
+<script>
+const canvas = document.getElementById("oyunAlani");
 const ctx = canvas.getContext("2d");
 const W = 360, H = 440;
 const DUNYA_GENISLIK = 6000;
@@ -92,15 +41,10 @@ const ALGILAMA_MESAFESI = 300;
 const TAKIP_SURESI = 10000;
 const RENKLER = ["#ff8a65","#4fc3f7","#ba68c8","#ffd54f","#4db6ac","#f06292","#90a4ae","#aed581"];
 const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira"];
-    
 let oyuncu, botlar, yemler, oyunAktif, animasyonId;
 let kamera = { x: 0, y: 0 };
 let zoom = 1;
-
-function rastgele(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
+function rastgele(min, max) { return Math.random() * (max - min) + min; }
 function oyunuBaslat() {
   oyuncu = { x: DUNYA_GENISLIK / 2, y: DUNYA_YUKSEKLIK / 2, r: 12, hiz: 2.6 };
   botlar = [];
@@ -109,23 +53,17 @@ function oyunuBaslat() {
   for (let i = 0; i < 1600; i++) {
     yemler.push({ x: rastgele(20, DUNYA_GENISLIK - 20), y: rastgele(20, DUNYA_YUKSEKLIK - 20), r: 4 });
   }
-  for (let i = 0; i < MAKS_BOT; i++) {
-    botUret();
-  }
+  for (let i = 0; i < MAKS_BOT; i++) { botUret(); }
   document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
   document.getElementById("durum").textContent = "Hayatta kal!";
   if (animasyonId) cancelAnimationFrame(animasyonId);
   dongu();
 }
-
 function botUret() {
   const kucukMu = Math.random() < 0.5;
   let r;
-  if (kucukMu) {
-    r = rastgele(4, Math.max(6, oyuncu.r * 0.9));
-  } else {
-    r = rastgele(oyuncu.r + 2, oyuncu.r * 2.4 + 20);
-  }
+  if (kucukMu) { r = rastgele(4, Math.max(6, oyuncu.r * 0.9)); }
+  else { r = rastgele(oyuncu.r + 2, oyuncu.r * 2.4 + 20); }
   r = Math.min(r, 120);
   let x = rastgele(r + 10, DUNYA_GENISLIK - r - 10);
   let y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
@@ -135,92 +73,50 @@ function botUret() {
     y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
     deneme++;
   }
-  botlar.push({
-    x: x, y: y, r: r,
-    vx: rastgele(-1, 1), vy: rastgele(-1, 1),
-    yonSayaci: 0,
-    davranisBasi: 0,
-    renk: RENKLER[Math.floor(Math.random() * RENKLER.length)]
-    isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)]
-  });
+  botlar.push({ x: x, y: y, r: r, vx: rastgele(-1, 1), vy: rastgele(-1, 1), yonSayaci: 0, davranisBasi: 0, renk: RENKLER[Math.floor(Math.random() * RENKLER.length)], isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)] });
 }
-
 const joyTaban = document.getElementById("joystickTaban");
 const joyTop = document.getElementById("joystickTop");
 let joyAktif = false;
 let joyVektor = { x: 0, y: 0 };
 let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 35;
-
 function joyBasla(clientX, clientY) {
   joyAktif = true;
   const rect = joyTaban.getBoundingClientRect();
   joyMerkez = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
-
 function joyHareket(clientX, clientY) {
   if (!joyAktif) return;
   let dx = clientX - joyMerkez.x;
   let dy = clientY - joyMerkez.y;
   const uzunluk = Math.hypot(dx, dy);
-  if (uzunluk > joyYaricap) {
-    dx = (dx / uzunluk) * joyYaricap;
-    dy = (dy / uzunluk) * joyYaricap;
-  }
+  if (uzunluk > joyYaricap) { dx = (dx / uzunluk) * joyYaricap; dy = (dy / uzunluk) * joyYaricap; }
   joyTop.style.left = "calc(50% + " + dx + "px)";
   joyTop.style.top = "calc(50% + " + dy + "px)";
   joyVektor = { x: dx / joyYaricap, y: dy / joyYaricap };
 }
-
 function joyBitir() {
   joyAktif = false;
   joyVektor = { x: 0, y: 0 };
   joyTop.style.left = "50%";
   joyTop.style.top = "50%";
 }
-
-joyTaban.addEventListener("touchstart", function(e) {
-  e.preventDefault();
-  const t = e.touches[0];
-  joyBasla(t.clientX, t.clientY);
-}, { passive: false });
-
-joyTaban.addEventListener("touchmove", function(e) {
-  e.preventDefault();
-  const t = e.touches[0];
-  joyHareket(t.clientX, t.clientY);
-}, { passive: false });
-
-joyTaban.addEventListener("touchend", function(e) {
-  e.preventDefault();
-  joyBitir();
-}, { passive: false });
-
-joyTaban.addEventListener("mousedown", function(e) {
-  joyBasla(e.clientX, e.clientY);
-});
-document.addEventListener("mousemove", function(e) {
-  if (joyAktif) joyHareket(e.clientX, e.clientY);
-});
-document.addEventListener("mouseup", function() {
-  joyBitir();
-});
-
+joyTaban.addEventListener("touchstart", function(e) { e.preventDefault(); const t = e.touches[0]; joyBasla(t.clientX, t.clientY); }, { passive: false });
+joyTaban.addEventListener("touchmove", function(e) { e.preventDefault(); const t = e.touches[0]; joyHareket(t.clientX, t.clientY); }, { passive: false });
+joyTaban.addEventListener("touchend", function(e) { e.preventDefault(); joyBitir(); }, { passive: false });
+joyTaban.addEventListener("mousedown", function(e) { joyBasla(e.clientX, e.clientY); });
+document.addEventListener("mousemove", function(e) { if (joyAktif) joyHareket(e.clientX, e.clientY); });
+document.addEventListener("mouseup", function() { joyBitir(); });
+  <script>
 function botDavranisGuncelle(bot, simdi) {
   const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
   const buyukTehdit = bot.r > oyuncu.r + 2;
   const kucukAv = bot.r < oyuncu.r - 2;
-
-  if (bot.davranisBasi > 0 && simdi - bot.davranisBasi > TAKIP_SURESI) {
-    bot.davranisBasi = 0;
-  }
-
+  if (bot.davranisBasi > 0 && simdi - bot.davranisBasi > TAKIP_SURESI) { bot.davranisBasi = 0; }
   if (bot.davranisBasi === 0 && mesafe < ALGILAMA_MESAFESI) {
-    if (buyukTehdit || kucukAv) {
-      bot.davranisBasi = simdi;
-    }
+    if (buyukTehdit || kucukAv) { bot.davranisBasi = simdi; }
   }
-
   if (bot.davranisBasi > 0) {
     const yx = oyuncu.x - bot.x;
     const yy = oyuncu.y - bot.y;
@@ -230,34 +126,23 @@ function botDavranisGuncelle(bot, simdi) {
     bot.vy = (yy / uzunluk) * yon;
     return buyukTehdit ? 1.7 : 2.3;
   }
-
   bot.yonSayaci++;
-  if (bot.yonSayaci > 60) {
-    bot.vx = rastgele(-1, 1);
-    bot.vy = rastgele(-1, 1);
-    bot.yonSayaci = 0;
-  }
+  if (bot.yonSayaci > 60) { bot.vx = rastgele(-1, 1); bot.vy = rastgele(-1, 1); bot.yonSayaci = 0; }
   return 1.1;
 }
-
 function dongu() {
   if (!oyunAktif) return;
-
   if (joyVektor.x !== 0 || joyVektor.y !== 0) {
     oyuncu.x += joyVektor.x * oyuncu.hiz;
     oyuncu.y += joyVektor.y * oyuncu.hiz;
   }
-
   oyuncu.x = Math.max(oyuncu.r, Math.min(DUNYA_GENISLIK - oyuncu.r, oyuncu.x));
   oyuncu.y = Math.max(oyuncu.r, Math.min(DUNYA_YUKSEKLIK - oyuncu.r, oyuncu.y));
-
   zoom = Math.max(0.08, Math.min(0.7, 26 / oyuncu.r));
-
   const viewW = W / zoom;
   const viewH = H / zoom;
   kamera.x = Math.max(0, Math.min(DUNYA_GENISLIK - viewW, oyuncu.x - viewW / 2));
   kamera.y = Math.max(0, Math.min(DUNYA_YUKSEKLIK - viewH, oyuncu.y - viewH / 2));
-
   const simdi = performance.now();
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
@@ -267,7 +152,6 @@ function dongu() {
     bot.x = Math.max(bot.r, Math.min(DUNYA_GENISLIK - bot.r, bot.x));
     bot.y = Math.max(bot.r, Math.min(DUNYA_YUKSEKLIK - bot.r, bot.y));
   }
-
   for (let i = yemler.length - 1; i >= 0; i--) {
     const y = yemler[i];
     if (Math.hypot(oyuncu.x - y.x, oyuncu.y - y.y) < oyuncu.r + y.r) {
@@ -276,34 +160,22 @@ function dongu() {
       yemler.push({ x: rastgele(20, DUNYA_GENISLIK - 20), y: rastgele(20, DUNYA_YUKSEKLIK - 20), r: 4 });
     }
   }
-
   const silinecekler = [];
   for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
     if (mesafe < oyuncu.r + bot.r) {
-      if (oyuncu.r > bot.r + 2) {
-        oyuncu.r += bot.r * 0.3;
-        silinecekler.push(i);
-      } else if (bot.r > oyuncu.r + 2) {
-        oyunBitti();
-        return;
-      }
+      if (oyuncu.r > bot.r + 2) { oyuncu.r += bot.r * 0.3; silinecekler.push(i); }
+      else if (bot.r > oyuncu.r + 2) { oyunBitti(); return; }
     }
   }
-  for (let i = 0; i < silinecekler.length; i++) {
-    botlar.splice(silinecekler[i], 1);
-  }
-  while (botlar.length < MAKS_BOT) {
-    botUret();
-  }
-
+  for (let i = 0; i < silinecekler.length; i++) { botlar.splice(silinecekler[i], 1); }
+  while (botlar.length < MAKS_BOT) { botUret(); }
   document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
   siralamaGuncelle();
   cizim();
   animasyonId = requestAnimationFrame(dongu);
 }
-
 function oyunBitti() {
   oyunAktif = false;
   document.getElementById("durum").textContent = "Yakalandın! Boyut: " + Math.round(oyuncu.r);
@@ -321,18 +193,14 @@ function siralamaGuncelle() {
   }
   document.getElementById("siralamaKutusu").innerHTML = html;
 }
-    
 function cizim() {
   ctx.fillStyle = "#1a0505";
   ctx.fillRect(0, 0, W, H);
-
   ctx.save();
   ctx.scale(zoom, zoom);
-
   ctx.strokeStyle = "#ff5252";
   ctx.lineWidth = 4 / zoom;
   ctx.strokeRect(-kamera.x, -kamera.y, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
-
   ctx.fillStyle = "rgba(255,255,255,0.5)";
   for (let i = 0; i < yemler.length; i++) {
     const y = yemler[i];
@@ -341,34 +209,28 @@ function cizim() {
     ctx.arc(sx, sy, y.r, 0, Math.PI * 2);
     ctx.fill();
   }
-
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
     const sx = bot.x - kamera.x, sy = bot.y - kamera.y;
     const tehlikeli = bot.r > oyuncu.r;
     const halkaRengi = tehlikeli ? "#ff1744" : "#00e676";
-
     const grad = ctx.createRadialGradient(sx - bot.r*0.3, sy - bot.r*0.3, bot.r*0.1, sx, sy, bot.r);
     grad.addColorStop(0, "#ffffff88");
     grad.addColorStop(0.3, bot.renk);
     grad.addColorStop(1, bot.renk);
-
     ctx.beginPath();
     ctx.arc(sx, sy, bot.r, 0, Math.PI * 2);
     ctx.fillStyle = grad;
     ctx.fill();
-
     ctx.lineWidth = Math.max(2, bot.r * 0.15);
     ctx.strokeStyle = halkaRengi;
     ctx.stroke();
   }
-
   const px = oyuncu.x - kamera.x, py = oyuncu.y - kamera.y;
   const pGrad = ctx.createRadialGradient(px - oyuncu.r*0.3, py - oyuncu.r*0.3, oyuncu.r*0.1, px, py, oyuncu.r);
   pGrad.addColorStop(0, "#fff6d5");
   pGrad.addColorStop(0.3, "#ffe082");
   pGrad.addColorStop(1, "#ffca28");
-
   ctx.beginPath();
   ctx.arc(px, py, oyuncu.r, 0, Math.PI * 2);
   ctx.fillStyle = pGrad;
@@ -376,19 +238,16 @@ function cizim() {
   ctx.lineWidth = Math.max(2, oyuncu.r * 0.12);
   ctx.strokeStyle = "#fff";
   ctx.stroke();
-
   const gozR = oyuncu.r * 0.12;
   ctx.fillStyle = "#3e2723";
   ctx.beginPath();
   ctx.arc(px - oyuncu.r*0.28, py - oyuncu.r*0.15, gozR, 0, Math.PI*2);
   ctx.arc(px + oyuncu.r*0.28, py - oyuncu.r*0.15, gozR, 0, Math.PI*2);
   ctx.fill();
-
   ctx.restore();
 }
-
 ctx.fillStyle = "#1a0505";
 ctx.fillRect(0, 0, W, H);
-  </script>
+</script>
 </body>
 </html>
