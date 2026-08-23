@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sayı Tahmin Oyunu</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientAkis 15s ease infinite;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 80px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      color: #00fff2;
+      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+    }
+    input {
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 6px;
+      border: none;
+      width: 100px;
+      text-align: center;
+    }
+    button {
+      background-color: #00fff2;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    #sonuc {
+      font-size: 20px;
+      margin-top: 30px;
+    }
+    a {
+      color: #00fff2;
+      display: block;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sayı Tahmin Oyunu</h1>
+  <p>1 ile 100 arasında bir sayı tuttum, bulabilir misin?</p>
+
+  <input type="number" id="tahmin" placeholder="Tahminin">
+  <button onclick="kontrolEt()">Tahmin Et</button>
+
+  <p id="sonuc"></p>
+
+  <a href="index.html">⬅ Ana sayfaya dön</a>
+
+  <script>
+    let gizliSayi = Math.floor(Math.random() * 100) + 1;
+    let denemeSayisi = 0;
+
+    function kontrolEt() {
+      let tahmin = Number(document.getElementById("tahmin").value);
+      let sonucYazisi = document.getElementById("sonuc");
+      denemeSayisi++;
+
+      if (tahmin === gizliSayi) {
+        sonucYazisi.innerHTML = "🎉 Doğru bildin! Cevap: " + gizliSayi + " (" + denemeSayisi + " denemede)";
+      } else if (tahmin > gizliSayi) {
+        sonucYazisi.innerHTML = "Daha küçük bir sayı dene ⬇️";
+      } else {
+        sonucYazisi.innerHTML = "Daha büyük bir sayı dene ⬆️";
+      }
+    }
+  </script>
+</body>
+</html>
