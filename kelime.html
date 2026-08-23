@@ -8,9 +8,9 @@
   <style>
     * { box-sizing: border-box; }
     body {
-      background: linear-gradient(-45deg, #0f0c29, #4a1a6b, #1b1b4d, #6b1a5c, #24243e, #1a3a6b);
+      background: linear-gradient(-45deg, #3a0035, #5c0050, #4a0042, #6b0060, #2e0028);
       background-size: 500% 500%;
-      animation: gradientAkis 16s ease infinite;
+      animation: gradientAkis 14s ease infinite;
       color: white;
       font-family: 'Poppins', sans-serif;
       text-align: center;
@@ -23,23 +23,30 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #ff4dd8, 0 0 30px #ff4dd8; }
+      50% { text-shadow: 0 0 25px #ff4dd8, 0 0 50px #ff4dd8; }
+    }
     h1 {
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
-      font-size: 30px;
-      margin-bottom: 6px;
+      color: #ff4dd8;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
     #adam {
-      font-size: 60px;
-      margin: 20px 0;
-      min-height: 70px;
+      font-size: 64px;
+      margin: 18px 0;
+      min-height: 74px;
+      transition: transform 0.2s;
     }
     #kelimeAlani {
-      font-size: 32px;
-      letter-spacing: 8px;
+      font-size: 34px;
+      letter-spacing: 9px;
       font-weight: 700;
-      margin: 20px 0;
+      margin: 18px 0;
       word-break: break-all;
+      min-height: 46px;
     }
     #harfler {
       display: flex;
@@ -51,14 +58,19 @@
     }
     .harfBtn {
       background-color: rgba(255,255,255,0.08);
-      border: 2px solid #00fff2;
+      border: 2px solid #ff4dd8;
       color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
+      width: 42px;
+      height: 46px;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 700;
       cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: transform 0.1s;
+    }
+    .harfBtn:active {
+      transform: scale(0.88);
     }
     .harfBtn:disabled {
       opacity: 0.3;
@@ -73,31 +85,36 @@
       border-color: #e74c3c;
     }
     #durum {
-      font-size: 18px;
-      margin-top: 24px;
+      font-size: 19px;
+      font-weight: 600;
+      margin-top: 26px;
       min-height: 30px;
     }
     #canHakki {
-      font-size: 15px;
-      opacity: 0.75;
+      font-size: 16px;
+      opacity: 0.8;
       margin-top: 6px;
+      font-weight: 600;
     }
     button.yeniOyun {
-      margin-top: 20px;
-      background-color: #00fff2;
+      margin-top: 22px;
+      background-color: #ff4dd8;
       border: none;
-      padding: 10px 22px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 8px;
+      padding: 14px 26px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 10px;
       cursor: pointer;
       display: none;
+      font-family: 'Poppins', sans-serif;
     }
     a {
-      color: #00fff2;
-      display: block;
+      color: #ff4dd8;
+      display: inline-block;
       margin-top: 40px;
       text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -123,10 +140,6 @@
     let tahminEdilenler = [];
     let yanlisSayisi = 0;
     const maxYanlis = 6;
-
-    function turkceHarfDuzelt(harf) {
-      return harf;
-    }
 
     function yeniOyunBaslat() {
       secilenKelime = kelimeler[Math.floor(Math.random() * kelimeler.length)];
@@ -181,7 +194,10 @@
       } else {
         yanlisSayisi++;
         btn.classList.add("yanlis");
-        document.getElementById("adam").textContent = adamYuzler[yanlisSayisi];
+        const adam = document.getElementById("adam");
+        adam.textContent = adamYuzler[yanlisSayisi];
+        adam.style.transform = "scale(1.2)";
+        setTimeout(() => adam.style.transform = "scale(1)", 200);
         document.getElementById("canHakki").textContent = "Kalan hakkın: " + (maxYanlis - yanlisSayisi);
 
         if (yanlisSayisi >= maxYanlis) {
@@ -199,4 +215,4 @@
     yeniOyunBaslat();
   </script>
 </body>
-  </html>
+</html>
