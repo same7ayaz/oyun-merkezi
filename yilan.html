@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Yılan Oyunu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(-45deg, #1a3300, #2e5c00, #204a00, #387a00, #142400);
+      background-size: 500% 500%;
+      animation: gradientAkis 14s ease infinite;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 30px 16px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #7cfc00, 0 0 30px #7cfc00; }
+      50% { text-shadow: 0 0 25px #7cfc00, 0 0 50px #7cfc00; }
+    }
+    h1 {
+      color: #7cfc00;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    #skor {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    canvas {
+      background-color: rgba(0,0,0,0.35);
+      border: 3px solid #7cfc00;
+      border-radius: 14px;
+      max-width: 100%;
+      touch-action: none;
+    }
+    #durum {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 16px;
+      min-height: 28px;
+    }
+    .kontroller {
+      display: grid;
+      grid-template-columns: repeat(3, 56px);
+      grid-template-rows: repeat(2, 56px);
+      gap: 6px;
+      justify-content: center;
+      margin: 18px auto 0;
+    }
+    .kontroller button {
+      background-color: rgba(255,255,255,0.08);
+      border: 2px solid #7cfc00;
+      border-radius: 10px;
+      font-size: 22px;
+      color: white;
+      cursor: pointer;
+    }
+    .kontroller button:active {
+      background-color: #7cfc00;
+    }
+    #yukari { grid-column: 2; grid-row: 1; }
+    #sol { grid-column: 1; grid-row: 2; }
+    #asagi { grid-column: 2; grid-row: 2; }
+    #sag { grid-column: 3; grid-row: 2; }
+    button.baslat {
+      margin-top: 18px;
+      background-color: #7cfc00;
+      border: none;
+      color: #142400;
+      padding: 12px 26px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    a {
+      color: #7cfc00;
+      display: inline-block;
+      margin-top: 26px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐍 Yılan Oyunu</h1>
+  <p id="skor">Skor: 0</p>
+
+  <canvas id="oyunAlani" width="300" height="300"></canvas>
+
+  <p id="durum">Başlamak için "Başlat"a bas</p>
+  <button class="baslat" onclick="oyunuBaslat()">▶ Başlat</button>
+
+  <div class="kontroller">
+    <button id="yukari" onclick="yonDegistir(0,-1)">⬆️</button>
+    <button id="sol" onclick="yonDegistir(-1,0)">⬅️</button>
+    <button id="asagi" onclick="yonDegistir(0,1)">⬇️</button>
+    <button id="sag" onclick="yonDegistir(1,0)">➡️</button>
+  </div>
+
+  <a href="index.html">⬅ Ana sayfaya dön</a>
+
+  <script>
+    const canvas = document.getElementById("oyunAlani");
+    const ctx = canvas.getContext("2d");
+    const kutuBoyutu = 15;
+    const kutuSayisi = canvas.width / kutuBoyutu;
+
+    let yilan, yon, sonrakiYon, yem, skor, oyunAktif, oyunDongusu;
+
+    function oyunuBaslat() {
+      yilan = [{x: 7, y: 7}];
+      yon = {x: 0, y: 0};
+      sonrakiYon = {x: 0, y: 0};
+      skor = 0;
+      oyunAktif = true;
+      document.getElementById("skor").textContent = "Skor: 0";
+      document.getElementById("durum").textContent = "Bir yön seç ve başla!";
+      yemUret();
+
+      if (oyunDongusu) clearInterval(oyunDongusu);
+      oyunDongusu = setInterval(oyunAdimi, 140);
+    }
+
+    function yemUret() {
+      yem = {
+        x: Math.floor(Math.random() * kutuSayisi),
+        y: Math.floor(Math.random() * kutuSayisi)
+      };
+      for (let parca of yilan) {
+        if (parca.x === yem.x && parca.y === yem.y) {
+          yemUret();
+          return;
+        }
+      }
+    }
+
+    function yonDegistir(x, y) {
+      if (yon.x === -x && yon.y === -y) return;
+      sonrakiYon = {x, y};
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") yonDegistir(0, -1);
+      if (e.key === "ArrowDown") yonDegistir(0, 1);
+      if (e.key === "ArrowLeft") yonDegistir(-1, 0);
+      if (e.key === "ArrowRight") yonDegistir(1, 0);
+    });
+
+    function oyunAdimi() {
+      if (!oyunAktif) return;
+      if (yon.x === 0 && yon.y === 0 && sonrakiYon.x === 0 && sonrakiYon.y === 0) {
+        cizim();
+        return;
+      }
+
+      yon = sonrakiYon;
+      const baş = {x: yilan[0].x + yon.x, y: yilan[0].y + yon.y};
+
+      if (baş.x < 0 || baş.x >= kutuSayisi || baş.y < 0 || baş.y >= kutuSayisi) {
+        oyunBitti();
+        return;
+      }
+      for (let parca of yilan) {
+        if (parca.x === baş.x && parca.y === baş.y) {
+          oyunBitti();
+          return;
+        }
+      }
+
+      yilan.unshift(baş);
+
+      if (baş.x === yem.x && baş.y === yem.y) {
+        skor++;
+        document.getElementById("skor").textContent = "Skor: " + skor;
+        yemUret();
+      } else {
+        yilan.pop();
+      }
+
+      cizim();
+    }
+
+    function oyunBitti() {
+      oyunAktif = false;
+      clearInterval(oyunDongusu);
+      document.getElementById("durum").textContent = "💀 Oyun bitti! Skor: " + skor;
+    }
+
+    function cizim() {
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#ff4d4d";
+      ctx.fillRect(yem.x * kutuBoyutu, yem.y * kutuBoyutu, kutuBoyutu - 2, kutuBoyutu - 2);
+
+      ctx.fillStyle = "#7cfc00";
+      for (let parca of yilan) {
+        ctx.fillRect(parca.x * kutuBoyutu, parca.y * kutuBoyutu, kutuBoyutu - 2, kutuBoyutu - 2);
+      }
+    }
+
+    cizim();
+  </script>
+</body>
+</html>
