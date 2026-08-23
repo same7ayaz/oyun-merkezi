@@ -83,7 +83,7 @@ function oyunuBaslat() {
   botlar = [];
   yemler = [];
   oyunAktif = true;
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 1600; i++) {
     yemler.push({ x: rastgele(20, DUNYA_GENISLIK - 20), y: rastgele(20, DUNYA_YUKSEKLIK - 20), r: 4 });
   }
   for (let i = 0; i < MAKS_BOT; i++) {
@@ -227,7 +227,7 @@ function dongu() {
   oyuncu.x = Math.max(oyuncu.r, Math.min(DUNYA_GENISLIK - oyuncu.r, oyuncu.x));
   oyuncu.y = Math.max(oyuncu.r, Math.min(DUNYA_YUKSEKLIK - oyuncu.r, oyuncu.y));
 
-  zoom = Math.max(0.08, Math.min(1, 22 / oyuncu.r));
+  zoom = Math.max(0.08, Math.min(0.7, 26 / oyuncu.r));
 
   const viewW = W / zoom;
   const viewH = H / zoom;
