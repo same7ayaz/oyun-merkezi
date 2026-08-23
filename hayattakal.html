@@ -227,7 +227,7 @@ function dongu() {
   oyuncu.x = Math.max(oyuncu.r, Math.min(DUNYA_GENISLIK - oyuncu.r, oyuncu.x));
   oyuncu.y = Math.max(oyuncu.r, Math.min(DUNYA_YUKSEKLIK - oyuncu.r, oyuncu.y));
 
-  zoom = Math.max(0.45, Math.min(1, 22 / oyuncu.r));
+  zoom = Math.max(0.12, Math.min(1, 22 / oyuncu.r));
 
   const viewW = W / zoom;
   const viewH = H / zoom;
