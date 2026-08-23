@@ -7,8 +7,8 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background: #0f0f0f;
-            color: #f0f0f0;
+            background: #2e0000;
+            color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
@@ -18,33 +18,38 @@
             padding: 20px;
         }
         .game-container {
-            background: #1a1a1a;
+            background: #1a0505;
             border-radius: 24px;
             padding: 30px 25px;
             max-width: 650px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            border: 1px solid #333;
+            border: 2px solid #ff5252;
             text-align: center;
         }
-        h1 { font-size: 28px; margin-bottom: 5px; color: #f0f0f0; letter-spacing: 1px; }
-        h1 span { color: #4fc3f7; }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #f0f0f0;
+            letter-spacing: 1px;
+        }
+        h1 span { color: #ff5252; }
         .score-area {
             font-size: 18px;
-            background: #252525;
+            background: #2a0000;
             padding: 12px 15px;
             border-radius: 40px;
             display: inline-block;
             margin: 10px auto 20px auto;
-            border: 1px solid #3a3a3a;
-            color: #bbb;
+            border: 1px solid #ff5252;
+            color: #ff8a80;
         }
-        .score-area strong { color: #fff; font-size: 22px; }
+        .score-area strong { color: #ff5252; font-size: 22px; }
         .game-card {
-            background: #222;
+            background: #1a0505;
             border-radius: 18px;
             padding: 20px 15px 25px 15px;
-            border: 1px solid #333;
+            border: 2px solid #ff5252;
             margin-bottom: 25px;
             position: relative;
             overflow: hidden;
@@ -54,9 +59,9 @@
             width: 100%;
             height: auto;
             aspect-ratio: 1 / 1;
-            background-color: #0a0a0a;
+            background-color: #0a0000;
             border-radius: 14px;
-            border: 2px solid #2a2a2a;
+            border: 2px solid #ff5252;
             touch-action: none;
             cursor: pointer;
         }
@@ -72,8 +77,8 @@
             width: 90px;
             height: 90px;
             border-radius: 50%;
-            background-color: #2a2a2a;
-            border: 2px solid #444;
+            background-color: #2a0000;
+            border: 2px solid #ff5252;
             position: relative;
             touch-action: none;
             flex-shrink: 0;
@@ -83,15 +88,22 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #4fc3f7;
+            background-color: #ff5252;
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
-            box-shadow: 0 0 15px rgba(79, 195, 247, 0.3);
+            box-shadow: 0 0 15px rgba(255, 82, 82, 0.3);
         }
-        .hint-text { color: #777; font-size: 13px; background: #1e1e1e; padding: 8px 16px; border-radius: 30px; border: 1px solid #2c2c2c; }
+        .hint-text {
+            color: #ff8a80;
+            font-size: 13px;
+            background: #2a0000;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #ff5252;
+        }
         .status-area {
             display: flex;
             justify-content: space-between;
@@ -102,17 +114,17 @@
         }
         #durumMesaji {
             font-size: 16px;
-            color: #aaa;
-            background: #1e1e1e;
+            color: #ff8a80;
+            background: #2a0000;
             padding: 10px 18px;
             border-radius: 40px;
-            border: 1px solid #2c2c2c;
+            border: 1px solid #ff5252;
             flex: 1;
             min-width: 140px;
         }
         .btn-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .btn {
-            background: #2a2a2a;
+            background: #2a0000;
             border: none;
             color: #f0f0f0;
             padding: 12px 28px;
@@ -121,38 +133,64 @@
             font-size: 15px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid #3a3a3a;
+            border: 1px solid #ff5252;
         }
-        .btn-primary { background: #4fc3f7; color: #0f0f0f; border-color: #4fc3f7; }
-        .btn-primary:hover { background: #81d4fa; transform: scale(1.02); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-secondary { background: #333; border-color: #555; }
-        .btn-secondary:hover { background: #444; }
+        .btn-primary {
+            background: #ff5252;
+            color: #2e0000;
+            border-color: #ff5252;
+        }
+        .btn-primary:hover {
+            background: #ff8a80;
+            transform: scale(1.02);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #2a0000;
+            border-color: #ff5252;
+            color: #ff8a80;
+        }
+        .btn-secondary:hover { background: #3a0000; }
         .back-link {
             display: inline-block;
             margin-top: 20px;
-            color: #888;
+            color: #ff8a80;
             text-decoration: none;
             font-size: 15px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #ff5252;
             padding-bottom: 3px;
         }
-        .back-link:hover { color: #fff; border-color: #555; }
+        .back-link:hover { color: #ff5252; border-color: #ff5252; }
         #siralamaKutusu {
-            background: #1a1a1a;
-            border: 1px solid #2c2c2c;
+            background: #1a0505;
+            border: 1px solid #ff5252;
             border-radius: 14px;
             padding: 12px 16px;
             margin-top: 16px;
             text-align: left;
             font-size: 14px;
-            color: #ccc;
+            color: #ff8a80;
         }
-        #siralamaKutusu .baslik { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-        #siralamaKutusu .sira-satir { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #252525; }
-        #siralamaKutusu .ben { color: #4fc3f7; font-weight: bold; }
+        #siralamaKutusu .baslik {
+            color: #ff5252;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        #siralamaKutusu .sira-satir {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid #2a0000;
+        }
+        #siralamaKutusu .ben { color: #ffe082; font-weight: bold; }
         #siralamaKutusu .sira-satir:last-child { border-bottom: none; }
-        .footer-note { margin-top: 12px; font-size: 12px; color: #555; }
+        .footer-note { margin-top: 12px; font-size: 12px; color: #664444; }
     </style>
 </head>
 <body>
@@ -228,9 +266,22 @@
 
     function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
+    // --- YILAN OLUŞTURMA (Çoklu segment) ---
+    function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY) {
+        const y = [];
+        for (let i = 0; i < uzunluk; i++) {
+            y.push({
+                x: baslangicX - i * 10 * yonX,
+                y: baslangicY - i * 10 * yonY,
+                r: 12 - i * 0.5
+            });
+        }
+        return y;
+    }
+
     function oyunuBaslat() {
         const oyuncuR = 12;
-        yilan = [{ x: DUNYA_GENISLIK / 2, y: DUNYA_YUKSEKLIK / 2, r: oyuncuR }];
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
         yon = { x: 1, y: 0 };
         skor = oyuncuR;
         oyunBitti = false;
@@ -256,6 +307,7 @@
 
     function botOlustur() {
         const botR = rastgele(8, 25);
+        const uzunluk = Math.floor(rastgele(3, 8));
         let x, y, deneme = 0;
         do {
             x = rastgele(botR + 10, DUNYA_GENISLIK - botR - 10);
@@ -264,7 +316,7 @@
         } while (deneme < 30 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 200);
 
         const bot = {
-            segmentler: [{ x: x, y: y, r: botR }],
+            segmentler: yilanOlustur(x, y, uzunluk, 1, 0),
             yon: { x: rastgele(-1, 1), y: rastgele(-1, 1) },
             renk: RENKLER[Math.floor(Math.random() * RENKLER.length)],
             hedefX: rastgele(50, DUNYA_GENISLIK - 50),
@@ -388,10 +440,17 @@
             return;
         }
 
+        // Oyuncu hareketi
         if (joyVektor.x !== 0 || joyVektor.y !== 0) {
-            const hiz = Math.max(1.5, 6 - skor * 0.02);
+            const hiz = Math.max(1.5, 5 - skor * 0.015);
             yilan[0].x += joyVektor.x * hiz;
             yilan[0].y += joyVektor.y * hiz;
+        }
+
+        // Yılan gövdesini takip ettir
+        for (let i = yilan.length - 1; i > 0; i--) {
+            yilan[i].x = yilan[i-1].x;
+            yilan[i].y = yilan[i-1].y;
         }
 
         const bas = yilan[0];
@@ -400,16 +459,21 @@
             return;
         }
 
+        // Yem yeme
         for (let i = yemler.length - 1; i >= 0; i--) {
             const y = yemler[i];
             if (Math.hypot(bas.x - y.x, bas.y - y.y) < bas.r + y.r) {
                 skor += 0.5;
                 bas.r += 0.3;
+                // Yeni segment ekle (büyüme)
+                const son = yilan[yilan.length - 1];
+                yilan.push({ x: son.x, y: son.y, r: bas.r - 1 });
                 yemler.splice(i, 1);
                 yemUret();
             }
         }
 
+        // Bot hareketi
         for (let bot of botlar) {
             const botBas = bot.segmentler[0];
             bot.yonDegistir++;
@@ -445,24 +509,35 @@
             botBas.x += bot.yon.x * hiz;
             botBas.y += bot.yon.y * hiz;
 
+            // Bot gövdesini takip ettir
+            for (let i = bot.segmentler.length - 1; i > 0; i--) {
+                bot.segmentler[i].x = bot.segmentler[i-1].x;
+                bot.segmentler[i].y = bot.segmentler[i-1].y;
+            }
+
             if (botBas.x < botBas.r || botBas.x > DUNYA_GENISLIK - botBas.r) bot.yon.x *= -1;
             if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.r) bot.yon.y *= -1;
             botBas.x = Math.max(botBas.r, Math.min(DUNYA_GENISLIK - botBas.r, botBas.x));
             botBas.y = Math.max(botBas.r, Math.min(DUNYA_YUKSEKLIK - botBas.r, botBas.y));
 
+            // Bot yem yeme
             for (let i = yemler.length - 1; i >= 0; i--) {
                 const y = yemler[i];
                 if (Math.hypot(botBas.x - y.x, botBas.y - y.y) < botBas.r + y.r) {
                     bot.skor += 0.5;
                     botBas.r += 0.25;
+                    const son = bot.segmentler[bot.segmentler.length - 1];
+                    bot.segmentler.push({ x: son.x, y: son.y, r: botBas.r - 1 });
                     yemler.splice(i, 1);
                     yemUret();
                 }
             }
         }
 
+        // Çarpışma kontrolü
         for (let bot of botlar) {
             const botBas = bot.segmentler[0];
+            // Bot başı oyuncu başına çarparsa
             if (Math.hypot(bas.x - botBas.x, bas.y - botBas.y) < bas.r + botBas.r) {
                 if (bas.r > botBas.r + 3) {
                     skor += bot.skor * 0.3;
@@ -479,6 +554,45 @@
                     botOlustur();
                     oyunuBitir('💀 Berabere!');
                     return;
+                }
+            }
+
+            // Bot gövdesi oyuncu başına çarparsa (oyuncu ölür)
+            for (let i = 1; i < bot.segmentler.length; i++) {
+                const seg = bot.segmentler[i];
+                if (Math.hypot(bas.x - seg.x, bas.y - seg.y) < bas.r + seg.r) {
+                    if (bas.r > bot.skor + 3) {
+                        // Oyuncu büyükse botu yer
+                        skor += bot.skor * 0.2;
+                        bas.r += bot.skor * 0.05;
+                        const index = botlar.indexOf(bot);
+                        botlar.splice(index, 1);
+                        botOlustur();
+                        break;
+                    } else {
+                        oyunuBitir('💀 Bot gövdesine çarptın!');
+                        return;
+                    }
+                }
+            }
+
+            // Oyuncu gövdesi bot başına çarparsa (bot ölür)
+            for (let i = 1; i < yilan.length; i++) {
+                const seg = yilan[i];
+                if (Math.hypot(botBas.x - seg.x, botBas.y - seg.y) < botBas.r + seg.r) {
+                    if (bot.skor > bas.r + 3) {
+                        // Bot büyükse oyuncu ölür
+                        oyunuBitir('💀 Bot sana çarptı!');
+                        return;
+                    } else {
+                        // Bot ölür
+                        skor += bot.skor * 0.2;
+                        bas.r += bot.skor * 0.05;
+                        const index = botlar.indexOf(bot);
+                        botlar.splice(index, 1);
+                        botOlustur();
+                        break;
+                    }
                 }
             }
         }
@@ -508,10 +622,10 @@
         ctx.scale(zoom, zoom);
         ctx.translate(-kamera.x, -kamera.y);
 
-        ctx.fillStyle = '#0a0a0a';
+        ctx.fillStyle = '#0a0000';
         ctx.fillRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-        ctx.strokeStyle = '#151515';
+        ctx.strokeStyle = '#1a0505';
         ctx.lineWidth = 1 / zoom;
         for (let i = 0; i < DUNYA_GENISLIK; i += 50) {
             ctx.beginPath();
@@ -528,7 +642,7 @@
         ctx.lineWidth = 4 / zoom;
         ctx.strokeRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-        ctx.shadowColor = '#4fc3f7';
+        ctx.shadowColor = '#ff5252';
         ctx.shadowBlur = 15 / zoom;
         ctx.fillStyle = '#ff5252';
         for (let y of yemler) {
@@ -538,15 +652,27 @@
         }
         ctx.shadowBlur = 0;
 
+        // Bot yılanları çiz
         for (let bot of botlar) {
+            for (let i = 0; i < bot.segmentler.length; i++) {
+                const seg = bot.segmentler[i];
+                const radius = i === 0 ? seg.r : seg.r * 0.8;
+                ctx.shadowColor = bot.renk;
+                ctx.shadowBlur = i === 0 ? 20 / zoom : 5 / zoom;
+                const grad = ctx.createRadialGradient(
+                    seg.x - radius*0.2, seg.y - radius*0.2, radius*0.1,
+                    seg.x, seg.y, radius
+                );
+                grad.addColorStop(0, '#ffffff88');
+                grad.addColorStop(0.4, bot.renk);
+                grad.addColorStop(1, bot.renk);
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            // Bot gözleri (başta)
             const botBas = bot.segmentler[0];
-            ctx.shadowColor = bot.renk;
-            ctx.shadowBlur = 20 / zoom;
-            ctx.fillStyle = bot.renk;
-            ctx.beginPath();
-            ctx.arc(botBas.x, botBas.y, botBas.r, 0, Math.PI * 2);
-            ctx.fill();
-
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'white';
             const gozR = botBas.r * 0.15;
@@ -556,7 +682,7 @@
             ctx.beginPath();
             ctx.arc(botBas.x + bot.yon.x * botBas.r * 0.3 + bot.yon.y * botBas.r * 0.2, botBas.y + bot.yon.y * botBas.r * 0.3 - bot.yon.x * botBas.r * 0.2, gozR, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#1a1a1a';
+            ctx.fillStyle = '#1a0000';
             const gozBebek = gozR * 0.5;
             ctx.beginPath();
             ctx.arc(botBas.x + bot.yon.x * botBas.r * 0.4 - bot.yon.y * botBas.r * 0.2, botBas.y + bot.yon.y * botBas.r * 0.4 + bot.yon.x * botBas.r * 0.2, gozBebek, 0, Math.PI * 2);
@@ -566,18 +692,27 @@
             ctx.fill();
         }
 
-        const bas = yilan[0];
-        ctx.shadowColor = '#4fc3f7';
-        ctx.shadowBlur = 30 / zoom;
-        const grad = ctx.createRadialGradient(bas.x - bas.r*0.3, bas.y - bas.r*0.3, bas.r*0.1, bas.x, bas.y, bas.r);
-        grad.addColorStop(0, '#fff6d5');
-        grad.addColorStop(0.3, '#ffe082');
-        grad.addColorStop(1, '#ffca28');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(bas.x, bas.y, bas.r, 0, Math.PI * 2);
-        ctx.fill();
+        // Oyuncu yılanını çiz
+        for (let i = 0; i < yilan.length; i++) {
+            const seg = yilan[i];
+            const radius = i === 0 ? seg.r : seg.r * 0.85;
+            ctx.shadowColor = '#ffca28';
+            ctx.shadowBlur = i === 0 ? 30 / zoom : 8 / zoom;
+            const grad = ctx.createRadialGradient(
+                seg.x - radius*0.2, seg.y - radius*0.2, radius*0.1,
+                seg.x, seg.y, radius
+            );
+            grad.addColorStop(0, '#fff6d5');
+            grad.addColorStop(0.3, '#ffe082');
+            grad.addColorStop(1, '#ffca28');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
+        // Oyuncu gözleri (başta)
+        const bas = yilan[0];
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'white';
         const gozR = bas.r * 0.12;
@@ -612,7 +747,8 @@
         durumMesaji.textContent = '🔄 Oyun sıfırlandı';
         baslatBtn.textContent = '▶ Başlat';
         baslatBtn.disabled = false;
-        yilan = [{ x: DUNYA_GENISLIK / 2, y: DUNYA_YUKSEKLIK / 2, r: 12 }];
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
+        yon = { x: 1, y: 0 };
         yemler = [];
         botlar = [];
         for (let i = 0; i < YEM_SAYISI; i++) {
@@ -628,7 +764,7 @@
     let animasyonId;
 
     function baslangic() {
-        yilan = [{ x: DUNYA_GENISLIK / 2, y: DUNYA_YUKSEKLIK / 2, r: 12 }];
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
         yemler = [];
         botlar = [];
         for (let i = 0; i < YEM_SAYISI; i++) {
