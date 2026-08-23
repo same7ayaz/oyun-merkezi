@@ -60,12 +60,36 @@
       background-color: #7cfc00;
       color: #142400;
     }
-    canvas {
-      background-color: rgba(0,0,0,0.35);
+    #oyunAlani {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      max-width: 100%;
+      aspect-ratio: 1;
+      background-color: #0d1f00;
       border: 3px solid #7cfc00;
       border-radius: 14px;
-      max-width: 100%;
+      margin: 0 auto;
+      overflow: hidden;
       touch-action: none;
+    }
+    .parca {
+      position: absolute;
+      width: 6.2%;
+      height: 6.2%;
+      background-color: #7cfc00;
+      border-radius: 30%;
+      transition: left 0.1s linear, top 0.1s linear;
+    }
+    .parca.bas {
+      background-color: #a6ff33;
+    }
+    .yem {
+      position: absolute;
+      width: 6.2%;
+      height: 6.2%;
+      background-color: #ff4d4d;
+      border-radius: 30%;
     }
     #durum {
       font-size: 18px;
@@ -128,7 +152,7 @@
     <button id="btnZor" onclick="zorlukSec('zor')">Zor</button>
   </div>
 
-  <canvas id="oyunAlani" width="300" height="300"></canvas>
+  <div id="oyunAlani"></div>
 
   <p id="durum">Zorluk seç ve "Başlat"a bas</p>
   <button class="baslat" onclick="oyunuBaslat()">▶ Başlat</button>
@@ -143,52 +167,70 @@
   <a href="index.html">⬅ Ana sayfaya dön</a>
 
   <script>
-    const canvas = document.getElementById("oyunAlani");
-    const ctx = canvas.getContext("2d");
-    const kutuBoyutu = 15;
-    const kutuSayisi = canvas.width / kutuBoyutu;
+    const alan = document.getElementById("oyunAlani");
+    const kutuSayisi = 16;
+    const yuzdeAdim = 100 / kutuSayisi;
 
     const hizlar = { kolay: 220, orta: 140, zor: 90 };
     let seciliZorluk = "orta";
     let adimSuresi = hizlar[seciliZorluk];
 
-    let yilan, yon, sonrakiYon, yem, skor, oyunAktif;
-    let sonAdimZamani = 0;
-    let animasyonId = null;
+    let yilan, yon, sonrakiYon, yem, skor, oyunAktif, oyunDongusu;
+    let yemElement = null;
 
     function zorlukSec(zorluk) {
       seciliZorluk = zorluk;
       adimSuresi = hizlar[zorluk];
       document.querySelectorAll(".zorluklar button").forEach(b => b.classList.remove("secili"));
       document.getElementById("btn" + zorluk.charAt(0).toUpperCase() + zorluk.slice(1)).classList.add("secili");
+      if (oyunAktif) {
+        clearInterval(oyunDongusu);
+        oyunDongusu = setInterval(mantikAdimi, adimSuresi);
+      }
     }
 
     function oyunuBaslat() {
-      yilan = [{x: 7, y: 7, onceki: {x: 7, y: 7}}];
+      alan.innerHTML = "";
+      yilan = [{x: 7, y: 7, el: null}];
       yon = {x: 0, y: 0};
       sonrakiYon = {x: 0, y: 0};
       skor = 0;
       oyunAktif = true;
-      sonAdimZamani = performance.now();
       document.getElementById("skor").textContent = "Skor: 0";
       document.getElementById("durum").textContent = "Bir yön seç ve başla!";
+
+      const bas = document.createElement("div");
+      bas.className = "parca bas";
+      konumAyarla(bas, yilan[0].x, yilan[0].y);
+      alan.appendChild(bas);
+      yilan[0].el = bas;
+
       yemUret();
 
-      if (animasyonId) cancelAnimationFrame(animasyonId);
-      requestAnimationFrame(oyunDongusu);
+      if (oyunDongusu) clearInterval(oyunDongusu);
+      oyunDongusu = setInterval(mantikAdimi, adimSuresi);
+    }
+
+    function konumAyarla(el, x, y) {
+      el.style.left = (x * yuzdeAdim) + "%";
+      el.style.top = (y * yuzdeAdim) + "%";
     }
 
     function yemUret() {
-      yem = {
-        x: Math.floor(Math.random() * kutuSayisi),
-        y: Math.floor(Math.random() * kutuSayisi)
-      };
-      for (let parca of yilan) {
-        if (parca.x === yem.x && parca.y === yem.y) {
-          yemUret();
-          return;
-        }
+      let uygun = false;
+      let x, y;
+      while (!uygun) {
+        x = Math.floor(Math.random() * kutuSayisi);
+        y = Math.floor(Math.random() * kutuSayisi);
+        uygun = !yilan.some(p => p.x === x && p.y === y);
       }
+      yem = {x, y};
+
+      if (yemElement) yemElement.remove();
+      yemElement = document.createElement("div");
+      yemElement.className = "yem";
+      konumAyarla(yemElement, x, y);
+      alan.appendChild(yemElement);
     }
 
     function yonDegistir(x, y) {
@@ -204,90 +246,48 @@
     });
 
     function mantikAdimi() {
-      yon = sonrakiYon;
-      const baş = {x: yilan[0].x + yon.x, y: yilan[0].y + yon.y, onceki: {x: yilan[0].x, y: yilan[0].y}};
+      if (!oyunAktif) return;
+      if (yon.x === 0 && yon.y === 0 && sonrakiYon.x === 0 && sonrakiYon.y === 0) return;
 
-      if (baş.x < 0 || baş.x >= kutuSayisi || baş.y < 0 || baş.y >= kutuSayisi) {
+      yon = sonrakiYon;
+      const yeniX = yilan[0].x + yon.x;
+      const yeniY = yilan[0].y + yon.y;
+
+      if (yeniX < 0 || yeniX >= kutuSayisi || yeniY < 0 || yeniY >= kutuSayisi) {
         oyunBitti();
         return;
       }
       for (let parca of yilan) {
-        if (parca.x === baş.x && parca.y === baş.y) {
+        if (parca.x === yeniX && parca.y === yeniY) {
           oyunBitti();
           return;
         }
       }
 
-      for (let i = 0; i < yilan.length; i++) {
-        yilan[i].onceki = {x: yilan[i].x, y: yilan[i].y};
-      }
+      yilan[0].el.classList.remove("bas");
 
-      yilan.unshift(baş);
+      const yeniBas = document.createElement("div");
+      yeniBas.className = "parca bas";
+      konumAyarla(yeniBas, yeniX, yeniY);
+      alan.appendChild(yeniBas);
 
-      if (baş.x === yem.x && baş.y === yem.y) {
+      yilan.unshift({x: yeniX, y: yeniY, el: yeniBas});
+
+      if (yeniX === yem.x && yeniY === yem.y) {
         skor++;
         document.getElementById("skor").textContent = "Skor: " + skor;
         yemUret();
       } else {
-        yilan.pop();
+        const kuyruk = yilan.pop();
+        kuyruk.el.remove();
       }
     }
 
     function oyunBitti() {
       oyunAktif = false;
+      clearInterval(oyunDongusu);
       document.getElementById("durum").textContent = "💀 Oyun bitti! Skor: " + skor;
     }
-
-    function yuvarlatilmisKare(x, y, boyut, yaricap) {
-      ctx.beginPath();
-      ctx.moveTo(x + yaricap, y);
-      ctx.arcTo(x + boyut, y, x + boyut, y + boyut, yaricap);
-      ctx.arcTo(x + boyut, y + boyut, x, y + boyut, yaricap);
-      ctx.arcTo(x, y + boyut, x, y, yaricap);
-      ctx.arcTo(x, y, x + boyut, y, yaricap);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    function oyunDongusu(simdikiZaman) {
-      if (!oyunAktif) return;
-
-      const gecenSure = simdikiZaman - sonAdimZamani;
-
-      if (yon.x !== 0 || yon.y !== 0 || sonrakiYon.x !== 0 || sonrakiYon.y !== 0) {
-        if (gecenSure >= adimSuresi) {
-          mantikAdimi();
-          sonAdimZamani = simdikiZaman;
-        }
-      } else {
-        sonAdimZamani = simdikiZaman;
-      }
-
-      const ilerleme = oyunAktif ? Math.min(gecenSure / adimSuresi, 1) : 1;
-      cizim(ilerleme);
-
-      animasyonId = requestAnimationFrame(oyunDongusu);
-    }
-
-    function cizim(ilerleme) {
-      ctx.fillStyle = "#0d1f00";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#ff4d4d";
-      yuvarlatilmisKare(yem.x * kutuBoyutu + 1, yem.y * kutuBoyutu + 1, kutuBoyutu - 2, 6);
-
-      for (let i = 0; i < yilan.length; i++) {
-        const parca = yilan[i];
-        const gx = parca.onceki.x + (parca.x - parca.onceki.x) * ilerleme;
-        const gy = parca.onceki.y + (parca.y - parca.onceki.y) * ilerleme;
-
-        ctx.fillStyle = i === 0 ? "#a6ff33" : "#7cfc00";
-        const yaricap = i === 0 ? 6 : 5;
-        yuvarlatilmisKare(gx * kutuBoyutu + 1, gy * kutuBoyutu + 1, kutuBoyutu - 2, yaricap);
-      }
-    }
-
-    cizim(1);
   </script>
 </body>
 </html>
