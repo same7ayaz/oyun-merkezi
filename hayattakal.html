@@ -63,9 +63,9 @@
   const canvas = document.getElementById("oyunAlani");
 const ctx = canvas.getContext("2d");
 const W = 360, H = 440;
-const DUNYA_GENISLIK = 2200;
-const DUNYA_YUKSEKLIK = 2200;
-const MAKS_BOT = 14;
+const DUNYA_GENISLIK = 6000;
+const DUNYA_YUKSEKLIK = 6000;
+const MAKS_BOT = 23;
 const ALGILAMA_MESAFESI = 160;
 const TAKIP_SURESI = 10000;
 const RENKLER = ["#ff8a65","#4fc3f7","#ba68c8","#ffd54f","#4db6ac","#f06292","#90a4ae","#aed581"];
@@ -83,7 +83,7 @@ function oyunuBaslat() {
   botlar = [];
   yemler = [];
   oyunAktif = true;
-  for (let i = 0; i < 130; i++) {
+  for (let i = 0; i < 400; i++) {
     yemler.push({ x: rastgele(20, DUNYA_GENISLIK - 20), y: rastgele(20, DUNYA_YUKSEKLIK - 20), r: 4 });
   }
   for (let i = 0; i < MAKS_BOT; i++) {
@@ -227,7 +227,7 @@ function dongu() {
   oyuncu.x = Math.max(oyuncu.r, Math.min(DUNYA_GENISLIK - oyuncu.r, oyuncu.x));
   oyuncu.y = Math.max(oyuncu.r, Math.min(DUNYA_YUKSEKLIK - oyuncu.r, oyuncu.y));
 
-  zoom = Math.max(0.12, Math.min(1, 22 / oyuncu.r));
+  zoom = Math.max(0.08, Math.min(1, 22 / oyuncu.r));
 
   const viewW = W / zoom;
   const viewH = H / zoom;
