@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Sayı Tahmin Oyunu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
     body {
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      background-size: 400% 400%;
-      animation: gradientAkis 15s ease infinite;
+      background: linear-gradient(-45deg, #001a2e, #003b52, #012e4a, #00506b, #001f33);
+      background-size: 500% 500%;
+      animation: gradientAkis 14s ease infinite;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Poppins', sans-serif;
       text-align: center;
-      padding-top: 80px;
+      padding: 50px 20px;
       min-height: 100vh;
       margin: 0;
     }
@@ -20,44 +23,70 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #00d4ff, 0 0 30px #00d4ff; }
+      50% { text-shadow: 0 0 25px #00d4ff, 0 0 50px #00d4ff; }
+    }
     h1 {
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+      color: #00d4ff;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 34px;
+      font-weight: 700;
+    }
+    p.aciklama {
+      font-size: 17px;
+      opacity: 0.85;
+      margin-bottom: 40px;
     }
     input {
-      padding: 10px;
-      font-size: 18px;
-      border-radius: 6px;
+      padding: 18px;
+      font-size: 26px;
+      border-radius: 12px;
       border: none;
-      width: 100px;
+      width: 140px;
       text-align: center;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
     }
     button {
-      background-color: #00fff2;
+      background-color: #00d4ff;
       border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
+      padding: 18px 28px;
+      font-size: 20px;
+      font-weight: 600;
+      border-radius: 12px;
       cursor: pointer;
-      margin-left: 8px;
+      margin-left: 10px;
+      transition: transform 0.15s;
+      font-family: 'Poppins', sans-serif;
+    }
+    button:active {
+      transform: scale(0.94);
     }
     #sonuc {
-      font-size: 20px;
-      margin-top: 30px;
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 36px;
+      min-height: 36px;
     }
     a {
-      color: #00fff2;
-      display: block;
-      margin-top: 40px;
+      color: #00d4ff;
+      display: inline-block;
+      margin-top: 50px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <h1>Sayı Tahmin Oyunu</h1>
-  <p>1 ile 100 arasında bir sayı tuttum, bulabilir misin?</p>
+  <h1>🔢 Sayı Tahmin Oyunu</h1>
+  <p class="aciklama">1 ile 100 arasında bir sayı tuttum, bulabilir misin?</p>
 
-  <input type="number" id="tahmin" placeholder="Tahminin">
-  <button onclick="kontrolEt()">Tahmin Et</button>
+  <div>
+    <input type="number" id="tahmin" placeholder="?">
+    <button onclick="kontrolEt()">Tahmin Et</button>
+  </div>
 
   <p id="sonuc"></p>
 
