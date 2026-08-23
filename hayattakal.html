@@ -37,7 +37,6 @@
             background: transparent;
         }
 
-        /* HUD */
         #hud {
             position: fixed;
             top: 20px;
@@ -55,6 +54,7 @@
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 0.3px;
+            pointer-events: none;
         }
 
         #hud span {
@@ -74,7 +74,6 @@
             color: #60a5fa;
         }
 
-        /* Game Over */
         #gameOver {
             position: fixed;
             top: 0;
@@ -162,7 +161,6 @@
             }
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             #hud {
                 font-size: 13px;
@@ -192,14 +190,12 @@
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- HUD -->
         <div id="hud">
             <div>🏆 <span class="value score-value" id="scoreDisplay">0</span></div>
             <div>📏 <span class="value size-value" id="sizeDisplay">30</span></div>
             <div>👾 <span class="value" id="botCountDisplay">0</span></div>
         </div>
 
-        <!-- Game Over -->
         <div id="gameOver">
             <h1>💀 ÖLDÜN</h1>
             <div class="sub">Puanın</div>
@@ -211,10 +207,7 @@
 
     <script>
         // ============================================================
-        //  HAYATTA KAL - Gelişmiş versiyon
-        //  + Sonsuz döngü fix
-        //  + Dinamik bot boyutları
-        //  + Otomatik harita genişletme
+        //  HAYATTA KAL - Düzeltilmiş sürüm
         // ============================================================
 
         const canvas = document.getElementById('gameCanvas');
@@ -229,17 +222,14 @@
         resizeCanvas();
         window.addEventListener('resize', () => {
             resizeCanvas();
-            // Kamera merkezini güncelle
             if (player) {
                 camera.x = player.x - W / 2;
                 camera.y = player.y - H / 2;
             }
         });
 
-        // --------------------- KAMERA ---------------------
         const camera = { x: 0, y: 0 };
 
-        // --------------------- OYUNCU ---------------------
         let player = {
             x: 0,
             y: 0,
@@ -251,23 +241,19 @@
             score: 0
         };
 
-        // --------------------- BOTLAR ---------------------
         let bots = [];
         const MAX_BOTS = 35;
         let botSpawnTimer = 0;
-        const BOT_SPAWN_INTERVAL = 60; // frame
+        const BOT_SPAWN_INTERVAL = 60;
 
-        // --------------------- KONTROLLER ---------------------
         const keys = {};
         let mouseX = 0,
             mouseY = 0;
         let useMouseControl = false;
 
-        // --------------------- OYUN DURUMU ---------------------
         let gameRunning = true;
         let frameCount = 0;
 
-        // --------------------- REFERANSLAR ---------------------
         const scoreDisplay = document.getElementById('scoreDisplay');
         const sizeDisplay = document.getElementById('sizeDisplay');
         const botCountDisplay = document.getElementById('botCountDisplay');
@@ -296,23 +282,20 @@
         }
 
         // ============================================================
-        //  BOT OLUŞTURMA (FIX: sonsuz döngü yok!)
+        //  BOT OLUŞTURMA
         // ============================================================
 
-        function createBot(attempt = 0) {
-            // Dinamik boyut: oyuncunun %30 ile %200'si arası
+        function createBot(attempt) {
             const sizeRatio = random(0.30, 2.0);
             const radius = Math.max(8, player.radius * sizeRatio);
 
-            // Renk: boyuta göre (büyük = kırmızı, küçük = yeşil)
-            const hue = 120 - (sizeRatio - 0.3) * 100; // 120'den 20'ye
+            const hue = 120 - (sizeRatio - 0.3) * 100;
             const sat = 70 + sizeRatio * 20;
             const lig = 50 + sizeRatio * 10;
             const color = `hsl(${clamp(hue, 20, 120)}, ${clamp(sat, 50, 100)}%, ${clamp(lig, 40, 80)}%)`;
 
-            // Harita sınırları (oyuncunun etrafında geniş alan)
             const mapPadding = 300;
-            const mapSize = 2000 + player.radius * 4 + attempt * 100; // Her denemede büyür
+            const mapSize = 2000 + player.radius * 4 + attempt * 100;
 
             let x, y;
             let found = false;
@@ -321,20 +304,16 @@
 
             while (!found && attempts < maxAttempts) {
                 attempts++;
-
-                // Oyuncudan uzakta olmaya çalış (min 300px)
                 const angle = random(0, Math.PI * 2);
                 const dist = random(300, Math.min(1200, mapSize / 2));
 
                 x = player.x + Math.cos(angle) * dist;
                 y = player.y + Math.sin(angle) * dist;
 
-                // Harita sınırları içinde mi?
                 if (x < -mapSize / 2 || x > mapSize / 2 || y < -mapSize / 2 || y > mapSize / 2) {
                     continue;
                 }
 
-                // Diğer botlarla çakışma kontrolü
                 let overlaps = false;
                 for (const b of bots) {
                     if (distance(x, y, b.x, b.y) < radius + b.radius + 20) {
@@ -343,7 +322,6 @@
                     }
                 }
 
-                // Oyuncuyla çakışma
                 if (distance(x, y, player.x, player.y) < radius + player.radius + 30) {
                     overlaps = true;
                 }
@@ -353,9 +331,7 @@
                 }
             }
 
-            // Eğer yer bulunamazsa, haritayı genişlet ve dene
             if (!found) {
-                // Harita sınırlarını zorla genişlet
                 const angle = random(0, Math.PI * 2);
                 const dist = 800 + attempt * 150;
                 x = player.x + Math.cos(angle) * dist;
@@ -367,13 +343,12 @@
                 y: y,
                 radius: radius,
                 color: color,
-                speed: random(0.5, 2.0) * (1 + (1 - sizeRatio) * 0.5), // küçükler hızlı
+                speed: random(0.5, 2.0) * (1 + (1 - sizeRatio) * 0.5),
                 angle: random(0, Math.PI * 2),
                 turnTimer: 0,
                 turnInterval: randomInt(60, 200),
                 sizeRatio: sizeRatio,
                 isBig: sizeRatio > 1.0,
-                // Büyük botlar daha yavaş döner
                 turnSpeed: sizeRatio > 1.0 ? random(0.01, 0.03) : random(0.02, 0.06)
             };
         }
@@ -402,7 +377,6 @@
 
             gameOverEl.classList.remove('show');
 
-            // Başlangıç botları
             for (let i = 0; i < 12; i++) {
                 const bot = createBot(i);
                 bots.push(bot);
@@ -420,12 +394,10 @@
 
             frameCount++;
 
-            // ---- 1. OYUNCU KONTROLÜ ----
             let dx = 0,
                 dy = 0;
 
             if (useMouseControl) {
-                // Mouse / touch kontrol
                 const targetX = mouseX + camera.x;
                 const targetY = mouseY + camera.y;
                 const distToMouse = distance(player.x, player.y, targetX, targetY);
@@ -437,13 +409,11 @@
                     dy = Math.sin(angle) * moveSpeed;
                 }
             } else {
-                // Klavye kontrolü
                 if (keys['w'] || keys['W'] || keys['ArrowUp']) dy = -player.speed;
                 if (keys['s'] || keys['S'] || keys['ArrowDown']) dy = player.speed;
                 if (keys['a'] || keys['A'] || keys['ArrowLeft']) dx = -player.speed;
                 if (keys['d'] || keys['D'] || keys['ArrowRight']) dx = player.speed;
 
-                // Normalize
                 const len = Math.hypot(dx, dy);
                 if (len > 0) {
                     dx = dx / len * player.speed;
@@ -454,16 +424,12 @@
             player.x += dx;
             player.y += dy;
 
-            // ---- 2. OYUNCU BOYUT GÜNCELLEME ----
-            // Yavaşça hedef boyuta yaklaş
             player.radius += (player.targetRadius - player.radius) * 0.05;
             player.radius = Math.max(10, player.radius);
 
-            // ---- 3. BOTLARI GÜNCELLE ----
             for (let i = bots.length - 1; i >= 0; i--) {
                 const bot = bots[i];
 
-                // Hareket
                 bot.turnTimer++;
                 if (bot.turnTimer > bot.turnInterval) {
                     bot.turnTimer = 0;
@@ -471,7 +437,6 @@
                     bot.turnInterval = randomInt(40, 180);
                 }
 
-                // Oyuncuya doğru eğilim (büyük botlar oyuncuyu kovalar)
                 if (bot.isBig) {
                     const angleToPlayer = Math.atan2(player.y - bot.y, player.x - bot.x);
                     bot.angle += (angleToPlayer - bot.angle) * 0.01;
@@ -481,33 +446,27 @@
                 bot.x += Math.cos(bot.angle) * bot.speed;
                 bot.y += Math.sin(bot.angle) * bot.speed;
 
-                // Sınırlar (geniş harita)
                 const limit = 1200 + player.radius * 3;
                 if (bot.x > limit) bot.x = -limit;
                 if (bot.x < -limit) bot.x = limit;
                 if (bot.y > limit) bot.y = -limit;
                 if (bot.y < -limit) bot.y = limit;
 
-                // ---- 4. ÇARPIŞMA KONTROLLERİ ----
-                // Oyuncu ile bot çarpışması
                 const distToPlayer = distance(player.x, player.y, bot.x, bot.y);
                 const threshold = player.radius + bot.radius;
 
                 if (distToPlayer < threshold) {
                     if (player.radius > bot.radius * 1.15) {
-                        // Oyuncu botu yedi ✅
                         player.targetRadius += bot.radius * 0.08;
                         player.score += Math.floor(bot.radius * 0.5) + 1;
                         bots.splice(i, 1);
                         continue;
                     } else if (bot.radius > player.radius * 1.15) {
-                        // Bot oyuncuyu yedi 💀
                         player.alive = false;
                         gameRunning = false;
                         showGameOver();
                         return;
                     } else {
-                        // Eşit veya yakın - itişme
                         const angle = Math.atan2(bot.y - player.y, bot.x - player.x);
                         const overlap = threshold - distToPlayer + 2;
                         player.x -= Math.cos(angle) * overlap * 0.5;
@@ -517,7 +476,6 @@
                     }
                 }
 
-                // Bot-bot çarpışması (basit itişme)
                 for (let j = i - 1; j >= 0; j--) {
                     const other = bots[j];
                     const d = distance(bot.x, bot.y, other.x, other.y);
@@ -534,7 +492,6 @@
                 }
             }
 
-            // ---- 5. BOT EKLEME ----
             botSpawnTimer++;
             if (botSpawnTimer > BOT_SPAWN_INTERVAL && bots.length < MAX_BOTS) {
                 const bot = createBot(bots.length);
@@ -542,11 +499,9 @@
                 botSpawnTimer = 0;
             }
 
-            // ---- 6. KAMERA ----
             camera.x = player.x - W / 2;
             camera.y = player.y - H / 2;
 
-            // ---- 7. HUD ----
             updateHUD();
         }
 
@@ -557,8 +512,7 @@
         function draw() {
             ctx.clearRect(0, 0, W, H);
 
-            // ---- ARKA PLAN ----
-            // Grid efekti
+            // Arka plan grid
             const gridSize = 80;
             const offsetX = -camera.x % gridSize;
             const offsetY = -camera.y % gridSize;
@@ -566,14 +520,12 @@
             ctx.strokeStyle = 'rgba(255,255,255,0.04)';
             ctx.lineWidth = 1;
 
-            // Dikey çizgiler
             for (let x = offsetX - gridSize; x < W + gridSize; x += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, H);
                 ctx.stroke();
             }
-            // Yatay çizgiler
             for (let y = offsetY - gridSize; y < H + gridSize; y += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
@@ -581,7 +533,7 @@
                 ctx.stroke();
             }
 
-            // ---- IŞINLAR (ambient) ----
+            // Işınlar
             const gradient = ctx.createRadialGradient(
                 W / 2, H / 2, 0,
                 W / 2, H / 2, Math.max(W, H) * 0.7
@@ -591,17 +543,72 @@
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, W, H);
 
-            // ---- BOTLAR ----
+            // Botlar
             for (const bot of bots) {
                 const sx = bot.x - camera.x;
                 const sy = bot.y - camera.y;
 
-                // Gölge
                 ctx.shadowColor = 'rgba(0,0,0,0.3)';
                 ctx.shadowBlur = 15;
 
-                // Gövde
                 const grad = ctx.createRadialGradient(
                     sx - bot.radius * 0.2, sy - bot.radius * 0.2, 0,
                     sx, sy, bot.radius
-            
+                );
+                grad.addColorStop(0, bot.color);
+                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+
+                ctx.beginPath();
+                ctx.arc(sx, sy, bot.radius, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                const highlight = ctx.createRadialGradient(
+                    sx - bot.radius * 0.3, sy - bot.radius * 0.3, 0,
+                    sx - bot.radius * 0.3, sy - bot.radius * 0.3, bot.radius * 0.4
+                );
+                highlight.addColorStop(0, 'rgba(255,255,255,0.3)');
+                highlight.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.beginPath();
+                ctx.arc(sx, sy, bot.radius, 0, Math.PI * 2);
+                ctx.fillStyle = highlight;
+                ctx.fill();
+
+                // Gözler
+                const eyeSize = bot.radius * 0.15;
+                const eyeOffset = bot.radius * 0.3;
+                const eyeY = sy - bot.radius * 0.1;
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(sx - eyeOffset, eyeY, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(sx + eyeOffset, eyeY, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = bot.isBig ? '#ef4444' : '#22c55e';
+                const pupilOffset = bot.isBig ? 0 : -2;
+                ctx.beginPath();
+                ctx.arc(sx - eyeOffset + pupilOffset, eyeY + 1, eyeSize * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(sx + eyeOffset + pupilOffset, eyeY + 1, eyeSize * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.font = `${bot.radius * 0.4}px monospace`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                const label = bot.isBig ? '🐉' : '🐣';
+                ctx.fillText(label, sx, sy - bot.radius - 4);
+            }
+
+            // Oyuncu
+            const px = player.x - camera.x;
+            const py = player.y - camera.y;
+
+            ct
