@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Taş Kağıt Makas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
     body {
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      background-size: 400% 400%;
-      animation: gradientAkis 15s ease infinite;
+      background: linear-gradient(-45deg, #3a1a00, #5c2e00, #4a2000, #6b3800, #331500);
+      background-size: 500% 500%;
+      animation: gradientAkis 14s ease infinite;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Poppins', sans-serif;
       text-align: center;
-      padding-top: 60px;
+      padding: 50px 20px;
       min-height: 100vh;
       margin: 0;
     }
@@ -20,62 +23,116 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #ffb300, 0 0 30px #ffb300; }
+      50% { text-shadow: 0 0 25px #ffb300, 0 0 50px #ffb300; }
+    }
     h1 {
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+      color: #ffb300;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 34px;
+      font-weight: 700;
+    }
+    p.aciklama {
+      font-size: 17px;
+      opacity: 0.85;
+      margin-bottom: 40px;
+    }
+    .butonlar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
     button {
-      background-color: #00fff2;
-      border: none;
-      padding: 15px 20px;
-      font-size: 28px;
-      border-radius: 10px;
+      background-color: rgba(255,255,255,0.08);
+      border: 3px solid #ffb300;
+      padding: 20px;
+      font-size: 46px;
+      border-radius: 20px;
       cursor: pointer;
-      margin: 10px;
+      transition: transform 0.15s, background-color 0.15s;
+      width: 100px;
+      height: 100px;
+    }
+    button:active {
+      transform: scale(0.9);
+      background-color: #ffb300;
     }
     #sonuc {
       font-size: 22px;
-      margin-top: 30px;
+      font-weight: 600;
+      margin-top: 40px;
+      min-height: 60px;
+      line-height: 1.5;
+    }
+    #skor {
+      font-size: 16px;
+      opacity: 0.75;
+      margin-top: 10px;
     }
     a {
-      color: #00fff2;
-      display: block;
+      color: #ffb300;
+      display: inline-block;
       margin-top: 40px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+    }
+    @keyframes sallanma {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg); }
+      75% { transform: rotate(15deg); }
+    }
+    .sallan {
+      animation: sallanma 0.4s ease;
     }
   </style>
 </head>
 <body>
-  <h1>Taş Kağıt Makas</h1>
-  <p>Bir seçim yap:</p>
+  <h1>✊✋✌️ Taş Kağıt Makas</h1>
+  <p class="aciklama">Bir seçim yap:</p>
 
-  <button onclick="oyna('taş')">✊</button>
-  <button onclick="oyna('kağıt')">✋</button>
-  <button onclick="oyna('makas')">✌️</button>
+  <div class="butonlar">
+    <button onclick="oyna('taş', this)">✊</button>
+    <button onclick="oyna('kağıt', this)">✋</button>
+    <button onclick="oyna('makas', this)">✌️</button>
+  </div>
 
   <p id="sonuc"></p>
+  <p id="skor">Kazandın: 0 | Kaybettin: 0 | Berabere: 0</p>
 
   <a href="index.html">⬅ Ana sayfaya dön</a>
 
   <script>
-    function oyna(oyuncu) {
+    let kazandi = 0, kaybetti = 0, berabere = 0;
+
+    function oyna(oyuncu, btn) {
+      btn.classList.add("sallan");
+      setTimeout(() => btn.classList.remove("sallan"), 400);
+
       let secenekler = ["taş", "kağıt", "makas"];
       let bilgisayar = secenekler[Math.floor(Math.random() * 3)];
       let sonucYazisi = document.getElementById("sonuc");
       let sonuc = "";
 
       if (oyuncu === bilgisayar) {
-        sonuc = "Berabere! İkimiz de " + bilgisayar + " seçtik.";
+        sonuc = "🤝 Berabere! İkimiz de " + bilgisayar + " seçtik.";
+        berabere++;
       } else if (
         (oyuncu === "taş" && bilgisayar === "makas") ||
         (oyuncu === "kağıt" && bilgisayar === "taş") ||
         (oyuncu === "makas" && bilgisayar === "kağıt")
       ) {
-        sonuc = "Kazandın! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+        sonuc = "🎉 Kazandın! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+        kazandi++;
       } else {
-        sonuc = "Kaybettin! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+        sonuc = "😔 Kaybettin! Sen " + oyuncu + ", bilgisayar " + bilgisayar + " seçti.";
+        kaybetti++;
       }
 
       sonucYazisi.innerHTML = sonuc;
+      document.getElementById("skor").textContent = "Kazandın: " + kazandi + " | Kaybettin: " + kaybetti + " | Berabere: " + berabere;
     }
   </script>
 </body>
