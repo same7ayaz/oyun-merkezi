@@ -110,11 +110,13 @@ function botUret() {
     y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
     deneme++;
   }
+  const renkler = ["#ff8a65","#4fc3f7","#ba68c8","#ffd54f","#4db6ac","#f06292","#90a4ae","#aed581"];
   botlar.push({
     x: x, y: y, r: r,
     vx: rastgele(-1, 1), vy: rastgele(-1, 1),
     yonSayaci: 0,
-    davranisBasi: 0
+    davranisBasi: 0,
+    renk: renkler[Math.floor(Math.random() * renkler.length)]
   });
 }
 
@@ -304,10 +306,44 @@ function cizim() {
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
     const sx = bot.x - kamera.x, sy = bot.y - kamera.y;
-    ctx.fillStyle = bot.r < oyuncu.r ? "#2ecc71" : "#ff5252";
+    const tehlikeli = bot.r > oyuncu.r;
+    const halkaRengi = tehlikeli ? "#ff1744" : "#00e676";
+
+    const grad = ctx.createRadialGradient(sx - bot.r*0.3, sy - bot.r*0.3, bot.r*0.1, sx, sy, bot.r);
+    grad.addColorStop(0, "#ffffff44");
+    grad.addColorStop(0.3, bot.renk);
+    grad.addColorStop(1, bot.renk);
+
     ctx.beginPath();
     ctx.arc(sx, sy, bot.r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
     ctx.fill();
+
+    ctx.lineWidth = Math.max(2, bot.r * 0.15);
+    ctx.strokeStyle = halkaRengi;
+    ctx.stroke();
+  }
+
+  const px = oyuncu.x - kamera.x, py = oyuncu.y - kamera.y;
+  const pGrad = ctx.createRadialGradient(px - oyuncu.r*0.3, py - oyuncu.r*0.3, oyuncu.r*0.1, px, py, oyuncu.r);
+  pGrad.addColorStop(0, "#fff6d5");
+  pGrad.addColorStop(0.3, "#ffe082");
+  pGrad.addColorStop(1, "#ffca28");
+
+  ctx.beginPath();
+  ctx.arc(px, py, oyuncu.r, 0, Math.PI * 2);
+  ctx.fillStyle = pGrad;
+  ctx.fill();
+  ctx.lineWidth = Math.max(2, oyuncu.r * 0.12);
+  ctx.strokeStyle = "#fff";
+  ctx.stroke();
+
+  const gozR = oyuncu.r * 0.12;
+  ctx.fillStyle = "#3e2723";
+  ctx.beginPath();
+  ctx.arc(px - oyuncu.r*0.28, py - oyuncu.r*0.15, gozR, 0, Math.PI*2);
+  ctx.arc(px + oyuncu.r*0.28, py - oyuncu.r*0.15, gozR, 0, Math.PI*2);
+  ctx.fill();
   }
 
   ctx.fillStyle = "#ffe082";
