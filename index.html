@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Oyun Merkezi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
   <style>
@@ -10,13 +11,13 @@
       box-sizing: border-box;
     }
     body {
-      background: linear-gradient(-45deg, #0f0c29, #302b63, #1b1b4d, #2a1a4a, #24243e);
-      background-size: 400% 400%;
-      animation: gradientAkis 12s ease infinite;
+      background: linear-gradient(-45deg, #0f0c29, #4a1a6b, #1b1b4d, #6b1a5c, #24243e, #1a3a6b);
+      background-size: 500% 500%;
+      animation: gradientAkis 16s ease infinite;
       color: white;
       font-family: 'Poppins', sans-serif;
       text-align: center;
-      padding-top: 60px;
+      padding: 50px 16px;
       min-height: 100vh;
       margin: 0;
     }
@@ -36,59 +37,83 @@
       100% { color: #00fff2; text-shadow: 0 0 15px #00fff2, 0 0 30px #00fff2; }
     }
     @keyframes kenarlikRenkleri {
-      0%   { border-color: #00fff2; box-shadow: 0 0 10px rgba(0,255,242,0.4); }
-      33%  { border-color: #ff00e5; box-shadow: 0 0 10px rgba(255,0,229,0.4); }
-      66%  { border-color: #7c4dff; box-shadow: 0 0 10px rgba(124,77,255,0.4); }
-      100% { border-color: #00fff2; box-shadow: 0 0 10px rgba(0,255,242,0.4); }
+      0%   { border-color: #00fff2; box-shadow: 0 0 20px rgba(0,255,242,0.35); }
+      33%  { border-color: #ff00e5; box-shadow: 0 0 20px rgba(255,0,229,0.35); }
+      66%  { border-color: #7c4dff; box-shadow: 0 0 20px rgba(124,77,255,0.35); }
+      100% { border-color: #00fff2; box-shadow: 0 0 20px rgba(0,255,242,0.35); }
+    }
+    @keyframes ikonSallanma {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-6deg) scale(1.05); }
+      75% { transform: rotate(6deg) scale(1.05); }
     }
     h1 {
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 700;
       animation: girisAnimasyonu 0.6s ease, renkGecisi 6s linear infinite;
+      margin-bottom: 6px;
     }
     p.altyazi {
-      opacity: 0.8;
+      opacity: 0.85;
       animation: girisAnimasyonu 0.6s ease 0.1s backwards;
+      margin-top: 0;
+      margin-bottom: 36px;
     }
     .kartlar {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      max-width: 420px;
+      margin: 0 auto;
     }
     .kart {
-      display: inline-block;
-      background-color: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background-color: rgba(255,255,255,0.06);
       border: 2px solid #00fff2;
-      margin: 15px;
-      padding: 25px;
-      border-radius: 12px;
-      width: 200px;
+      padding: 24px 26px;
+      border-radius: 18px;
+      width: 100%;
       text-decoration: none;
       color: white;
-      transition: transform 0.2s, background-color 0.2s, color 0.2s;
+      transition: transform 0.2s, background-color 0.2s;
       animation: girisAnimasyonu 0.6s ease backwards, kenarlikRenkleri 5s linear infinite;
     }
-    .kart:nth-child(1) { animation-delay: 0.15s, 0s; }
-    .kart:nth-child(2) { animation-delay: 0.3s, 1.2s; }
-    .kart:nth-child(3) { animation-delay: 0.45s, 2.4s; }
+    .kart:nth-child(1) { animation-delay: 0.1s, 0s; }
+    .kart:nth-child(2) { animation-delay: 0.2s, 1.3s; }
+    .kart:nth-child(3) { animation-delay: 0.3s, 2.6s; }
+    .kart:nth-child(4) { animation-delay: 0.4s, 3.9s; }
     .kart:hover {
-      background-color: rgba(255,255,255,0.15);
-      transform: scale(1.07);
+      background-color: rgba(255,255,255,0.16);
+      transform: scale(1.04) translateX(4px);
     }
     .kart:active {
       transform: scale(0.97);
     }
-    .kart h2 {
-      margin: 0;
-      font-size: 32px;
+    .kart .ikon {
+      font-size: 52px;
+      line-height: 1;
+      animation: ikonSallanma 3s ease-in-out infinite;
+      flex-shrink: 0;
     }
-    .kart p {
+    .kart .metin {
+      text-align: left;
+    }
+    .kart .metin h2 {
+      margin: 0;
+      font-size: 21px;
       font-weight: 600;
-      margin: 8px 0 0;
+    }
+    .kart .metin p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      opacity: 0.7;
     }
     footer {
-      margin-top: 60px;
-      padding-bottom: 20px;
+      margin-top: 50px;
+      padding-bottom: 10px;
       font-size: 13px;
       opacity: 0.5;
     }
@@ -100,18 +125,27 @@
 
   <div class="kartlar">
     <a class="kart" href="tahmin.html">
-      <h2>🔢</h2>
-      <p>Sayı Tahmin</p>
+      <div class="ikon">🔢</div>
+      <div class="metin">
+        <h2>Sayı Tahmin</h2>
+        <p>1-100 arası doğru sayıyı bul</p>
+      </div>
     </a>
 
     <a class="kart" href="taskagit.html">
-      <h2>✊✋✌️</h2>
-      <p>Taş-Kağıt-Makas</p>
+      <div class="ikon">✊✋✌️</div>
+      <div class="metin">
+        <h2>Taş-Kağıt-Makas</h2>
+        <p>Bilgisayara karşı klasik oyun</p>
+      </div>
     </a>
 
     <a class="kart" href="hafiza.html">
-      <h2>🧠</h2>
-      <p>Hafıza Kartları</p>
+      <div class="ikon">🧠</div>
+      <div class="metin">
+        <h2>Hafıza Kartları</h2>
+        <p>Eşleşen çiftleri bul</p>
+      </div>
     </a>
   </div>
 
