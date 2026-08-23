@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hayatta Kal - Oyun Merkezi</title>
+    <title>Hayatta Kal</title>
     <style>
         * {
             margin: 0;
@@ -13,201 +13,256 @@
         }
 
         body {
-            background: #0a0a0f;
+            background: #0f0f1a;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        #gameContainer {
+        .game-wrapper {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .game-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
+            width: 800px;
+            height: 600px;
+            border-radius: 16px;
             overflow: hidden;
+            background: #0a0a12;
         }
 
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background: #0a0a12;
+            touch-action: none;
         }
 
-        #hud {
-            position: fixed;
-            top: 20px;
+        /* HUD */
+        .hud {
+            position: absolute;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            padding: 12px 28px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 10;
+            gap: 24px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 8px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
-            letter-spacing: 0.3px;
+            z-index: 10;
             pointer-events: none;
         }
 
-        #hud span {
-            color: #8b8ba8;
+        .hud span {
+            color: #8888aa;
         }
 
-        #hud .value {
+        .hud .val {
             color: #fff;
-            font-weight: 700;
         }
 
-        #hud .score-value {
+        .hud .score-val {
             color: #fbbf24;
         }
 
-        #hud .size-value {
+        .hud .size-val {
             color: #60a5fa;
         }
 
-        #gameOver {
-            position: fixed;
+        /* Joystick */
+        .joystick-area {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            z-index: 10;
+            touch-action: none;
+        }
+
+        .joystick-knob {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #60a5fa, #2563eb);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+            transition: none;
+            pointer-events: none;
+        }
+
+        /* Game Over */
+        .game-over {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
             display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 20;
-            animation: fadeIn 0.5s ease;
+            border-radius: 16px;
         }
 
-        #gameOver.show {
+        .game-over.show {
             display: flex;
         }
 
-        #gameOver h1 {
-            font-size: 64px;
+        .game-over h1 {
+            font-size: 48px;
             color: #ef4444;
-            margin-bottom: 8px;
-            text-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
-        }
-
-        #gameOver .sub {
-            color: #8b8ba8;
-            font-size: 18px;
             margin-bottom: 4px;
         }
 
-        #gameOver .final-score {
-            color: #fbbf24;
-            font-size: 48px;
-            font-weight: 800;
-            margin: 8px 0 24px;
+        .game-over .sub {
+            color: #8888aa;
+            font-size: 16px;
         }
 
-        #restartBtn {
+        .game-over .final-score {
+            color: #fbbf24;
+            font-size: 40px;
+            font-weight: 700;
+            margin: 6px 0 20px;
+        }
+
+        .btn {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             border: none;
             color: white;
-            padding: 14px 48px;
-            border-radius: 12px;
-            font-size: 18px;
+            padding: 12px 36px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
         }
 
-        #restartBtn:hover {
+        .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.5);
         }
 
-        #homeBtn {
+        .btn-home {
             background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            padding: 12px 32px;
-            border-radius: 12px;
-            font-size: 15px;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 12px;
+            margin-top: 10px;
             text-decoration: none;
         }
 
-        #homeBtn:hover {
+        .btn-home:hover {
             background: rgba(255, 255, 255, 0.15);
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
+        /* Responsive */
+        @media (max-width: 850px) {
+            .game-container {
+                width: 95vw;
+                height: 80vh;
             }
-            to {
-                opacity: 1;
-                transform: scale(1);
+            .game-wrapper {
+                padding: 10px;
+                border-radius: 16px;
+            }
+            .joystick-area {
+                width: 100px;
+                height: 100px;
+                bottom: 20px;
+                left: 20px;
+            }
+            .joystick-knob {
+                width: 40px;
+                height: 40px;
+            }
+            .hud {
+                font-size: 12px;
+                padding: 6px 14px;
+                gap: 14px;
+                top: 8px;
             }
         }
 
-        @media (max-width: 600px) {
-            #hud {
-                font-size: 13px;
-                padding: 8px 16px;
-                gap: 16px;
-                top: 12px;
-                flex-wrap: wrap;
-                justify-content: center;
+        @media (max-width: 500px) {
+            .joystick-area {
+                width: 80px;
+                height: 80px;
+                bottom: 16px;
+                left: 16px;
             }
-
-            #gameOver h1 {
-                font-size: 40px;
+            .joystick-knob {
+                width: 34px;
+                height: 34px;
             }
-
-            #gameOver .final-score {
-                font-size: 34px;
+            .game-over h1 {
+                font-size: 32px;
             }
-
-            #restartBtn {
-                padding: 12px 32px;
-                font-size: 16px;
+            .game-over .final-score {
+                font-size: 30px;
             }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
 
-        <div id="hud">
-            <div>🏆 <span class="value score-value" id="scoreDisplay">0</span></div>
-            <div>📏 <span class="value size-value" id="sizeDisplay">30</span></div>
-            <div>👾 <span class="value" id="botCountDisplay">0</span></div>
-        </div>
+    <div class="game-wrapper">
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
 
-        <div id="gameOver">
-            <h1>💀 ÖLDÜN</h1>
-            <div class="sub">Puanın</div>
-            <div class="final-score" id="finalScore">0</div>
-            <button id="restartBtn">🔄 Tekrar Oyna</button>
-            <a id="homeBtn" href="index.html">← Ana Sayfa</a>
+            <!-- HUD -->
+            <div class="hud">
+                <div>⭐ <span class="val score-val" id="scoreDisplay">0</span></div>
+                <div>📏 <span class="val size-val" id="sizeDisplay">20</span></div>
+                <div>👾 <span class="val" id="enemyCount">0</span></div>
+            </div>
+
+            <!-- Joystick -->
+            <div class="joystick-area" id="joystickArea">
+                <div class="joystick-knob" id="joystickKnob"></div>
+            </div>
+
+            <!-- Game Over -->
+            <div class="game-over" id="gameOver">
+                <h1>💀 ÖLDÜN</h1>
+                <div class="sub">Puanın</div>
+                <div class="final-score" id="finalScore">0</div>
+                <button class="btn" id="restartBtn">🔄 Tekrar Oyna</button>
+                <a class="btn-home" href="index.html">← Ana Sayfa</a>
+            </div>
         </div>
     </div>
 
     <script>
         // ============================================================
-        //  HAYATTA KAL - Düzeltilmiş sürüm
+        //  HAYATTA KAL - Sade ve Eğlenceli
         // ============================================================
 
         const canvas = document.getElementById('gameCanvas');
@@ -215,292 +270,284 @@
 
         let W, H;
 
-        function resizeCanvas() {
-            W = canvas.width = window.innerWidth;
-            H = canvas.height = window.innerHeight;
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            W = canvas.width = rect.width;
+            H = canvas.height = rect.height;
         }
-        resizeCanvas();
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            if (player) {
-                camera.x = player.x - W / 2;
-                camera.y = player.y - H / 2;
-            }
-        });
+        resize();
+        window.addEventListener('resize', resize);
 
-        const camera = { x: 0, y: 0 };
+        // ============================================================
+        //  OYUN DEĞİŞKENLERİ
+        // ============================================================
 
-        let player = {
+        // Harita boyutu (ekrandan büyük)
+        const MAP_SIZE = 2000;
+
+        // Kamera
+        const cam = { x: 0, y: 0 };
+
+        // Oyuncu
+        const player = {
             x: 0,
             y: 0,
-            radius: 30,
-            targetRadius: 30,
-            color: '#60a5fa',
-            speed: 3.5,
+            radius: 20,
+            targetRadius: 20,
+            speed: 3,
             alive: true,
             score: 0
         };
 
-        let bots = [];
-        const MAX_BOTS = 35;
-        let botSpawnTimer = 0;
-        const BOT_SPAWN_INTERVAL = 60;
+        // Yemekler
+        let foods = [];
 
-        const keys = {};
-        let mouseX = 0,
-            mouseY = 0;
-        let useMouseControl = false;
+        // Düşmanlar
+        let enemies = [];
 
-        let gameRunning = true;
-        let frameCount = 0;
+        // Joystick
+        const joystick = {
+            active: false,
+            dx: 0,
+            dy: 0,
+            area: document.getElementById('joystickArea'),
+            knob: document.getElementById('joystickKnob')
+        };
 
+        // DOM referansları
         const scoreDisplay = document.getElementById('scoreDisplay');
         const sizeDisplay = document.getElementById('sizeDisplay');
-        const botCountDisplay = document.getElementById('botCountDisplay');
+        const enemyCount = document.getElementById('enemyCount');
         const gameOverEl = document.getElementById('gameOver');
         const finalScoreEl = document.getElementById('finalScore');
         const restartBtn = document.getElementById('restartBtn');
+
+        // Zamanlayıcılar
+        let foodSpawnTimer = 0;
+        let enemySpawnTimer = 0;
+        let frameCount = 0;
 
         // ============================================================
         //  YARDIMCI FONKSİYONLAR
         // ============================================================
 
-        function random(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        function rand(min, max) { return Math.random() * (max - min) + min; }
 
-        function randomInt(min, max) {
-            return Math.floor(random(min, max + 1));
-        }
+        function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
 
-        function distance(x1, y1, x2, y2) {
-            return Math.hypot(x2 - x1, y2 - y1);
-        }
+        function dist(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
 
-        function clamp(v, min, max) {
-            return Math.max(min, Math.min(max, v));
-        }
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
         // ============================================================
-        //  BOT OLUŞTURMA
+        //  YEMEK OLUŞTUR
         // ============================================================
 
-        function createBot(attempt) {
-            const sizeRatio = random(0.30, 2.0);
-            const radius = Math.max(8, player.radius * sizeRatio);
-
-            const hue = 120 - (sizeRatio - 0.3) * 100;
-            const sat = 70 + sizeRatio * 20;
-            const lig = 50 + sizeRatio * 10;
-            const color = `hsl(${clamp(hue, 20, 120)}, ${clamp(sat, 50, 100)}%, ${clamp(lig, 40, 80)}%)`;
-
-            const mapPadding = 300;
-            const mapSize = 2000 + player.radius * 4 + attempt * 100;
-
-            let x, y;
-            let found = false;
-            let attempts = 0;
-            const maxAttempts = 200;
-
-            while (!found && attempts < maxAttempts) {
-                attempts++;
-                const angle = random(0, Math.PI * 2);
-                const dist = random(300, Math.min(1200, mapSize / 2));
-
-                x = player.x + Math.cos(angle) * dist;
-                y = player.y + Math.sin(angle) * dist;
-
-                if (x < -mapSize / 2 || x > mapSize / 2 || y < -mapSize / 2 || y > mapSize / 2) {
-                    continue;
-                }
-
-                let overlaps = false;
-                for (const b of bots) {
-                    if (distance(x, y, b.x, b.y) < radius + b.radius + 20) {
-                        overlaps = true;
-                        break;
-                    }
-                }
-
-                if (distance(x, y, player.x, player.y) < radius + player.radius + 30) {
-                    overlaps = true;
-                }
-
-                if (!overlaps) {
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                const angle = random(0, Math.PI * 2);
-                const dist = 800 + attempt * 150;
-                x = player.x + Math.cos(angle) * dist;
-                y = player.y + Math.sin(angle) * dist;
-            }
-
+        function createFood() {
+            const angle = rand(0, Math.PI * 2);
+            const distance = rand(200, MAP_SIZE / 2);
             return {
-                x: x,
-                y: y,
-                radius: radius,
-                color: color,
-                speed: random(0.5, 2.0) * (1 + (1 - sizeRatio) * 0.5),
-                angle: random(0, Math.PI * 2),
-                turnTimer: 0,
-                turnInterval: randomInt(60, 200),
-                sizeRatio: sizeRatio,
-                isBig: sizeRatio > 1.0,
-                turnSpeed: sizeRatio > 1.0 ? random(0.01, 0.03) : random(0.02, 0.06)
+                x: player.x + Math.cos(angle) * distance,
+                y: player.y + Math.sin(angle) * distance,
+                radius: rand(4, 10),
+                color: `hsl(${randInt(30, 60)}, 80%, 60%)`,
+                pulse: rand(0, Math.PI * 2)
             };
         }
 
         // ============================================================
-        //  OYUN BAŞLATMA
+        //  DÜŞMAN OLUŞTUR
+        // ============================================================
+
+        function createEnemy() {
+            const sizeRatio = rand(0.4, 2.5);
+            const radius = Math.max(10, player.radius * sizeRatio);
+
+            const angle = rand(0, Math.PI * 2);
+            const distance = rand(300, MAP_SIZE / 2);
+
+            return {
+                x: player.x + Math.cos(angle) * distance,
+                y: player.y + Math.sin(angle) * distance,
+                radius: radius,
+                speed: rand(0.3, 1.2) * (1 + (1 - sizeRatio) * 0.3),
+                angle: rand(0, Math.PI * 2),
+                turnTimer: randInt(0, 100),
+                turnInterval: randInt(60, 180),
+                isBig: sizeRatio > 1.2,
+                color: `hsl(${sizeRatio > 1.2 ? randInt(340, 20) : randInt(100, 160)}, 70%, 50%)`
+            };
+        }
+
+        // ============================================================
+        //  OYUNU BAŞLAT
         // ============================================================
 
         function initGame() {
             player.x = 0;
             player.y = 0;
-            player.radius = 30;
-            player.targetRadius = 30;
-            player.color = '#60a5fa';
-            player.speed = 3.5;
+            player.radius = 20;
+            player.targetRadius = 20;
+            player.speed = 3;
             player.alive = true;
             player.score = 0;
 
-            bots = [];
-            camera.x = -W / 2;
-            camera.y = -H / 2;
-
-            gameRunning = true;
-            frameCount = 0;
-            botSpawnTimer = 0;
+            foods = [];
+            enemies = [];
+            cam.x = 0;
+            cam.y = 0;
 
             gameOverEl.classList.remove('show');
 
-            for (let i = 0; i < 12; i++) {
-                const bot = createBot(i);
-                bots.push(bot);
+            // Başlangıç yemekleri
+            for (let i = 0; i < 20; i++) {
+                foods.push(createFood());
+            }
+
+            // Başlangıç düşmanları
+            for (let i = 0; i < 6; i++) {
+                enemies.push(createEnemy());
             }
 
             updateHUD();
         }
 
         // ============================================================
-        //  OYUN MANTIĞI
+        //  GÜNCELLEME
         // ============================================================
 
         function update() {
-            if (!gameRunning || !player.alive) return;
+            if (!player.alive) return;
 
             frameCount++;
 
+            // ---- JOYSTICK KONTROL ----
             let dx = 0,
                 dy = 0;
-
-            if (useMouseControl) {
-                const targetX = mouseX + camera.x;
-                const targetY = mouseY + camera.y;
-                const distToMouse = distance(player.x, player.y, targetX, targetY);
-
-                if (distToMouse > 5) {
-                    const angle = Math.atan2(targetY - player.y, targetX - player.x);
-                    const moveSpeed = Math.min(player.speed, distToMouse);
-                    dx = Math.cos(angle) * moveSpeed;
-                    dy = Math.sin(angle) * moveSpeed;
-                }
-            } else {
-                if (keys['w'] || keys['W'] || keys['ArrowUp']) dy = -player.speed;
-                if (keys['s'] || keys['S'] || keys['ArrowDown']) dy = player.speed;
-                if (keys['a'] || keys['A'] || keys['ArrowLeft']) dx = -player.speed;
-                if (keys['d'] || keys['D'] || keys['ArrowRight']) dx = player.speed;
-
-                const len = Math.hypot(dx, dy);
-                if (len > 0) {
-                    dx = dx / len * player.speed;
-                    dy = dy / len * player.speed;
+            if (joystick.active) {
+                const mag = Math.hypot(joystick.dx, joystick.dy);
+                if (mag > 0.1) {
+                    const normalized = Math.min(1, mag);
+                    dx = (joystick.dx / mag) * player.speed * normalized;
+                    dy = (joystick.dy / mag) * player.speed * normalized;
                 }
             }
 
+            // ---- OYUNCU HAREKET ----
             player.x += dx;
             player.y += dy;
 
-            player.radius += (player.targetRadius - player.radius) * 0.05;
-            player.radius = Math.max(10, player.radius);
+            // Harita sınırları
+            const limit = MAP_SIZE / 2 - player.radius;
+            player.x = clamp(player.x, -limit, limit);
+            player.y = clamp(player.y, -limit, limit);
 
-            for (let i = bots.length - 1; i >= 0; i--) {
-                const bot = bots[i];
+            // Boyut güncelle
+            player.radius += (player.targetRadius - player.radius) * 0.06;
+            player.radius = Math.max(12, player.radius);
 
-                bot.turnTimer++;
-                if (bot.turnTimer > bot.turnInterval) {
-                    bot.turnTimer = 0;
-                    bot.angle += random(-0.5, 0.5) * bot.turnSpeed * 2;
-                    bot.turnInterval = randomInt(40, 180);
+            // ---- KAMERA ----
+            cam.x = player.x - W / 2;
+            cam.y = player.y - H / 2;
+
+            // ---- YEMEKLER ----
+            for (let i = foods.length - 1; i >= 0; i--) {
+                const f = foods[i];
+                if (dist(player.x, player.y, f.x, f.y) < player.radius + f.radius) {
+                    player.targetRadius += f.radius * 0.12;
+                    player.score += Math.floor(f.radius) + 1;
+                    foods.splice(i, 1);
+                }
+            }
+
+            // Yemek spawn
+            foodSpawnTimer++;
+            if (foodSpawnTimer > 20 && foods.length < 40) {
+                foods.push(createFood());
+                foodSpawnTimer = 0;
+            }
+
+            // ---- DÜŞMANLAR ----
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+
+                // Hareket
+                e.turnTimer++;
+                if (e.turnTimer > e.turnInterval) {
+                    e.turnTimer = 0;
+                    e.angle += rand(-0.3, 0.3);
+                    e.turnInterval = randInt(60, 200);
                 }
 
-                if (bot.isBig) {
-                    const angleToPlayer = Math.atan2(player.y - bot.y, player.x - bot.x);
-                    bot.angle += (angleToPlayer - bot.angle) * 0.01;
+                // Büyük düşmanlar oyuncuya doğru yönelir
+                if (e.isBig) {
+                    const toPlayer = Math.atan2(player.y - e.y, player.x - e.x);
+                    e.angle += (toPlayer - e.angle) * 0.02;
                 }
 
-                bot.angle += random(-0.01, 0.01) * bot.turnSpeed;
-                bot.x += Math.cos(bot.angle) * bot.speed;
-                bot.y += Math.sin(bot.angle) * bot.speed;
+                e.angle += rand(-0.02, 0.02);
+                e.x += Math.cos(e.angle) * e.speed;
+                e.y += Math.sin(e.angle) * e.speed;
 
-                const limit = 1200 + player.radius * 3;
-                if (bot.x > limit) bot.x = -limit;
-                if (bot.x < -limit) bot.x = limit;
-                if (bot.y > limit) bot.y = -limit;
-                if (bot.y < -limit) bot.y = limit;
+                // Harita sınırları
+                const eLimit = MAP_SIZE / 2 - e.radius;
+                if (e.x > eLimit) { e.x = eLimit;
+                    e.angle = Math.PI - e.angle; }
+                if (e.x < -eLimit) { e.x = -eLimit;
+                    e.angle = Math.PI - e.angle; }
+                if (e.y > eLimit) { e.y = eLimit;
+                    e.angle = -e.angle; }
+                if (e.y < -eLimit) { e.y = -eLimit;
+                    e.angle = -e.angle; }
 
-                const distToPlayer = distance(player.x, player.y, bot.x, bot.y);
-                const threshold = player.radius + bot.radius;
+                // Düşman-oyuncu çarpışması
+                const d = dist(player.x, player.y, e.x, e.y);
+                const threshold = player.radius + e.radius;
 
-                if (distToPlayer < threshold) {
-                    if (player.radius > bot.radius * 1.15) {
-                        player.targetRadius += bot.radius * 0.08;
-                        player.score += Math.floor(bot.radius * 0.5) + 1;
-                        bots.splice(i, 1);
-                        continue;
-                    } else if (bot.radius > player.radius * 1.15) {
+                if (d < threshold) {
+                    if (player.radius > e.radius * 1.2) {
+                        // Oyuncu düşmanı yedi
+                        player.targetRadius += e.radius * 0.06;
+                        player.score += Math.floor(e.radius * 0.5) + 2;
+                        enemies.splice(i, 1);
+                    } else if (e.radius > player.radius * 1.2) {
+                        // Düşman oyuncuyu yedi
                         player.alive = false;
-                        gameRunning = false;
                         showGameOver();
                         return;
                     } else {
-                        const angle = Math.atan2(bot.y - player.y, bot.x - player.x);
-                        const overlap = threshold - distToPlayer + 2;
-                        player.x -= Math.cos(angle) * overlap * 0.5;
-                        player.y -= Math.sin(angle) * overlap * 0.5;
-                        bot.x += Math.cos(angle) * overlap * 0.5;
-                        bot.y += Math.sin(angle) * overlap * 0.5;
+                        // Eşit - itiş
+                        const ang = Math.atan2(e.y - player.y, e.x - player.x);
+                        const overlap = (threshold - d) / 2 + 1;
+                        player.x -= Math.cos(ang) * overlap;
+                        player.y -= Math.sin(ang) * overlap;
+                        e.x += Math.cos(ang) * overlap;
+                        e.y += Math.sin(ang) * overlap;
                     }
                 }
 
+                // Düşman-düşman çarpışma
                 for (let j = i - 1; j >= 0; j--) {
-                    const other = bots[j];
-                    const d = distance(bot.x, bot.y, other.x, other.y);
-                    const minDist = bot.radius + other.radius;
-
-                    if (d < minDist && d > 0.01) {
-                        const angle = Math.atan2(other.y - bot.y, other.x - bot.x);
-                        const overlap = (minDist - d) / 2;
-                        bot.x -= Math.cos(angle) * overlap;
-                        bot.y -= Math.sin(angle) * overlap;
-                        other.x += Math.cos(angle) * overlap;
-                        other.y += Math.sin(angle) * overlap;
+                    const other = enemies[j];
+                    const d2 = dist(e.x, e.y, other.x, other.y);
+                    const minD = e.radius + other.radius;
+                    if (d2 < minD && d2 > 0.01) {
+                        const ang = Math.atan2(other.y - e.y, other.x - e.x);
+                        const overlap = (minD - d2) / 2;
+                        e.x -= Math.cos(ang) * overlap;
+                        e.y -= Math.sin(ang) * overlap;
+                        other.x += Math.cos(ang) * overlap;
+                        other.y += Math.sin(ang) * overlap;
                     }
                 }
             }
 
-            botSpawnTimer++;
-            if (botSpawnTimer > BOT_SPAWN_INTERVAL && bots.length < MAX_BOTS) {
-                const bot = createBot(bots.length);
-                bots.push(bot);
-                botSpawnTimer = 0;
+            // Düşman spawn
+            enemySpawnTimer++;
+            if (enemySpawnTimer > 120 && enemies.length < 15) {
+                enemies.push(createEnemy());
+                enemySpawnTimer = 0;
             }
-
-            camera.x = player.x - W / 2;
-            camera.y = player.y - H / 2;
 
             updateHUD();
         }
@@ -512,103 +559,73 @@
         function draw() {
             ctx.clearRect(0, 0, W, H);
 
-            // Arka plan grid
-            const gridSize = 80;
-            const offsetX = -camera.x % gridSize;
-            const offsetY = -camera.y % gridSize;
+            // ---- ARKA PLAN ----
+            // Grid
+            const gridSize = 60;
+            const ox = -cam.x % gridSize;
+            const oy = -cam.y % gridSize;
 
             ctx.strokeStyle = 'rgba(255,255,255,0.04)';
             ctx.lineWidth = 1;
-
-            for (let x = offsetX - gridSize; x < W + gridSize; x += gridSize) {
+            for (let x = ox - gridSize; x < W + gridSize; x += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, H);
                 ctx.stroke();
             }
-            for (let y = offsetY - gridSize; y < H + gridSize; y += gridSize) {
+            for (let y = oy - gridSize; y < H + gridSize; y += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(W, y);
                 ctx.stroke();
             }
 
-            // Işınlar
-            const gradient = ctx.createRadialGradient(
-                W / 2, H / 2, 0,
-                W / 2, H / 2, Math.max(W, H) * 0.7
-            );
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.03)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, W, H);
+            // ---- YEMEKLER ----
+            for (const f of foods) {
+                const sx = f.x - cam.x;
+                const sy = f.y - cam.y;
+                if (sx < -50 || sx > W + 50 || sy < -50 || sy > H + 50) continue;
 
-            // Botlar
-            for (const bot of bots) {
-                const sx = bot.x - camera.x;
-                const sy = bot.y - camera.y;
+                // Işıltı efekti
+                const pulse = Math.sin(f.pulse + frameCount * 0.05) * 0.15 + 0.85;
+                const r = f.radius * pulse;
 
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                const grad = ctx.createRadialGradient(sx - r * 0.2, sy - r * 0.2, 0, sx, sy, r);
+                grad.addColorStop(0, '#fff');
+                grad.addColorStop(0.3, f.color);
+                grad.addColorStop(1, 'rgba(0,0,0,0.2)');
+
+                ctx.shadowColor = f.color;
                 ctx.shadowBlur = 15;
-
-                const grad = ctx.createRadialGradient(
-                    sx - bot.radius * 0.2, sy - bot.radius * 0.2, 0,
-                    sx, sy, bot.radius
-                );
-                grad.addColorStop(0, bot.color);
-                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
-
                 ctx.beginPath();
-                ctx.arc(sx, sy, bot.radius, 0, Math.PI * 2);
+                ctx.arc(sx, sy, r, 0, Math.PI * 2);
                 ctx.fillStyle = grad;
                 ctx.fill();
-
                 ctx.shadowBlur = 0;
-                const highlight = ctx.createRadialGradient(
-                    sx - bot.radius * 0.3, sy - bot.radius * 0.3, 0,
-                    sx - bot.radius * 0.3, sy - bot.radius * 0.3, bot.radius * 0.4
-                );
-                highlight.addColorStop(0, 'rgba(255,255,255,0.3)');
-                highlight.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.beginPath();
-                ctx.arc(sx, sy, bot.radius, 0, Math.PI * 2);
-                ctx.fillStyle = highlight;
-                ctx.fill();
 
-                // Gözler
-                const eyeSize = bot.radius * 0.15;
-                const eyeOffset = bot.radius * 0.3;
-                const eyeY = sy - bot.radius * 0.1;
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(sx - eyeOffset, eyeY, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(sx + eyeOffset, eyeY, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = bot.isBig ? '#ef4444' : '#22c55e';
-                const pupilOffset = bot.isBig ? 0 : -2;
-                ctx.beginPath();
-                ctx.arc(sx - eyeOffset + pupilOffset, eyeY + 1, eyeSize * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(sx + eyeOffset + pupilOffset, eyeY + 1, eyeSize * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = 'rgba(255,255,255,0.15)';
-                ctx.font = `${bot.radius * 0.4}px monospace`;
+                // Yıldız işareti ✦
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.font = `${r * 1.2}px monospace`;
                 ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                const label = bot.isBig ? '🐉' : '🐣';
-                ctx.fillText(label, sx, sy - bot.radius - 4);
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✦', sx, sy + 1);
             }
 
-            // Oyuncu
-            const px = player.x - camera.x;
-            const py = player.y - camera.y;
+            // ---- DÜŞMANLAR ----
+            for (const e of enemies) {
+                const sx = e.x - cam.x;
+                const sy = e.y - cam.y;
+                if (sx < -100 || sx > W + 100 || sy < -100 || sy > H + 100) continue;
 
-            ct
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 20;
+
+                const grad = ctx.createRadialGradient(
+                    sx - e.radius * 0.2, sy - e.radius * 0.2, 0,
+                    sx, sy, e.radius
+                );
+                grad.addColorStop(0, e.color);
+                grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+
+                ctx.beginPath();
+                ctx.
