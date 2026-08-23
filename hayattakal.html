@@ -1,302 +1,607 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Hayatta Kal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      background: linear-gradient(-45deg, #3a0000, #5c0d00, #4a0500, #6b1400, #2e0000);
-      background-size: 500% 500%;
-      animation: gradientAkis 14s ease infinite;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      padding: 20px 12px;
-      min-height: 100vh;
-      margin: 0;
-    }
-    @keyframes gradientAkis {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    @keyframes nabizAt {
-      0%, 100% { text-shadow: 0 0 15px #ff5252, 0 0 30px #ff5252; }
-      50% { text-shadow: 0 0 25px #ff5252, 0 0 50px #ff5252; }
-    }
-    h1 {
-      color: #ff5252;
-      animation: nabizAt 2.5s ease-in-out infinite;
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    #skor {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    canvas {
-      background-color: #1a0505;
-      border: 3px solid #ff5252;
-      border-radius: 14px;
-      max-width: 100%;
-      touch-action: none;
-      display: block;
-      margin: 0 auto;
-    }
-    #durum {
-      font-size: 18px;
-      font-weight: 600;
-      margin-top: 14px;
-      min-height: 28px;
-    }
-    button.baslat {
-      margin-top: 10px;
-      background-color: #ff5252;
-      border: none;
-      color: #2e0000;
-      padding: 12px 26px;
-      font-size: 16px;
-      font-weight: 700;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-    }
-    p.aciklama {
-      font-size: 13px;
-      opacity: 0.75;
-      margin-top: 10px;
-    }
-    a {
-      color: #ff5252;
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      font-size: 17px;
-      font-weight: 600;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayatta Kal - Oyun Merkezi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: #0a0a0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+
+        /* HUD */
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 12px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 10;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        #hud span {
+            color: #8b8ba8;
+        }
+
+        #hud .value {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        #hud .score-value {
+            color: #fbbf24;
+        }
+
+        #hud .size-value {
+            color: #60a5fa;
+        }
+
+        /* Game Over */
+        #gameOver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 20;
+            animation: fadeIn 0.5s ease;
+        }
+
+        #gameOver.show {
+            display: flex;
+        }
+
+        #gameOver h1 {
+            font-size: 64px;
+            color: #ef4444;
+            margin-bottom: 8px;
+            text-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+        }
+
+        #gameOver .sub {
+            color: #8b8ba8;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        #gameOver .final-score {
+            color: #fbbf24;
+            font-size: 48px;
+            font-weight: 800;
+            margin: 8px 0 24px;
+        }
+
+        #restartBtn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 14px 48px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        #restartBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        #homeBtn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+            text-decoration: none;
+        }
+
+        #homeBtn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            #hud {
+                font-size: 13px;
+                padding: 8px 16px;
+                gap: 16px;
+                top: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            #gameOver h1 {
+                font-size: 40px;
+            }
+
+            #gameOver .final-score {
+                font-size: 34px;
+            }
+
+            #restartBtn {
+                padding: 12px 32px;
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>🔴 Hayatta Kal</h1>
-  <p id="skor">Boyut: 10</p>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
 
-  <canvas id="oyunAlani" width="360" height="480"></canvas>
+        <!-- HUD -->
+        <div id="hud">
+            <div>🏆 <span class="value score-value" id="scoreDisplay">0</span></div>
+            <div>📏 <span class="value size-value" id="sizeDisplay">30</span></div>
+            <div>👾 <span class="value" id="botCountDisplay">0</span></div>
+        </div>
 
-  <p id="durum">Ekrana dokun ve sürükle, küçükleri ye, büyüklerden kaç!</p>
-  <button class="baslat" onclick="oyunuBaslat()">▶ Başlat / Yeniden Başlat</button>
-  <p class="aciklama">🟢 Senden küçük (yenir) · 🔴 Senden büyük (tehlike)</p>
+        <!-- Game Over -->
+        <div id="gameOver">
+            <h1>💀 ÖLDÜN</h1>
+            <div class="sub">Puanın</div>
+            <div class="final-score" id="finalScore">0</div>
+            <button id="restartBtn">🔄 Tekrar Oyna</button>
+            <a id="homeBtn" href="index.html">← Ana Sayfa</a>
+        </div>
+    </div>
 
-  <a href="index.html">⬅ Ana sayfaya dön</a>
+    <script>
+        // ============================================================
+        //  HAYATTA KAL - Gelişmiş versiyon
+        //  + Sonsuz döngü fix
+        //  + Dinamik bot boyutları
+        //  + Otomatik harita genişletme
+        // ============================================================
 
-  <script>
-    const canvas = document.getElementById("oyunAlani");
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    const MAKS_BOT = 9;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-    let oyuncu, botlar, yemler, oyunAktif, dokunmaVektor, animasyonId;
+        let W, H;
 
-    function rastgele(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    function oyunuBaslat() {
-      oyuncu = { x: W/2, y: H/2, r: 10, hiz: 2.6 };
-      botlar = [];
-      yemler = [];
-      dokunmaVektor = null;
-      oyunAktif = true;
-
-      for (let i = 0; i < 30; i++) {
-        yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
-      }
-      for (let i = 0; i < MAKS_BOT; i++) {
-        botUret();
-      }
-
-      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
-      document.getElementById("durum").textContent = "Hayatta kal!";
-
-      if (animasyonId) cancelAnimationFrame(animasyonId);
-      dongu();
-    }
-
-    function botUret() {
-      // Oyuncunun mevcut boyutuna göre karışık bot boyutları: bazıları küçük (yenilebilir), bazıları büyük (tehlikeli)
-      const kucukMu = Math.random() < 0.55;
-      let r;
-      if (kucukMu) {
-        r = rastgele(5, Math.max(6, oyuncu.r * 0.75));
-      } else {
-        r = rastgele(oyuncu.r * 1.15, oyuncu.r * 1.8 + 10);
-      }
-      r = Math.min(r, 45);
-
-      let x, y, denemeSayisi = 0;
-      let uygunYerBulundu = false;
-      while (denemeSayisi < 25 && !uygunYerBulundu) {
-        x = rastgele(r + 10, W - r - 10);
-        y = rastgele(r + 10, H - r - 10);
-        if (Math.hypot(x - oyuncu.x, y - oyuncu.y) > 90) {
-          uygunYerBulundu = true;
+        function resizeCanvas() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
         }
-        denemeSayisi++;
-      }
-      if (!uygunYerBulundu) {
-        x = rastgele(r + 10, W - r - 10);
-        y = rastgele(r + 10, H - r - 10);
-      }
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // Kamera merkezini güncelle
+            if (player) {
+                camera.x = player.x - W / 2;
+                camera.y = player.y - H / 2;
+            }
+        });
 
-      botlar.push({
-        x, y, r,
-        vx: rastgele(-1, 1),
-        vy: rastgele(-1, 1),
-        yonSayaci: 0
-      });
-    }
+        // --------------------- KAMERA ---------------------
+        const camera = { x: 0, y: 0 };
 
-    canvas.addEventListener("touchstart", basla, {passive: true});
-    canvas.addEventListener("touchmove", hareket, {passive: true});
-    canvas.addEventListener("touchend", bitir);
-    canvas.addEventListener("mousedown", (e) => basla(donusturFare(e)));
-    canvas.addEventListener("mousemove", (e) => { if (fareBasili) hareket(donusturFare(e)); });
-    canvas.addEventListener("mouseup", bitir);
+        // --------------------- OYUNCU ---------------------
+        let player = {
+            x: 0,
+            y: 0,
+            radius: 30,
+            targetRadius: 30,
+            color: '#60a5fa',
+            speed: 3.5,
+            alive: true,
+            score: 0
+        };
 
-    let fareBasili = false;
-    let baslangicNoktasi = null;
+        // --------------------- BOTLAR ---------------------
+        let bots = [];
+        const MAX_BOTS = 35;
+        let botSpawnTimer = 0;
+        const BOT_SPAWN_INTERVAL = 60; // frame
 
-    function donusturFare(e) {
-      return { touches: [{ clientX: e.clientX, clientY: e.clientY }] };
-    }
+        // --------------------- KONTROLLER ---------------------
+        const keys = {};
+        let mouseX = 0,
+            mouseY = 0;
+        let useMouseControl = false;
 
-    function konumAl(e) {
-      const rect = canvas.getBoundingClientRect();
-      const dokunma = e.touches[0];
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      return {
-        x: (dokunma.clientX - rect.left) * scaleX,
-        y: (dokunma.clientY - rect.top) * scaleY
-      };
-    }
+        // --------------------- OYUN DURUMU ---------------------
+        let gameRunning = true;
+        let frameCount = 0;
 
-    function basla(e) {
-      fareBasili = true;
-      baslangicNoktasi = konumAl(e);
-    }
+        // --------------------- REFERANSLAR ---------------------
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const sizeDisplay = document.getElementById('sizeDisplay');
+        const botCountDisplay = document.getElementById('botCountDisplay');
+        const gameOverEl = document.getElementById('gameOver');
+        const finalScoreEl = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
 
-    function hareket(e) {
-      if (!baslangicNoktasi) return;
-      const simdi = konumAl(e);
-      dokunmaVektor = { x: simdi.x - baslangicNoktasi.x, y: simdi.y - baslangicNoktasi.y };
-    }
+        // ============================================================
+        //  YARDIMCI FONKSİYONLAR
+        // ============================================================
 
-    function bitir() {
-      fareBasili = false;
-      dokunmaVektor = null;
-      baslangicNoktasi = null;
-    }
-
-    function dongu() {
-      if (!oyunAktif) return;
-
-      if (dokunmaVektor) {
-        const uzunluk = Math.hypot(dokunmaVektor.x, dokunmaVektor.y);
-        if (uzunluk > 5) {
-          const nx = dokunmaVektor.x / uzunluk;
-          const ny = dokunmaVektor.y / uzunluk;
-          oyuncu.x += nx * oyuncu.hiz;
-          oyuncu.y += ny * oyuncu.hiz;
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
         }
-      }
 
-      oyuncu.x = Math.max(oyuncu.r, Math.min(W - oyuncu.r, oyuncu.x));
-      oyuncu.y = Math.max(oyuncu.r, Math.min(H - oyuncu.r, oyuncu.y));
-
-      for (let bot of botlar) {
-        bot.yonSayaci++;
-        if (bot.yonSayaci > 60) {
-          bot.vx = rastgele(-1, 1);
-          bot.vy = rastgele(-1, 1);
-          bot.yonSayaci = 0;
+        function randomInt(min, max) {
+            return Math.floor(random(min, max + 1));
         }
-        bot.x += bot.vx * 1.1;
-        bot.y += bot.vy * 1.1;
-        bot.x = Math.max(bot.r, Math.min(W - bot.r, bot.x));
-        bot.y = Math.max(bot.r, Math.min(H - bot.r, bot.y));
-      }
 
-      for (let i = yemler.length - 1; i >= 0; i--) {
-        const y = yemler[i];
-        if (Math.hypot(oyuncu.x - y.x, oyuncu.y - y.y) < oyuncu.r + y.r) {
-          oyuncu.r = Math.min(oyuncu.r + 0.4, 60);
-          yemler.splice(i, 1);
-          yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
+        function distance(x1, y1, x2, y2) {
+            return Math.hypot(x2 - x1, y2 - y1);
         }
-      }
 
-      const silinecekler = [];
-      for (let i = botlar.length - 1; i >= 0; i--) {
-        const bot = botlar[i];
-        const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
-        if (mesafe < oyuncu.r + bot.r) {
-          if (oyuncu.r > bot.r + 2) {
-            oyuncu.r = Math.min(oyuncu.r + bot.r * 0.3, 60);
-            silinecekler.push(i);
-          } else if (bot.r > oyuncu.r + 2) {
-            oyunBitti();
-            return;
-          }
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
         }
-      }
-      for (let i of silinecekler) {
-        botlar.splice(i, 1);
-      }
-      while (botlar.length < MAKS_BOT) {
-        botUret();
-      }
 
-      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
+        // ============================================================
+        //  BOT OLUŞTURMA (FIX: sonsuz döngü yok!)
+        // ============================================================
 
-      cizim();
-      animasyonId = requestAnimationFrame(dongu);
-    }
+        function createBot(attempt = 0) {
+            // Dinamik boyut: oyuncunun %30 ile %200'si arası
+            const sizeRatio = random(0.30, 2.0);
+            const radius = Math.max(8, player.radius * sizeRatio);
 
-    function oyunBitti() {
-      oyunAktif = false;
-      document.getElementById("durum").textContent = "💀 Yakalandın! Boyut: " + Math.round(oyuncu.r);
-    }
+            // Renk: boyuta göre (büyük = kırmızı, küçük = yeşil)
+            const hue = 120 - (sizeRatio - 0.3) * 100; // 120'den 20'ye
+            const sat = 70 + sizeRatio * 20;
+            const lig = 50 + sizeRatio * 10;
+            const color = `hsl(${clamp(hue, 20, 120)}, ${clamp(sat, 50, 100)}%, ${clamp(lig, 40, 80)}%)`;
 
-    function cizim() {
-      ctx.fillStyle = "#1a0505";
-      ctx.fillRect(0, 0, W, H);
+            // Harita sınırları (oyuncunun etrafında geniş alan)
+            const mapPadding = 300;
+            const mapSize = 2000 + player.radius * 4 + attempt * 100; // Her denemede büyür
 
-      ctx.fillStyle = "rgba(255,255,255,0.5)";
-      for (let y of yemler) {
-        ctx.beginPath();
-        ctx.arc(y.x, y.y, y.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
+            let x, y;
+            let found = false;
+            let attempts = 0;
+            const maxAttempts = 200;
 
-      for (let bot of botlar) {
-        ctx.fillStyle = bot.r < oyuncu.r ? "#2ecc71" : "#ff5252";
-        ctx.beginPath();
-        ctx.arc(bot.x, bot.y, bot.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
+            while (!found && attempts < maxAttempts) {
+                attempts++;
 
-      ctx.fillStyle = "#ffe082";
-      ctx.beginPath();
-      ctx.arc(oyuncu.x, oyuncu.y, oyuncu.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
+                // Oyuncudan uzakta olmaya çalış (min 300px)
+                const angle = random(0, Math.PI * 2);
+                const dist = random(300, Math.min(1200, mapSize / 2));
 
-    cizim();
-  </script>
-</body>
-</html>
+                x = player.x + Math.cos(angle) * dist;
+                y = player.y + Math.sin(angle) * dist;
+
+                // Harita sınırları içinde mi?
+                if (x < -mapSize / 2 || x > mapSize / 2 || y < -mapSize / 2 || y > mapSize / 2) {
+                    continue;
+                }
+
+                // Diğer botlarla çakışma kontrolü
+                let overlaps = false;
+                for (const b of bots) {
+                    if (distance(x, y, b.x, b.y) < radius + b.radius + 20) {
+                        overlaps = true;
+                        break;
+                    }
+                }
+
+                // Oyuncuyla çakışma
+                if (distance(x, y, player.x, player.y) < radius + player.radius + 30) {
+                    overlaps = true;
+                }
+
+                if (!overlaps) {
+                    found = true;
+                }
+            }
+
+            // Eğer yer bulunamazsa, haritayı genişlet ve dene
+            if (!found) {
+                // Harita sınırlarını zorla genişlet
+                const angle = random(0, Math.PI * 2);
+                const dist = 800 + attempt * 150;
+                x = player.x + Math.cos(angle) * dist;
+                y = player.y + Math.sin(angle) * dist;
+            }
+
+            return {
+                x: x,
+                y: y,
+                radius: radius,
+                color: color,
+                speed: random(0.5, 2.0) * (1 + (1 - sizeRatio) * 0.5), // küçükler hızlı
+                angle: random(0, Math.PI * 2),
+                turnTimer: 0,
+                turnInterval: randomInt(60, 200),
+                sizeRatio: sizeRatio,
+                isBig: sizeRatio > 1.0,
+                // Büyük botlar daha yavaş döner
+                turnSpeed: sizeRatio > 1.0 ? random(0.01, 0.03) : random(0.02, 0.06)
+            };
+        }
+
+        // ============================================================
+        //  OYUN BAŞLATMA
+        // ============================================================
+
+        function initGame() {
+            player.x = 0;
+            player.y = 0;
+            player.radius = 30;
+            player.targetRadius = 30;
+            player.color = '#60a5fa';
+            player.speed = 3.5;
+            player.alive = true;
+            player.score = 0;
+
+            bots = [];
+            camera.x = -W / 2;
+            camera.y = -H / 2;
+
+            gameRunning = true;
+            frameCount = 0;
+            botSpawnTimer = 0;
+
+            gameOverEl.classList.remove('show');
+
+            // Başlangıç botları
+            for (let i = 0; i < 12; i++) {
+                const bot = createBot(i);
+                bots.push(bot);
+            }
+
+            updateHUD();
+        }
+
+        // ============================================================
+        //  OYUN MANTIĞI
+        // ============================================================
+
+        function update() {
+            if (!gameRunning || !player.alive) return;
+
+            frameCount++;
+
+            // ---- 1. OYUNCU KONTROLÜ ----
+            let dx = 0,
+                dy = 0;
+
+            if (useMouseControl) {
+                // Mouse / touch kontrol
+                const targetX = mouseX + camera.x;
+                const targetY = mouseY + camera.y;
+                const distToMouse = distance(player.x, player.y, targetX, targetY);
+
+                if (distToMouse > 5) {
+                    const angle = Math.atan2(targetY - player.y, targetX - player.x);
+                    const moveSpeed = Math.min(player.speed, distToMouse);
+                    dx = Math.cos(angle) * moveSpeed;
+                    dy = Math.sin(angle) * moveSpeed;
+                }
+            } else {
+                // Klavye kontrolü
+                if (keys['w'] || keys['W'] || keys['ArrowUp']) dy = -player.speed;
+                if (keys['s'] || keys['S'] || keys['ArrowDown']) dy = player.speed;
+                if (keys['a'] || keys['A'] || keys['ArrowLeft']) dx = -player.speed;
+                if (keys['d'] || keys['D'] || keys['ArrowRight']) dx = player.speed;
+
+                // Normalize
+                const len = Math.hypot(dx, dy);
+                if (len > 0) {
+                    dx = dx / len * player.speed;
+                    dy = dy / len * player.speed;
+                }
+            }
+
+            player.x += dx;
+            player.y += dy;
+
+            // ---- 2. OYUNCU BOYUT GÜNCELLEME ----
+            // Yavaşça hedef boyuta yaklaş
+            player.radius += (player.targetRadius - player.radius) * 0.05;
+            player.radius = Math.max(10, player.radius);
+
+            // ---- 3. BOTLARI GÜNCELLE ----
+            for (let i = bots.length - 1; i >= 0; i--) {
+                const bot = bots[i];
+
+                // Hareket
+                bot.turnTimer++;
+                if (bot.turnTimer > bot.turnInterval) {
+                    bot.turnTimer = 0;
+                    bot.angle += random(-0.5, 0.5) * bot.turnSpeed * 2;
+                    bot.turnInterval = randomInt(40, 180);
+                }
+
+                // Oyuncuya doğru eğilim (büyük botlar oyuncuyu kovalar)
+                if (bot.isBig) {
+                    const angleToPlayer = Math.atan2(player.y - bot.y, player.x - bot.x);
+                    bot.angle += (angleToPlayer - bot.angle) * 0.01;
+                }
+
+                bot.angle += random(-0.01, 0.01) * bot.turnSpeed;
+                bot.x += Math.cos(bot.angle) * bot.speed;
+                bot.y += Math.sin(bot.angle) * bot.speed;
+
+                // Sınırlar (geniş harita)
+                const limit = 1200 + player.radius * 3;
+                if (bot.x > limit) bot.x = -limit;
+                if (bot.x < -limit) bot.x = limit;
+                if (bot.y > limit) bot.y = -limit;
+                if (bot.y < -limit) bot.y = limit;
+
+                // ---- 4. ÇARPIŞMA KONTROLLERİ ----
+                // Oyuncu ile bot çarpışması
+                const distToPlayer = distance(player.x, player.y, bot.x, bot.y);
+                const threshold = player.radius + bot.radius;
+
+                if (distToPlayer < threshold) {
+                    if (player.radius > bot.radius * 1.15) {
+                        // Oyuncu botu yedi ✅
+                        player.targetRadius += bot.radius * 0.08;
+                        player.score += Math.floor(bot.radius * 0.5) + 1;
+                        bots.splice(i, 1);
+                        continue;
+                    } else if (bot.radius > player.radius * 1.15) {
+                        // Bot oyuncuyu yedi 💀
+                        player.alive = false;
+                        gameRunning = false;
+                        showGameOver();
+                        return;
+                    } else {
+                        // Eşit veya yakın - itişme
+                        const angle = Math.atan2(bot.y - player.y, bot.x - player.x);
+                        const overlap = threshold - distToPlayer + 2;
+                        player.x -= Math.cos(angle) * overlap * 0.5;
+                        player.y -= Math.sin(angle) * overlap * 0.5;
+                        bot.x += Math.cos(angle) * overlap * 0.5;
+                        bot.y += Math.sin(angle) * overlap * 0.5;
+                    }
+                }
+
+                // Bot-bot çarpışması (basit itişme)
+                for (let j = i - 1; j >= 0; j--) {
+                    const other = bots[j];
+                    const d = distance(bot.x, bot.y, other.x, other.y);
+                    const minDist = bot.radius + other.radius;
+
+                    if (d < minDist && d > 0.01) {
+                        const angle = Math.atan2(other.y - bot.y, other.x - bot.x);
+                        const overlap = (minDist - d) / 2;
+                        bot.x -= Math.cos(angle) * overlap;
+                        bot.y -= Math.sin(angle) * overlap;
+                        other.x += Math.cos(angle) * overlap;
+                        other.y += Math.sin(angle) * overlap;
+                    }
+                }
+            }
+
+            // ---- 5. BOT EKLEME ----
+            botSpawnTimer++;
+            if (botSpawnTimer > BOT_SPAWN_INTERVAL && bots.length < MAX_BOTS) {
+                const bot = createBot(bots.length);
+                bots.push(bot);
+                botSpawnTimer = 0;
+            }
+
+            // ---- 6. KAMERA ----
+            camera.x = player.x - W / 2;
+            camera.y = player.y - H / 2;
+
+            // ---- 7. HUD ----
+            updateHUD();
+        }
+
+        // ============================================================
+        //  ÇİZİM
+        // ============================================================
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // ---- ARKA PLAN ----
+            // Grid efekti
+            const gridSize = 80;
+            const offsetX = -camera.x % gridSize;
+            const offsetY = -camera.y % gridSize;
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.lineWidth = 1;
+
+            // Dikey çizgiler
+            for (let x = offsetX - gridSize; x < W + gridSize; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H);
+                ctx.stroke();
+            }
+            // Yatay çizgiler
+            for (let y = offsetY - gridSize; y < H + gridSize; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+
+            // ---- IŞINLAR (ambient) ----
+            const gradient = ctx.createRadialGradient(
+                W / 2, H / 2, 0,
+                W / 2, H / 2, Math.max(W, H) * 0.7
+            );
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.03)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, W, H);
+
+            // ---- BOTLAR ----
+            for (const bot of bots) {
+                const sx = bot.x - camera.x;
+                const sy = bot.y - camera.y;
+
+                // Gölge
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 15;
+
+                // Gövde
+                const grad = ctx.createRadialGradient(
+                    sx - bot.radius * 0.2, sy - bot.radius * 0.2, 0,
+                    sx, sy, bot.radius
+            
