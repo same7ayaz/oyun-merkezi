@@ -247,9 +247,10 @@
 
     const DUNYA_GENISLIK = 3000;
     const DUNYA_YUKSEKLIK = 3000;
-    const BOT_SAYISI = 15;
-    const YEM_SAYISI = 200;
-    const RENKLER = ['#e53935', '#ffb300', '#43a047', '#8e24aa', '#fb8c00', '#00acc1', '#d81b60', '#6a1b9a'];
+    const BOT_SAYISI = 12;
+    const YEM_SAYISI = 150;
+    const RENKLER = ['#e53935', '#ffb300', '#43a047', '#8e24aa', '#fb8c00', '#00acc1', '#d81b60', '#6a1b9a', '#ff6f00', '#00838f'];
+    const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin","Bora","Aylin","Naz","Cem","Ela"];
 
     const skorGosterge = document.getElementById('skorGosterge');
     const durumMesaji = document.getElementById('durumMesaji');
@@ -266,14 +267,14 @@
 
     function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
-    // --- YILAN OLUŞTURMA (Çoklu segment) ---
-    function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY) {
+    function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
         const y = [];
+        const basR = r || 12;
         for (let i = 0; i < uzunluk; i++) {
             y.push({
                 x: baslangicX - i * 10 * yonX,
                 y: baslangicY - i * 10 * yonY,
-                r: 12 - i * 0.5
+                r: basR - i * 0.4
             });
         }
         return y;
@@ -281,7 +282,7 @@
 
     function oyunuBaslat() {
         const oyuncuR = 12;
-        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0, oyuncuR);
         yon = { x: 1, y: 0 };
         skor = oyuncuR;
         oyunBitti = false;
@@ -316,9 +317,10 @@
         } while (deneme < 30 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 200);
 
         const bot = {
-            segmentler: yilanOlustur(x, y, uzunluk, 1, 0),
+            segmentler: yilanOlustur(x, y, uzunluk, 1, 0, botR),
             yon: { x: rastgele(-1, 1), y: rastgele(-1, 1) },
             renk: RENKLER[Math.floor(Math.random() * RENKLER.length)],
+            isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)],
             hedefX: rastgele(50, DUNYA_GENISLIK - 50),
             hedefY: rastgele(50, DUNYA_YUKSEKLIK - 50),
             yonDegistir: 0,
@@ -344,7 +346,7 @@
     }
 
     function siralamaGuncelle() {
-        const tum = botlar.map(b => ({ r: b.skor, isim: 'Bot' }));
+        const tum = botlar.map(b => ({ r: b.skor, isim: b.isim || 'Bot' }));
         tum.push({ r: skor, isim: 'Sen', ben: true });
         tum.sort((a, b) => b.r - a.r);
         const ilk5 = tum.slice(0, 5);
@@ -465,7 +467,6 @@
             if (Math.hypot(bas.x - y.x, bas.y - y.y) < bas.r + y.r) {
                 skor += 0.5;
                 bas.r += 0.3;
-                // Yeni segment ekle (büyüme)
                 const son = yilan[yilan.length - 1];
                 yilan.push({ x: son.x, y: son.y, r: bas.r - 1 });
                 yemler.splice(i, 1);
@@ -473,11 +474,27 @@
             }
         }
 
-        // Bot hareketi
+        // --- BOT HAREKETİ (AKTİF) ---
         for (let bot of botlar) {
             const botBas = bot.segmentler[0];
             bot.yonDegistir++;
-            if (bot.yonDegistir > 30 + rastgele(0, 30)) {
+            
+            // Bot hedef belirleme (önce oyuncuyu, sonra yemleri hedef al)
+            const oyuncuMesafe = Math.hypot(botBas.x - bas.x, botBas.y - bas.y);
+            let hedefX, hedefY;
+            
+            // Oyuncu yakınsa ve bot büyükse oyuncuyu kovala
+            if (oyuncuMesafe < 400 && bot.skor > skor * 0.8) {
+                hedefX = bas.x;
+                hedefY = bas.y;
+            } 
+            // Oyuncu yakınsa ve oyuncu büyükse kaç
+            else if (oyuncuMesafe < 200 && skor > bot.skor * 1.2) {
+                hedefX = botBas.x + (botBas.x - bas.x) * 2;
+                hedefY = botBas.y + (botBas.y - bas.y) * 2;
+            }
+            // En yakın yemi bul
+            else {
                 let enYakinYem = null;
                 let enYakinMesafe = Infinity;
                 for (let y of yemler) {
@@ -488,12 +505,17 @@
                     }
                 }
                 if (enYakinYem && enYakinMesafe < 300) {
-                    bot.hedefX = enYakinYem.x;
-                    bot.hedefY = enYakinYem.y;
+                    hedefX = enYakinYem.x;
+                    hedefY = enYakinYem.y;
                 } else {
-                    bot.hedefX = rastgele(50, DUNYA_GENISLIK - 50);
-                    bot.hedefY = rastgele(50, DUNYA_YUKSEKLIK - 50);
+                    hedefX = rastgele(50, DUNYA_GENISLIK - 50);
+                    hedefY = rastgele(50, DUNYA_YUKSEKLIK - 50);
                 }
+            }
+            
+            if (bot.yonDegistir > 20 + rastgele(0, 20)) {
+                bot.hedefX = hedefX;
+                bot.hedefY = hedefY;
                 bot.yonDegistir = 0;
             }
 
@@ -516,7 +538,7 @@
             }
 
             if (botBas.x < botBas.r || botBas.x > DUNYA_GENISLIK - botBas.r) bot.yon.x *= -1;
-            if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.r) bot.yon.y *= -1;
+            if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.y) bot.yon.y *= -1;
             botBas.x = Math.max(botBas.r, Math.min(DUNYA_GENISLIK - botBas.r, botBas.x));
             botBas.y = Math.max(botBas.r, Math.min(DUNYA_YUKSEKLIK - botBas.r, botBas.y));
 
@@ -534,62 +556,101 @@
             }
         }
 
-        // Çarpışma kontrolü
-        for (let bot of botlar) {
+        // --- BOTLAR BİRBİRİNİ YEMESİ ---
+        for (let i = botlar.length - 1; i >= 0; i--) {
+            for (let j = botlar.length - 1; j >= 0; j--) {
+                if (i === j) continue;
+                const bot1 = botlar[i];
+                const bot2 = botlar[j];
+                const bot1Bas = bot1.segmentler[0];
+                const bot2Bas = bot2.segmentler[0];
+                const mesafe = Math.hypot(bot1Bas.x - bot2Bas.x, bot1Bas.y - bot2Bas.y);
+                
+                if (mesafe < bot1Bas.r + bot2Bas.r) {
+                    if (bot1.skor > bot2.skor + 3) {
+                        // bot1 bot2'yi yer
+                        bot1.skor += bot2.skor * 0.2;
+                        bot1Bas.r += bot2.skor * 0.05;
+                        // bot2 ölür ve yem olur
+                        yemOlustur(bot2Bas.x, bot2Bas.y, bot2.skor * 0.3);
+                        botlar.splice(j, 1);
+                        botOlustur();
+                    } else if (bot2.skor > bot1.skor + 3) {
+                        // bot2 bot1'i yer
+                        bot2.skor += bot1.skor * 0.2;
+                        bot2Bas.r += bot1.skor * 0.05;
+                        yemOlustur(bot1Bas.x, bot1Bas.y, bot1.skor * 0.3);
+                        botlar.splice(i, 1);
+                        botOlustur();
+                    }
+                }
+            }
+        }
+
+        // --- OYUNCU-BOT ÇARPIŞMASI ---
+        for (let i = botlar.length - 1; i >= 0; i--) {
+            const bot = botlar[i];
             const botBas = bot.segmentler[0];
+            
             // Bot başı oyuncu başına çarparsa
             if (Math.hypot(bas.x - botBas.x, bas.y - botBas.y) < bas.r + botBas.r) {
                 if (bas.r > botBas.r + 3) {
+                    // Oyuncu botu yer
                     skor += bot.skor * 0.3;
                     bas.r += bot.skor * 0.1;
-                    const index = botlar.indexOf(bot);
-                    botlar.splice(index, 1);
+                    // Bot ölür ve yem olur
+                    yemOlustur(botBas.x, botBas.y, bot.skor * 0.4);
+                    botlar.splice(i, 1);
                     botOlustur();
                 } else if (botBas.r > bas.r + 3) {
-                    oyunuBitir('💀 Bir bot yılan seni yedi!');
+                    // Bot oyuncuyu yer
+                    oyunuBitir('💀 ' + bot.isim + ' seni yedi!');
                     return;
                 } else {
-                    const index = botlar.indexOf(bot);
-                    botlar.splice(index, 1);
+                    // Berabere
+                    yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
+                    botlar.splice(i, 1);
                     botOlustur();
                     oyunuBitir('💀 Berabere!');
                     return;
                 }
+                continue;
             }
 
             // Bot gövdesi oyuncu başına çarparsa (oyuncu ölür)
-            for (let i = 1; i < bot.segmentler.length; i++) {
-                const seg = bot.segmentler[i];
+            for (let j = 1; j < bot.segmentler.length; j++) {
+                const seg = bot.segmentler[j];
                 if (Math.hypot(bas.x - seg.x, bas.y - seg.y) < bas.r + seg.r) {
                     if (bas.r > bot.skor + 3) {
                         // Oyuncu büyükse botu yer
                         skor += bot.skor * 0.2;
                         bas.r += bot.skor * 0.05;
-                        const index = botlar.indexOf(bot);
-                        botlar.splice(index, 1);
+                        yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
+                        botlar.splice(i, 1);
                         botOlustur();
                         break;
                     } else {
-                        oyunuBitir('💀 Bot gövdesine çarptın!');
+                        // Bot gövdesine çarptı - oyuncu ölür
+                        oyunuBitir('💀 ' + bot.isim + '\'in gövdesine çarptın!');
                         return;
                     }
                 }
             }
 
             // Oyuncu gövdesi bot başına çarparsa (bot ölür)
-            for (let i = 1; i < yilan.length; i++) {
-                const seg = yilan[i];
+            for (let j = 1; j < yilan.length; j++) {
+                const seg = yilan[j];
                 if (Math.hypot(botBas.x - seg.x, botBas.y - seg.y) < botBas.r + seg.r) {
                     if (bot.skor > bas.r + 3) {
                         // Bot büyükse oyuncu ölür
-                        oyunuBitir('💀 Bot sana çarptı!');
+                        oyunuBitir('💀 ' + bot.isim + ' sana çarptı!');
                         return;
                     } else {
                         // Bot ölür
                         skor += bot.skor * 0.2;
                         bas.r += bot.skor * 0.05;
-                        const index = botlar.indexOf(bot);
-                        botlar.splice(index, 1);
+                        yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
+                        botlar.splice(i, 1);
                         botOlustur();
                         break;
                     }
@@ -614,6 +675,17 @@
         siralamaGuncelle();
 
         animasyonId = requestAnimationFrame(oyunDongusu);
+    }
+
+    function yemOlustur(x, y, miktar) {
+        const sayi = Math.min(Math.floor(miktar / 5) + 3, 15);
+        for (let i = 0; i < sayi; i++) {
+            yemler.push({
+                x: x + rastgele(-20, 20),
+                y: y + rastgele(-20, 20),
+                r: 4
+            });
+        }
     }
 
     function cizimYap() {
@@ -652,7 +724,7 @@
         }
         ctx.shadowBlur = 0;
 
-        // Bot yılanları çiz
+        // Bot yılanları
         for (let bot of botlar) {
             for (let i = 0; i < bot.segmentler.length; i++) {
                 const seg = bot.segmentler[i];
@@ -671,9 +743,16 @@
                 ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
                 ctx.fill();
             }
-            // Bot gözleri (başta)
+            // Bot ismi
             const botBas = bot.segmentler[0];
             ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.font = Math.max(8, botBas.r * 0.4) + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 12);
+
+            // Bot gözleri
             ctx.fillStyle = 'white';
             const gozR = botBas.r * 0.15;
             ctx.beginPath();
@@ -692,7 +771,7 @@
             ctx.fill();
         }
 
-        // Oyuncu yılanını çiz
+        // Oyuncu yılanı
         for (let i = 0; i < yilan.length; i++) {
             const seg = yilan[i];
             const radius = i === 0 ? seg.r : seg.r * 0.85;
@@ -711,7 +790,7 @@
             ctx.fill();
         }
 
-        // Oyuncu gözleri (başta)
+        // Oyuncu gözleri
         const bas = yilan[0];
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'white';
@@ -747,7 +826,7 @@
         durumMesaji.textContent = '🔄 Oyun sıfırlandı';
         baslatBtn.textContent = '▶ Başlat';
         baslatBtn.disabled = false;
-        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0, 12);
         yon = { x: 1, y: 0 };
         yemler = [];
         botlar = [];
@@ -764,7 +843,7 @@
     let animasyonId;
 
     function baslangic() {
-        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0);
+        yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 5, 1, 0, 12);
         yemler = [];
         botlar = [];
         for (let i = 0; i < YEM_SAYISI; i++) {
