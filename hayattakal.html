@@ -1,632 +1,338 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Hayatta Kal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
-        body {
-            background: linear-gradient(-45deg, #0a0a1a, #1a0a2e, #0a1a2e, #1a0a2e);
-            background-size: 500% 500%;
-            animation: gradientAkis 14s ease infinite;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            padding: 30px 20px;
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        @keyframes gradientAkis {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        @keyframes nabizAt {
-            0%,
-            100% {
-                text-shadow: 0 0 15px #60a5fa, 0 0 30px #60a5fa;
-            }
-            50% {
-                text-shadow: 0 0 25px #60a5fa, 0 0 50px #60a5fa;
-            }
-        }
-        h1 {
-            color: #60a5fa;
-            animation: nabizAt 2.5s ease-in-out infinite;
-            font-size: 34px;
-            font-weight: 700;
-            margin: 0 0 6px 0;
-        }
-        p.aciklama {
-            font-size: 16px;
-            opacity: 0.7;
-            margin: 0 0 20px 0;
-        }
-
-        .oyun-kapsayici {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            max-width: 800px;
-            width: 100%;
-            position: relative;
-        }
-
-        .oyun-alani {
-            position: relative;
-            width: 100%;
-            padding-bottom: 75%;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: #0a0a12;
-            touch-action: none;
-        }
-
-        /* HUD */
-        .hud {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 24px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 6px 18px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 13px;
-            font-weight: 500;
-            z-index: 10;
-            pointer-events: none;
-        }
-        .hud span {
-            color: #8888aa;
-        }
-        .hud .val {
-            color: #fff;
-        }
-        .hud .score-val {
-            color: #fbbf24;
-        }
-        .hud .size-val {
-            color: #60a5fa;
-        }
-
-        /* Joystick */
-        .joystick {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            border: 2px solid rgba(255, 255, 255, 0.08);
-            z-index: 10;
-            touch-action: none;
-        }
-        .joystick-knob {
-            position: absolute;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 35%, #60a5fa, #2563eb);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
-            pointer-events: none;
-            transition: none;
-        }
-
-        /* Game Over */
-        .game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(6px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 20;
-            border-radius: 16px;
-        }
-        .game-over.show {
-            display: flex;
-        }
-        .game-over h2 {
-            font-size: 40px;
-            color: #ef4444;
-            margin: 0;
-        }
-        .game-over .sub {
-            color: #8888aa;
-            font-size: 15px;
-        }
-        .game-over .final-score {
-            color: #fbbf24;
-            font-size: 36px;
-            font-weight: 700;
-            margin: 4px 0 18px;
-        }
-        .btn {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            border: none;
-            color: white;
-            padding: 12px 36px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-        }
-        .btn-home {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 10px 28px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-            text-decoration: none;
-        }
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        /* Ana sayfa linki */
-        a.geri {
-            color: #60a5fa;
-            display: inline-block;
-            margin-top: 18px;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 600;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-        a.geri:hover {
-            opacity: 1;
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 26px;
-            }
-            .hud {
-                font-size: 11px;
-                padding: 4px 12px;
-                gap: 14px;
-                top: 8px;
-            }
-            .joystick {
-                width: 80px;
-                height: 80px;
-                bottom: 14px;
-                left: 14px;
-            }
-            .joystick-knob {
-                width: 36px;
-                height: 36px;
-            }
-            .game-over h2 {
-                font-size: 30px;
-            }
-            .game-over .final-score {
-                font-size: 28px;
-            }
-            .oyun-kapsayici {
-                padding: 12px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Hayatta Kal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(-45deg, #3a0000, #5c0d00, #4a0500, #6b1400, #2e0000);
+      background-size: 500% 500%;
+      animation: gradientAkis 14s ease infinite;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 20px 12px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #ff5252, 0 0 30px #ff5252; }
+      50% { text-shadow: 0 0 25px #ff5252, 0 0 50px #ff5252; }
+    }
+    h1 {
+      color: #ff5252;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    #skor {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    #oyunKapsayici {
+      position: relative;
+      width: 360px;
+      max-width: 100%;
+      aspect-ratio: 3 / 4;
+      margin: 0 auto;
+      border: 3px solid #ff5252;
+      border-radius: 14px;
+      overflow: hidden;
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: #1a0505;
+    }
+    #joystickTaban {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,82,82,0.6);
+    }
+    #joystickTop {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255,82,82,0.85);
+      transform: translate(-50%, -50%);
+      transition: left 0.05s, top 0.05s;
+    }
+    #durum {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 14px;
+      min-height: 28px;
+    }
+    button.baslat {
+      margin-top: 10px;
+      background-color: #ff5252;
+      border: none;
+      color: #2e0000;
+      padding: 12px 26px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    p.aciklama {
+      font-size: 13px;
+      opacity: 0.75;
+      margin-top: 10px;
+    }
+    a {
+      color: #ff5252;
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
+  <h1>🔴 Hayatta Kal</h1>
+  <p id="skor">Boyut: 10</p>
 
-    <div class="oyun-kapsayici">
-        <h1>🐉 Hayatta Kal</h1>
-        <p class="aciklama">Yemekleri ye büyü, düşmanlardan kaç!</p>
-
-        <div class="oyun-alani">
-            <canvas id="oyunCanvas"></canvas>
-
-            <!-- HUD -->
-            <div class="hud">
-                <div>⭐ <span class="val score-val" id="skorGoster">0</span></div>
-                <div>📏 <span class="val size-val" id="boyutGoster">20</span></div>
-                <div>👾 <span class="val" id="dusmanSayisi">0</span></div>
-            </div>
-
-            <!-- Joystick -->
-            <div class="joystick" id="joystickAlani">
-                <div class="joystick-knob" id="joystickTop"></div>
-            </div>
-
-            <!-- Game Over -->
-            <div class="game-over" id="gameOver">
-                <h2>💀 ÖLDÜN</h2>
-                <div class="sub">Puanın</div>
-                <div class="final-score" id="finalSkor">0</div>
-                <button class="btn" id="yenidenBtn">🔄 Tekrar Oyna</button>
-                <a class="btn-home" href="index.html">← Ana Sayfa</a>
-            </div>
-        </div>
-
-        <a class="geri" href="index.html">⬅ Ana sayfaya dön</a>
+  <div id="oyunKapsayici">
+    <canvas id="oyunAlani"></canvas>
+    <div id="joystickTaban">
+      <div id="joystickTop"></div>
     </div>
+  </div>
 
-    <script>
-        // ============================================================
-        //  HAYATTA KAL - Basit ve Eğlenceli
-        // ============================================================
+  <p id="durum">Sol alttaki joystick ile yön ver, küçükleri ye, büyüklerden kaç!</p>
+  <button class="baslat" onclick="oyunuBaslat()">▶ Başlat / Yeniden Başlat</button>
+  <p class="aciklama">🟢 Senden küçük (yenir) · 🔴 Senden büyük (tehlike)</p>
 
-        const canvas = document.getElementById('oyunCanvas');
-        const ctx = canvas.getContext('2d');
+  <a href="index.html">⬅ Ana sayfaya dön</a>
 
-        let W, H;
+  <script>
+    const canvas = document.getElementById("oyunAlani");
+    const ctx = canvas.getContext("2d");
+    const kapsayici = document.getElementById("oyunKapsayici");
 
-        function boyutlandir() {
-            const parent = canvas.parentElement;
-            const rect = parent.getBoundingClientRect();
-            W = canvas.width = rect.width;
-            H = canvas.height = rect.height;
+    let W, H;
+    function boyutlandir() {
+      W = canvas.width = kapsayici.clientWidth;
+      H = canvas.height = kapsayici.clientHeight;
+    }
+    boyutlandir();
+    window.addEventListener("resize", boyutlandir);
+
+    const DUNYA_GENISLIK = 1600;
+    const DUNYA_YUKSEKLIK = 1600;
+    const MAKS_BOT = 12;
+
+    let oyuncu, botlar, yemler, oyunAktif, animasyonId;
+    let kamera = { x: 0, y: 0 };
+
+    function rastgele(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function oyunuBaslat() {
+      oyuncu = { x: DUNYA_GENISLIK/2, y: DUNYA_YUKSEKLIK/2, r: 12, hiz: 2.6 };
+      botlar = [];
+      yemler = [];
+      oyunAktif = true;
+
+      for (let i = 0; i < 90; i++) {
+        yemler.push({ x: rastgele(20, DUNYA_GENISLIK-20), y: rastgele(20, DUNYA_YUKSEKLIK-20), r: 4 });
+      }
+      for (let i = 0; i < MAKS_BOT; i++) {
+        botUret();
+      }
+
+      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
+      document.getElementById("durum").textContent = "Hayatta kal!";
+
+      if (animasyonId) cancelAnimationFrame(animasyonId);
+      dongu();
+    }
+
+    function botUret() {
+      const kucukMu = Math.random() < 0.55;
+      let r;
+      if (kucukMu) {
+        r = rastgele(6, Math.max(8, oyuncu.r * 0.75));
+      } else {
+        r = rastgele(oyuncu.r * 1.15, oyuncu.r * 1.8 + 10);
+      }
+      r = Math.min(r, 55);
+
+      let x, y, deneme = 0, uygun = false;
+      while (deneme < 25 && !uygun) {
+        x = rastgele(r + 10, DUNYA_GENISLIK - r - 10);
+        y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
+        if (Math.hypot(x - oyuncu.x, y - oyuncu.y) > 150) uygun = true;
+        deneme++;
+      }
+      if (!uygun) {
+        x = rastgele(r + 10, DUNYA_GENISLIK - r - 10);
+        y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
+      }
+
+      botlar.push({ x, y, r, vx: rastgele(-1,1), vy: rastgele(-1,1), yonSayaci: 0 });
+    }
+
+    // --- Sanal joystick ---
+    const joyTaban = document.getElementById("joystickTaban");
+    const joyTop = document.getElementById("joystickTop");
+    let joyAktif = false;
+    let joyVektor = { x: 0, y: 0 };
+    let joyMerkez = { x: 0, y: 0 };
+    const joyYaricap = 35;
+
+    function joyBasla(e) {
+      joyAktif = true;
+      const rect = joyTaban.getBoundingClientRect();
+      joyMerkez = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+      e.preventDefault();
+    }
+
+    function joyHareket(clientX, clientY) {
+      if (!joyAktif) return;
+      let dx = clientX - joyMerkez.x;
+      let dy = clientY - joyMerkez.y;
+      const uzunluk = Math.hypot(dx, dy);
+      if (uzunluk > joyYaricap) {
+        dx = (dx / uzunluk) * joyYaricap;
+        dy = (dy / uzunluk) * joyYaricap;
+      }
+      joyTop.style.left = "calc(50% + " + dx + "px)";
+      joyTop.style.top = "calc(50% + " + dy + "px)";
+      joyVektor = { x: dx / joyYaricap, y: dy / joyYaricap };
+    }
+
+    function joyBitir() {
+      joyAktif = false;
+      joyVektor = { x: 0, y: 0 };
+      joyTop.style.left = "50%";
+      joyTop.style.top = "50%";
+    }
+
+    joyTaban.addEventListener("touchstart", (e) => joyBasla(e), {passive: false});
+    joyTaban.addEventListener("touchmove", (e) => {
+      const t = e.touches[0];
+      joyHareket(t.clientX, t.clientY);
+      e.preventDefault();
+    }, {passive: false});
+    joyTaban.addEventListener("touchend", joyBitir);
+
+    joyTaban.addEventListener("mousedown", (e) => joyBasla(e));
+    document.addEventListener("mousemove", (e) => { if (joyAktif) joyHareket(e.clientX, e.clientY); });
+    document.addEventListener("mouseup", joyBitir);
+
+    function dongu() {
+      if (!oyunAktif) return;
+
+      if (joyVektor.x !== 0 || joyVektor.y !== 0) {
+        oyuncu.x += joyVektor.x * oyuncu.hiz;
+        oyuncu.y += joyVektor.y * oyuncu.hiz;
+      }
+
+      oyuncu.x = Math.max(oyuncu.r, Math.min(DUNYA_GENISLIK - oyuncu.r, oyuncu.x));
+      oyuncu.y = Math.max(oyuncu.r, Math.min(DUNYA_YUKSEKLIK - oyuncu.r, oyuncu.y));
+
+      kamera.x = Math.max(0, Math.min(DUNYA_GENISLIK - W, oyuncu.x - W/2));
+      kamera.y = Math.max(0, Math.min(DUNYA_YUKSEKLIK - H, oyuncu.y - H/2));
+
+      for (let bot of botlar) {
+        bot.yonSayaci++;
+        if (bot.yonSayaci > 60) {
+          bot.vx = rastgele(-1, 1);
+          bot.vy = rastgele(-1, 1);
+          bot.yonSayaci = 0;
         }
-        boyutlandir();
-        window.addEventListener('resize', boyutlandir);
+        bot.x += bot.vx * 1.1;
+        bot.y += bot.vy * 1.1;
+        bot.x = Math.max(bot.r, Math.min(DUNYA_GENISLIK - bot.r, bot.x));
+        bot.y = Math.max(bot.r, Math.min(DUNYA_YUKSEKLIK - bot.r, bot.y));
+      }
 
-        // ============================================================
-        //  OYUN DEĞİŞKENLERİ
-        // ============================================================
-
-        const MAP_SIZE = 1800;
-        const cam = { x: 0, y: 0 };
-
-        const oyuncu = {
-            x: 0,
-            y: 0,
-            radius: 20,
-            hedefRadius: 20,
-            hiz: 2.8,
-            alive: true,
-            skor: 0
-        };
-
-        let yemekler = [];
-        let dusmanlar = [];
-
-        // Joystick
-        const joy = {
-            aktif: false,
-            dx: 0,
-            dy: 0,
-            alan: document.getElementById('joystickAlani'),
-            top: document.getElementById('joystickTop')
-        };
-
-        // DOM
-        const skorEl = document.getElementById('skorGoster');
-        const boyutEl = document.getElementById('boyutGoster');
-        const dusmanEl = document.getElementById('dusmanSayisi');
-        const gameOverEl = document.getElementById('gameOver');
-        const finalSkorEl = document.getElementById('finalSkor');
-        const yenidenBtn = document.getElementById('yenidenBtn');
-
-        let yemekSpawn = 0;
-        let dusmanSpawn = 0;
-        let frame = 0;
-
-        // ============================================================
-        //  YARDIMCI
-        // ============================================================
-
-        function r(min, max) { return Math.random() * (max - min) + min; }
-
-        function ri(min, max) { return Math.floor(r(min, max + 1)); }
-
-        function mesafe(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
-
-        function sinirla(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-        // ============================================================
-        //  OLUŞTUR
-        // ============================================================
-
-        function yemekOlustur() {
-            const a = r(0, Math.PI * 2);
-            const d = r(200, MAP_SIZE / 2.5);
-            return {
-                x: oyuncu.x + Math.cos(a) * d,
-                y: oyuncu.y + Math.sin(a) * d,
-                radius: r(4, 10),
-                renk: `hsl(${ri(30, 60)}, 80%, 60%)`,
-                pulse: r(0, Math.PI * 2)
-            };
+      for (let i = yemler.length - 1; i >= 0; i--) {
+        const y = yemler[i];
+        if (Math.hypot(oyuncu.x - y.x, oyuncu.y - y.y) < oyuncu.r + y.r) {
+          oyuncu.r = Math.min(oyuncu.r + 0.4, 70);
+          yemler.splice(i, 1);
+          yemler.push({ x: rastgele(20, DUNYA_GENISLIK-20), y: rastgele(20, DUNYA_YUKSEKLIK-20), r: 4 });
         }
+      }
 
-        function dusmanOlustur() {
-            const oran = r(0.3, 2.8);
-            const radius = Math.max(10, oyuncu.radius * oran);
-            const a = r(0, Math.PI * 2);
-            const d = r(300, MAP_SIZE / 2);
-
-            return {
-                x: oyuncu.x + Math.cos(a) * d,
-                y: oyuncu.y + Math.sin(a) * d,
-                radius: radius,
-                hiz: r(0.3, 1.2) * (1 + (1 - oran) * 0.3),
-                aci: r(0, Math.PI * 2),
-                donus: ri(0, 100),
-                donusAralik: ri(60, 180),
-                buyuk: oran > 1.3,
-                renk: `hsl(${oran > 1.3 ? ri(340, 20) : ri(100, 160)}, 70%, 50%)`
-            };
+      const silinecekler = [];
+      for (let i = botlar.length - 1; i >= 0; i--) {
+        const bot = botlar[i];
+        const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
+        if (mesafe < oyuncu.r + bot.r) {
+          if (oyuncu.r > bot.r + 2) {
+            oyuncu.r = Math.min(oyuncu.r + bot.r * 0.3, 70);
+            silinecekler.push(i);
+          } else if (bot.r > oyuncu.r + 2) {
+            oyunBitti();
+            return;
+          }
         }
+      }
+      for (let i of silinecekler) botlar.splice(i, 1);
+      while (botlar.length < MAKS_BOT) botUret();
 
-        // ============================================================
-        //  BAŞLAT
-        // ============================================================
+      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
 
-        function oyunuBaslat() {
-            oyuncu.x = 0;
-            oyuncu.y = 0;
-            oyuncu.radius = 20;
-            oyuncu.hedefRadius = 20;
-            oyuncu.hiz = 2.8;
-            oyuncu.alive = true;
-            oyuncu.skor = 0;
+      cizim();
+      animasyonId = requestAnimationFrame(dongu);
+    }
 
-            yemekler = [];
-            dusmanlar = [];
-            cam.x = 0;
-            cam.y = 0;
+    function oyunBitti() {
+      oyunAktif = false;
+      document.getElementById("durum").textContent = "💀 Yakalandın! Boyut: " + Math.round(oyuncu.r);
+    }
 
-            gameOverEl.classList.remove('show');
+    function cizim() {
+      ctx.fillStyle = "#1a0505";
+      ctx.fillRect(0, 0, W, H);
 
-            for (let i = 0; i < 18; i++) yemekler.push(yemekOlustur());
-            for (let i = 0; i < 5; i++) dusmanlar.push(dusmanOlustur());
+      // Izgara (dünya hissi vermek için)
+      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.lineWidth = 1;
+      const izgaraAraligi = 50;
+      const baslangicX = -(kamera.x % izgaraAraligi);
+      const baslangicY = -(kamera.y % izgaraAraligi);
+      for (let x = baslangicX; x < W; x += izgaraAraligi) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = baslangicY; y < H; y += izgaraAraligi) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
 
-            guncelleHUD();
-        }
+      // Dünya kenarları (duvarlar)
+      ctx.strokeStyle = "#ff5252";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-kamera.x, -kamera.y, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-        // ============================================================
-        //  GÜNCELLE
-        // ============================================================
-
-        function guncelle() {
-            if (!oyuncu.alive) return;
-
-            frame++;
-
-            // Joystick
-            let dx = 0,
-                dy = 0;
-            if (joy.aktif) {
-                const mag = Math.hypot(joy.dx, joy.dy);
-                if (mag > 0.1) {
-                    const norm = Math.min(1, mag);
-                    dx = (joy.dx / mag) * oyuncu.hiz * norm;
-                    dy = (joy.dy / mag) * oyuncu.hiz * norm;
-                }
-            }
-
-            oyuncu.x += dx;
-            oyuncu.y += dy;
-
-            const limit = MAP_SIZE / 2 - oyuncu.radius;
-            oyuncu.x = sinirla(oyuncu.x, -limit, limit);
-            oyuncu.y = sinirla(oyuncu.y, -limit, limit);
-
-            oyuncu.radius += (oyuncu.hedefRadius - oyuncu.radius) * 0.06;
-            oyuncu.radius = Math.max(12, oyuncu.radius);
-
-            cam.x = oyuncu.x - W / 2;
-            cam.y = oyuncu.y - H / 2;
-
-            // ---- YEMEKLER ----
-            for (let i = yemekler.length - 1; i >= 0; i--) {
-                const y = yemekler[i];
-                if (mesafe(oyuncu.x, oyuncu.y, y.x, y.y) < oyuncu.radius + y.radius) {
-                    oyuncu.hedefRadius += y.radius * 0.12;
-                    oyuncu.skor += Math.floor(y.radius) + 1;
-                    yemekler.splice(i, 1);
-                }
-            }
-
-            yemekSpawn++;
-            if (yemekSpawn > 18 && yemekler.length < 35) {
-                yemekler.push(yemekOlustur());
-                yemekSpawn = 0;
-            }
-
-            // ---- DÜŞMANLAR ----
-            for (let i = dusmanlar.length - 1; i >= 0; i--) {
-                const d = dusmanlar[i];
-
-                d.donus++;
-                if (d.donus > d.donusAralik) {
-                    d.donus = 0;
-                    d.aci += r(-0.3, 0.3);
-                    d.donusAralik = ri(60, 200);
-                }
-
-                if (d.buyuk) {
-                    const hedef = Math.atan2(oyuncu.y - d.y, oyuncu.x - d.x);
-                    d.aci += (hedef - d.aci) * 0.02;
-                }
-
-                d.aci += r(-0.02, 0.02);
-                d.x += Math.cos(d.aci) * d.hiz;
-                d.y += Math.sin(d.aci) * d.hiz;
-
-                const dLimit = MAP_SIZE / 2 - d.radius;
-                if (d.x > dLimit) { d.x = dLimit;
-                    d.aci = Math.PI - d.aci; }
-                if (d.x < -dLimit) { d.x = -dLimit;
-                    d.aci = Math.PI - d.aci; }
-                if (d.y > dLimit) { d.y = dLimit;
-                    d.aci = -d.aci; }
-                if (d.y < -dLimit) { d.y = -dLimit;
-                    d.aci = -d.aci; }
-
-                // Çarpışma
-                const m = mesafe(oyuncu.x, oyuncu.y, d.x, d.y);
-                const esik = oyuncu.radius + d.radius;
-
-                if (m < esik) {
-                    if (oyuncu.radius > d.radius * 1.2) {
-                        oyuncu.hedefRadius += d.radius * 0.06;
-                        oyuncu.skor += Math.floor(d.radius * 0.5) + 2;
-                        dusmanlar.splice(i, 1);
-                    } else if (d.radius > oyuncu.radius * 1.2) {
-                        oyuncu.alive = false;
-                        oyunBitti();
-                        return;
-                    } else {
-                        const a = Math.atan2(d.y - oyuncu.y, d.x - oyuncu.x);
-                        const carp = (esik - m) / 2 + 1;
-                        oyuncu.x -= Math.cos(a) * carp;
-                        oyuncu.y -= Math.sin(a) * carp;
-                        d.x += Math.cos(a) * carp;
-                        d.y += Math.sin(a) * carp;
-                    }
-                }
-
-                // Düşman-düşman
-                for (let j = i - 1; j >= 0; j--) {
-                    const other = dusmanlar[j];
-                    const m2 = mesafe(d.x, d.y, other.x, other.y);
-                    const minD = d.radius + other.radius;
-                    if (m2 < minD && m2 > 0.01) {
-                        const a = Math.atan2(other.y - d.y, other.x - d.x);
-                        const carp = (minD - m2) / 2;
-                        d.x -= Math.cos(a) * carp;
-                        d.y -= Math.sin(a) * carp;
-                        other.x += Math.cos(a) * carp;
-                        other.y += Math.sin(a) * carp;
-                    }
-                }
-            }
-
-            dusmanSpawn++;
-            if (dusmanSpawn > 100 && dusmanlar.length < 14) {
-                dusmanlar.push(dusmanOlustur());
-                dusmanSpawn = 0;
-            }
-
-            guncelleHUD();
-        }
-
-        // ============================================================
-        //  ÇİZ
-        // ============================================================
-
-        function ciz() {
-            ctx.clearRect(0, 0, W, H);
-
-            // Grid
-            const grid = 50;
-            const ox = -cam.x % grid;
-            const oy = -cam.y % grid;
-
-            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-            ctx.lineWidth = 1;
-            for (let x = ox - grid; x < W + grid; x += grid) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, H);
-                ctx.stroke();
-            }
-            for (let y = oy - grid; y < H + grid; y += grid) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(W, y);
-                ctx.stroke();
-            }
-
-            // ---- YEMEKLER ----
-            for (const y of yemekler) {
-                const sx = y.x - cam.x;
-                const sy = y.y - cam.y;
-                if (sx < -30 || sx > W + 30 || sy < -30 || sy > H + 30) continue;
-
-                const pulse = Math.sin(y.pulse + frame * 0.05) * 0.15 + 0.85;
-                const r = y.radius * pulse;
-
-                ctx.shadowColor = y.renk;
-                ctx.shadowBlur = 12;
-                ctx.beginPath();
-                ctx.arc(sx, sy, r, 0, Math.PI * 2);
-                ctx.fillStyle = y.renk;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.font = `${r * 1.2}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('✦', sx, sy + 1);
-            }
-
-            // ---- DÜŞMANLAR ----
-            for (const d of dusmanlar) {
-                const sx = d.x - cam.x;
-                const sy = d.y - cam.y;
-                if (sx < -80 || sx > W + 80 || sy < -80 || sy > H + 80) continue;
-
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 15;
-
-                const grad = ctx.createRadialGradient(
-                    sx - d.radius * 0.2, sy - d.radius * 0.2, 0,
-                    sx, sy, d.radius
-                );
-                grad.addColorStop(0, d.renk);
-                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
-
-                ctx.beginPath();
-                ctx.arc(sx, sy, d.radius, 0, Math.PI * 2);
-                ctx.fillStyle = grad;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                // Gözler
-                const gozBoyut = d.radius * 0.18;
-                const gozOfset = d.radius * 0.3;
-                ctx.fillStyle 
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      for (let y of yemler) {
+        const sx = y.x - kamera.x, sy = y.y - kamera.y;
+        if (sx < -10 || sx > W+10 || sy < -10 || sy > H+10) continue;
+        ctx.beginPath();
+        ctx.arc(sx, sy, y.r, 0, Math.
