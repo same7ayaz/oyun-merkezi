@@ -67,7 +67,7 @@ function botUret() {
   let r;
   if (kucukMu) { r = rastgele(4, Math.max(6, oyuncu.r * 0.9)); }
   else { r = rastgele(oyuncu.r + 2, oyuncu.r * 2.4 + 20); }
-  r = Math.min(r, 120);
+  r = Math.min(r, 500);
   let x = rastgele(r + 10, DUNYA_GENISLIK - r - 10);
   let y = rastgele(r + 10, DUNYA_YUKSEKLIK - r - 10);
   let deneme = 0;
