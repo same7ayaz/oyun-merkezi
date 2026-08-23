@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Oyun Merkezi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       background-size: 400% 400%;
       animation: gradientAkis 15s ease infinite;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Poppins', sans-serif;
       text-align: center;
       padding-top: 60px;
       min-height: 100vh;
@@ -20,10 +25,25 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    @keyframes girisAnimasyonu {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     h1 {
       color: #00fff2;
       text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
       font-size: 36px;
+      font-weight: 700;
+      animation: girisAnimasyonu 0.6s ease;
+    }
+    p.altyazi {
+      opacity: 0.8;
+      animation: girisAnimasyonu 0.6s ease 0.1s backwards;
+    }
+    .kartlar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .kart {
       display: inline-block;
@@ -35,38 +55,61 @@
       width: 200px;
       text-decoration: none;
       color: white;
-      transition: 0.3s;
+      transition: 0.2s;
       box-shadow: 0 0 8px rgba(0,255,242,0.3);
+      animation: girisAnimasyonu 0.6s ease backwards;
     }
+    .kart:nth-child(1) { animation-delay: 0.15s; }
+    .kart:nth-child(2) { animation-delay: 0.3s; }
+    .kart:nth-child(3) { animation-delay: 0.45s; }
     .kart:hover {
       background-color: #00fff2;
       color: #0f0c29;
       box-shadow: 0 0 25px #00fff2;
       transform: scale(1.05);
     }
+    .kart:active {
+      background-color: #00fff2;
+      color: #0f0c29;
+      transform: scale(0.97);
+    }
     .kart h2 {
       margin: 0;
+      font-size: 32px;
+    }
+    .kart p {
+      font-weight: 600;
+      margin: 8px 0 0;
+    }
+    footer {
+      margin-top: 60px;
+      padding-bottom: 20px;
+      font-size: 13px;
+      opacity: 0.5;
     }
   </style>
 </head>
 <body>
   <h1>🎮 Oyun Merkezi</h1>
-  <p>Oynamak istediğin oyunu seç</p>
+  <p class="altyazi">Oynamak istediğin oyunu seç</p>
 
-  <a class="kart" href="tahmin.html">
-    <h2>🔢</h2>
-    <p>Sayı Tahmin</p>
-  </a>
+  <div class="kartlar">
+    <a class="kart" href="tahmin.html">
+      <h2>🔢</h2>
+      <p>Sayı Tahmin</p>
+    </a>
 
-  <a class="kart" href="taskagit.html">
-    <h2>✊✋✌️</h2>
-    <p>Taş-Kağıt-Makas</p>
-  </a>
+    <a class="kart" href="taskagit.html">
+      <h2>✊✋✌️</h2>
+      <p>Taş-Kağıt-Makas</p>
+    </a>
 
-  <a class="kart" href="hafiza.html">
-    <h2>🧠</h2>
-    <p>Hafıza Kartları</p>
-  </a>
+    <a class="kart" href="hafiza.html">
+      <h2>🧠</h2>
+      <p>Hafıza Kartları</p>
+    </a>
+  </div>
 
+  <footer>yapımcı: same7ayaz</footer>
 </body>
-    </html>
+</html>
