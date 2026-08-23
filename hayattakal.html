@@ -1,47 +1,88 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hayatta Kal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
             user-select: none;
         }
-
         body {
-            background: #0f0f1a;
+            background: linear-gradient(-45deg, #0a0a1a, #1a0a2e, #0a1a2e, #1a0a2e);
+            background-size: 500% 500%;
+            animation: gradientAkis 14s ease infinite;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 30px 20px;
+            min-height: 100vh;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
+        }
+        @keyframes gradientAkis {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        @keyframes nabizAt {
+            0%,
+            100% {
+                text-shadow: 0 0 15px #60a5fa, 0 0 30px #60a5fa;
+            }
+            50% {
+                text-shadow: 0 0 25px #60a5fa, 0 0 50px #60a5fa;
+            }
+        }
+        h1 {
+            color: #60a5fa;
+            animation: nabizAt 2.5s ease-in-out infinite;
+            font-size: 34px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+        }
+        p.aciklama {
+            font-size: 16px;
+            opacity: 0.7;
+            margin: 0 0 20px 0;
         }
 
-        .game-wrapper {
-            background: #1a1a2e;
-            border-radius: 24px;
-            padding: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        .oyun-kapsayici {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.06);
+            max-width: 800px;
+            width: 100%;
+            position: relative;
         }
 
-        .game-container {
+        .oyun-alani {
             position: relative;
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            padding-bottom: 75%;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 16px;
             overflow: hidden;
-            background: #0a0a12;
         }
 
         canvas {
-            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            display: block;
             background: #0a0a12;
             touch-action: none;
         }
@@ -56,58 +97,53 @@
             gap: 24px;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            padding: 8px 20px;
+            padding: 6px 18px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             z-index: 10;
             pointer-events: none;
         }
-
         .hud span {
             color: #8888aa;
         }
-
         .hud .val {
             color: #fff;
         }
-
         .hud .score-val {
             color: #fbbf24;
         }
-
         .hud .size-val {
             color: #60a5fa;
         }
 
         /* Joystick */
-        .joystick-area {
+        .joystick {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
-            width: 120px;
-            height: 120px;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border: 2px solid rgba(255, 255, 255, 0.08);
             z-index: 10;
             touch-action: none;
         }
-
         .joystick-knob {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: radial-gradient(circle at 40% 35%, #60a5fa, #2563eb);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
-            transition: none;
             pointer-events: none;
+            transition: none;
         }
 
         /* Game Over */
@@ -126,51 +162,44 @@
             z-index: 20;
             border-radius: 16px;
         }
-
         .game-over.show {
             display: flex;
         }
-
-        .game-over h1 {
-            font-size: 48px;
+        .game-over h2 {
+            font-size: 40px;
             color: #ef4444;
-            margin-bottom: 4px;
+            margin: 0;
         }
-
         .game-over .sub {
             color: #8888aa;
-            font-size: 16px;
+            font-size: 15px;
         }
-
         .game-over .final-score {
             color: #fbbf24;
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 700;
-            margin: 6px 0 20px;
+            margin: 4px 0 18px;
         }
-
         .btn {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             border: none;
             color: white;
             padding: 12px 36px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
-
         .btn:hover {
             transform: scale(1.05);
         }
-
         .btn-home {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
             padding: 10px 28px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -178,402 +207,373 @@
             margin-top: 10px;
             text-decoration: none;
         }
-
         .btn-home:hover {
             background: rgba(255, 255, 255, 0.15);
         }
 
-        /* Responsive */
-        @media (max-width: 850px) {
-            .game-container {
-                width: 95vw;
-                height: 80vh;
-            }
-            .game-wrapper {
-                padding: 10px;
-                border-radius: 16px;
-            }
-            .joystick-area {
-                width: 100px;
-                height: 100px;
-                bottom: 20px;
-                left: 20px;
-            }
-            .joystick-knob {
-                width: 40px;
-                height: 40px;
+        /* Ana sayfa linki */
+        a.geri {
+            color: #60a5fa;
+            display: inline-block;
+            margin-top: 18px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        a.geri:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 26px;
             }
             .hud {
-                font-size: 12px;
-                padding: 6px 14px;
+                font-size: 11px;
+                padding: 4px 12px;
                 gap: 14px;
                 top: 8px;
             }
-        }
-
-        @media (max-width: 500px) {
-            .joystick-area {
+            .joystick {
                 width: 80px;
                 height: 80px;
-                bottom: 16px;
-                left: 16px;
+                bottom: 14px;
+                left: 14px;
             }
             .joystick-knob {
-                width: 34px;
-                height: 34px;
+                width: 36px;
+                height: 36px;
             }
-            .game-over h1 {
-                font-size: 32px;
+            .game-over h2 {
+                font-size: 30px;
             }
             .game-over .final-score {
-                font-size: 30px;
+                font-size: 28px;
+            }
+            .oyun-kapsayici {
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-wrapper">
-        <div class="game-container">
-            <canvas id="gameCanvas"></canvas>
+    <div class="oyun-kapsayici">
+        <h1>🐉 Hayatta Kal</h1>
+        <p class="aciklama">Yemekleri ye büyü, düşmanlardan kaç!</p>
+
+        <div class="oyun-alani">
+            <canvas id="oyunCanvas"></canvas>
 
             <!-- HUD -->
             <div class="hud">
-                <div>⭐ <span class="val score-val" id="scoreDisplay">0</span></div>
-                <div>📏 <span class="val size-val" id="sizeDisplay">20</span></div>
-                <div>👾 <span class="val" id="enemyCount">0</span></div>
+                <div>⭐ <span class="val score-val" id="skorGoster">0</span></div>
+                <div>📏 <span class="val size-val" id="boyutGoster">20</span></div>
+                <div>👾 <span class="val" id="dusmanSayisi">0</span></div>
             </div>
 
             <!-- Joystick -->
-            <div class="joystick-area" id="joystickArea">
-                <div class="joystick-knob" id="joystickKnob"></div>
+            <div class="joystick" id="joystickAlani">
+                <div class="joystick-knob" id="joystickTop"></div>
             </div>
 
             <!-- Game Over -->
             <div class="game-over" id="gameOver">
-                <h1>💀 ÖLDÜN</h1>
+                <h2>💀 ÖLDÜN</h2>
                 <div class="sub">Puanın</div>
-                <div class="final-score" id="finalScore">0</div>
-                <button class="btn" id="restartBtn">🔄 Tekrar Oyna</button>
+                <div class="final-score" id="finalSkor">0</div>
+                <button class="btn" id="yenidenBtn">🔄 Tekrar Oyna</button>
                 <a class="btn-home" href="index.html">← Ana Sayfa</a>
             </div>
         </div>
+
+        <a class="geri" href="index.html">⬅ Ana sayfaya dön</a>
     </div>
 
     <script>
         // ============================================================
-        //  HAYATTA KAL - Sade ve Eğlenceli
+        //  HAYATTA KAL - Basit ve Eğlenceli
         // ============================================================
 
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('oyunCanvas');
         const ctx = canvas.getContext('2d');
 
         let W, H;
 
-        function resize() {
-            const rect = canvas.parentElement.getBoundingClientRect();
+        function boyutlandir() {
+            const parent = canvas.parentElement;
+            const rect = parent.getBoundingClientRect();
             W = canvas.width = rect.width;
             H = canvas.height = rect.height;
         }
-        resize();
-        window.addEventListener('resize', resize);
+        boyutlandir();
+        window.addEventListener('resize', boyutlandir);
 
         // ============================================================
         //  OYUN DEĞİŞKENLERİ
         // ============================================================
 
-        // Harita boyutu (ekrandan büyük)
-        const MAP_SIZE = 2000;
-
-        // Kamera
+        const MAP_SIZE = 1800;
         const cam = { x: 0, y: 0 };
 
-        // Oyuncu
-        const player = {
+        const oyuncu = {
             x: 0,
             y: 0,
             radius: 20,
-            targetRadius: 20,
-            speed: 3,
+            hedefRadius: 20,
+            hiz: 2.8,
             alive: true,
-            score: 0
+            skor: 0
         };
 
-        // Yemekler
-        let foods = [];
-
-        // Düşmanlar
-        let enemies = [];
+        let yemekler = [];
+        let dusmanlar = [];
 
         // Joystick
-        const joystick = {
-            active: false,
+        const joy = {
+            aktif: false,
             dx: 0,
             dy: 0,
-            area: document.getElementById('joystickArea'),
-            knob: document.getElementById('joystickKnob')
+            alan: document.getElementById('joystickAlani'),
+            top: document.getElementById('joystickTop')
         };
 
-        // DOM referansları
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const sizeDisplay = document.getElementById('sizeDisplay');
-        const enemyCount = document.getElementById('enemyCount');
+        // DOM
+        const skorEl = document.getElementById('skorGoster');
+        const boyutEl = document.getElementById('boyutGoster');
+        const dusmanEl = document.getElementById('dusmanSayisi');
         const gameOverEl = document.getElementById('gameOver');
-        const finalScoreEl = document.getElementById('finalScore');
-        const restartBtn = document.getElementById('restartBtn');
+        const finalSkorEl = document.getElementById('finalSkor');
+        const yenidenBtn = document.getElementById('yenidenBtn');
 
-        // Zamanlayıcılar
-        let foodSpawnTimer = 0;
-        let enemySpawnTimer = 0;
-        let frameCount = 0;
-
-        // ============================================================
-        //  YARDIMCI FONKSİYONLAR
-        // ============================================================
-
-        function rand(min, max) { return Math.random() * (max - min) + min; }
-
-        function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
-
-        function dist(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
-
-        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+        let yemekSpawn = 0;
+        let dusmanSpawn = 0;
+        let frame = 0;
 
         // ============================================================
-        //  YEMEK OLUŞTUR
+        //  YARDIMCI
         // ============================================================
 
-        function createFood() {
-            const angle = rand(0, Math.PI * 2);
-            const distance = rand(200, MAP_SIZE / 2);
+        function r(min, max) { return Math.random() * (max - min) + min; }
+
+        function ri(min, max) { return Math.floor(r(min, max + 1)); }
+
+        function mesafe(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
+
+        function sinirla(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        // ============================================================
+        //  OLUŞTUR
+        // ============================================================
+
+        function yemekOlustur() {
+            const a = r(0, Math.PI * 2);
+            const d = r(200, MAP_SIZE / 2.5);
             return {
-                x: player.x + Math.cos(angle) * distance,
-                y: player.y + Math.sin(angle) * distance,
-                radius: rand(4, 10),
-                color: `hsl(${randInt(30, 60)}, 80%, 60%)`,
-                pulse: rand(0, Math.PI * 2)
+                x: oyuncu.x + Math.cos(a) * d,
+                y: oyuncu.y + Math.sin(a) * d,
+                radius: r(4, 10),
+                renk: `hsl(${ri(30, 60)}, 80%, 60%)`,
+                pulse: r(0, Math.PI * 2)
             };
         }
 
-        // ============================================================
-        //  DÜŞMAN OLUŞTUR
-        // ============================================================
-
-        function createEnemy() {
-            const sizeRatio = rand(0.4, 2.5);
-            const radius = Math.max(10, player.radius * sizeRatio);
-
-            const angle = rand(0, Math.PI * 2);
-            const distance = rand(300, MAP_SIZE / 2);
+        function dusmanOlustur() {
+            const oran = r(0.3, 2.8);
+            const radius = Math.max(10, oyuncu.radius * oran);
+            const a = r(0, Math.PI * 2);
+            const d = r(300, MAP_SIZE / 2);
 
             return {
-                x: player.x + Math.cos(angle) * distance,
-                y: player.y + Math.sin(angle) * distance,
+                x: oyuncu.x + Math.cos(a) * d,
+                y: oyuncu.y + Math.sin(a) * d,
                 radius: radius,
-                speed: rand(0.3, 1.2) * (1 + (1 - sizeRatio) * 0.3),
-                angle: rand(0, Math.PI * 2),
-                turnTimer: randInt(0, 100),
-                turnInterval: randInt(60, 180),
-                isBig: sizeRatio > 1.2,
-                color: `hsl(${sizeRatio > 1.2 ? randInt(340, 20) : randInt(100, 160)}, 70%, 50%)`
+                hiz: r(0.3, 1.2) * (1 + (1 - oran) * 0.3),
+                aci: r(0, Math.PI * 2),
+                donus: ri(0, 100),
+                donusAralik: ri(60, 180),
+                buyuk: oran > 1.3,
+                renk: `hsl(${oran > 1.3 ? ri(340, 20) : ri(100, 160)}, 70%, 50%)`
             };
         }
 
         // ============================================================
-        //  OYUNU BAŞLAT
+        //  BAŞLAT
         // ============================================================
 
-        function initGame() {
-            player.x = 0;
-            player.y = 0;
-            player.radius = 20;
-            player.targetRadius = 20;
-            player.speed = 3;
-            player.alive = true;
-            player.score = 0;
+        function oyunuBaslat() {
+            oyuncu.x = 0;
+            oyuncu.y = 0;
+            oyuncu.radius = 20;
+            oyuncu.hedefRadius = 20;
+            oyuncu.hiz = 2.8;
+            oyuncu.alive = true;
+            oyuncu.skor = 0;
 
-            foods = [];
-            enemies = [];
+            yemekler = [];
+            dusmanlar = [];
             cam.x = 0;
             cam.y = 0;
 
             gameOverEl.classList.remove('show');
 
-            // Başlangıç yemekleri
-            for (let i = 0; i < 20; i++) {
-                foods.push(createFood());
-            }
+            for (let i = 0; i < 18; i++) yemekler.push(yemekOlustur());
+            for (let i = 0; i < 5; i++) dusmanlar.push(dusmanOlustur());
 
-            // Başlangıç düşmanları
-            for (let i = 0; i < 6; i++) {
-                enemies.push(createEnemy());
-            }
-
-            updateHUD();
+            guncelleHUD();
         }
 
         // ============================================================
-        //  GÜNCELLEME
+        //  GÜNCELLE
         // ============================================================
 
-        function update() {
-            if (!player.alive) return;
+        function guncelle() {
+            if (!oyuncu.alive) return;
 
-            frameCount++;
+            frame++;
 
-            // ---- JOYSTICK KONTROL ----
+            // Joystick
             let dx = 0,
                 dy = 0;
-            if (joystick.active) {
-                const mag = Math.hypot(joystick.dx, joystick.dy);
+            if (joy.aktif) {
+                const mag = Math.hypot(joy.dx, joy.dy);
                 if (mag > 0.1) {
-                    const normalized = Math.min(1, mag);
-                    dx = (joystick.dx / mag) * player.speed * normalized;
-                    dy = (joystick.dy / mag) * player.speed * normalized;
+                    const norm = Math.min(1, mag);
+                    dx = (joy.dx / mag) * oyuncu.hiz * norm;
+                    dy = (joy.dy / mag) * oyuncu.hiz * norm;
                 }
             }
 
-            // ---- OYUNCU HAREKET ----
-            player.x += dx;
-            player.y += dy;
+            oyuncu.x += dx;
+            oyuncu.y += dy;
 
-            // Harita sınırları
-            const limit = MAP_SIZE / 2 - player.radius;
-            player.x = clamp(player.x, -limit, limit);
-            player.y = clamp(player.y, -limit, limit);
+            const limit = MAP_SIZE / 2 - oyuncu.radius;
+            oyuncu.x = sinirla(oyuncu.x, -limit, limit);
+            oyuncu.y = sinirla(oyuncu.y, -limit, limit);
 
-            // Boyut güncelle
-            player.radius += (player.targetRadius - player.radius) * 0.06;
-            player.radius = Math.max(12, player.radius);
+            oyuncu.radius += (oyuncu.hedefRadius - oyuncu.radius) * 0.06;
+            oyuncu.radius = Math.max(12, oyuncu.radius);
 
-            // ---- KAMERA ----
-            cam.x = player.x - W / 2;
-            cam.y = player.y - H / 2;
+            cam.x = oyuncu.x - W / 2;
+            cam.y = oyuncu.y - H / 2;
 
             // ---- YEMEKLER ----
-            for (let i = foods.length - 1; i >= 0; i--) {
-                const f = foods[i];
-                if (dist(player.x, player.y, f.x, f.y) < player.radius + f.radius) {
-                    player.targetRadius += f.radius * 0.12;
-                    player.score += Math.floor(f.radius) + 1;
-                    foods.splice(i, 1);
+            for (let i = yemekler.length - 1; i >= 0; i--) {
+                const y = yemekler[i];
+                if (mesafe(oyuncu.x, oyuncu.y, y.x, y.y) < oyuncu.radius + y.radius) {
+                    oyuncu.hedefRadius += y.radius * 0.12;
+                    oyuncu.skor += Math.floor(y.radius) + 1;
+                    yemekler.splice(i, 1);
                 }
             }
 
-            // Yemek spawn
-            foodSpawnTimer++;
-            if (foodSpawnTimer > 20 && foods.length < 40) {
-                foods.push(createFood());
-                foodSpawnTimer = 0;
+            yemekSpawn++;
+            if (yemekSpawn > 18 && yemekler.length < 35) {
+                yemekler.push(yemekOlustur());
+                yemekSpawn = 0;
             }
 
             // ---- DÜŞMANLAR ----
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                const e = enemies[i];
+            for (let i = dusmanlar.length - 1; i >= 0; i--) {
+                const d = dusmanlar[i];
 
-                // Hareket
-                e.turnTimer++;
-                if (e.turnTimer > e.turnInterval) {
-                    e.turnTimer = 0;
-                    e.angle += rand(-0.3, 0.3);
-                    e.turnInterval = randInt(60, 200);
+                d.donus++;
+                if (d.donus > d.donusAralik) {
+                    d.donus = 0;
+                    d.aci += r(-0.3, 0.3);
+                    d.donusAralik = ri(60, 200);
                 }
 
-                // Büyük düşmanlar oyuncuya doğru yönelir
-                if (e.isBig) {
-                    const toPlayer = Math.atan2(player.y - e.y, player.x - e.x);
-                    e.angle += (toPlayer - e.angle) * 0.02;
+                if (d.buyuk) {
+                    const hedef = Math.atan2(oyuncu.y - d.y, oyuncu.x - d.x);
+                    d.aci += (hedef - d.aci) * 0.02;
                 }
 
-                e.angle += rand(-0.02, 0.02);
-                e.x += Math.cos(e.angle) * e.speed;
-                e.y += Math.sin(e.angle) * e.speed;
+                d.aci += r(-0.02, 0.02);
+                d.x += Math.cos(d.aci) * d.hiz;
+                d.y += Math.sin(d.aci) * d.hiz;
 
-                // Harita sınırları
-                const eLimit = MAP_SIZE / 2 - e.radius;
-                if (e.x > eLimit) { e.x = eLimit;
-                    e.angle = Math.PI - e.angle; }
-                if (e.x < -eLimit) { e.x = -eLimit;
-                    e.angle = Math.PI - e.angle; }
-                if (e.y > eLimit) { e.y = eLimit;
-                    e.angle = -e.angle; }
-                if (e.y < -eLimit) { e.y = -eLimit;
-                    e.angle = -e.angle; }
+                const dLimit = MAP_SIZE / 2 - d.radius;
+                if (d.x > dLimit) { d.x = dLimit;
+                    d.aci = Math.PI - d.aci; }
+                if (d.x < -dLimit) { d.x = -dLimit;
+                    d.aci = Math.PI - d.aci; }
+                if (d.y > dLimit) { d.y = dLimit;
+                    d.aci = -d.aci; }
+                if (d.y < -dLimit) { d.y = -dLimit;
+                    d.aci = -d.aci; }
 
-                // Düşman-oyuncu çarpışması
-                const d = dist(player.x, player.y, e.x, e.y);
-                const threshold = player.radius + e.radius;
+                // Çarpışma
+                const m = mesafe(oyuncu.x, oyuncu.y, d.x, d.y);
+                const esik = oyuncu.radius + d.radius;
 
-                if (d < threshold) {
-                    if (player.radius > e.radius * 1.2) {
-                        // Oyuncu düşmanı yedi
-                        player.targetRadius += e.radius * 0.06;
-                        player.score += Math.floor(e.radius * 0.5) + 2;
-                        enemies.splice(i, 1);
-                    } else if (e.radius > player.radius * 1.2) {
-                        // Düşman oyuncuyu yedi
-                        player.alive = false;
-                        showGameOver();
+                if (m < esik) {
+                    if (oyuncu.radius > d.radius * 1.2) {
+                        oyuncu.hedefRadius += d.radius * 0.06;
+                        oyuncu.skor += Math.floor(d.radius * 0.5) + 2;
+                        dusmanlar.splice(i, 1);
+                    } else if (d.radius > oyuncu.radius * 1.2) {
+                        oyuncu.alive = false;
+                        oyunBitti();
                         return;
                     } else {
-                        // Eşit - itiş
-                        const ang = Math.atan2(e.y - player.y, e.x - player.x);
-                        const overlap = (threshold - d) / 2 + 1;
-                        player.x -= Math.cos(ang) * overlap;
-                        player.y -= Math.sin(ang) * overlap;
-                        e.x += Math.cos(ang) * overlap;
-                        e.y += Math.sin(ang) * overlap;
+                        const a = Math.atan2(d.y - oyuncu.y, d.x - oyuncu.x);
+                        const carp = (esik - m) / 2 + 1;
+                        oyuncu.x -= Math.cos(a) * carp;
+                        oyuncu.y -= Math.sin(a) * carp;
+                        d.x += Math.cos(a) * carp;
+                        d.y += Math.sin(a) * carp;
                     }
                 }
 
-                // Düşman-düşman çarpışma
+                // Düşman-düşman
                 for (let j = i - 1; j >= 0; j--) {
-                    const other = enemies[j];
-                    const d2 = dist(e.x, e.y, other.x, other.y);
-                    const minD = e.radius + other.radius;
-                    if (d2 < minD && d2 > 0.01) {
-                        const ang = Math.atan2(other.y - e.y, other.x - e.x);
-                        const overlap = (minD - d2) / 2;
-                        e.x -= Math.cos(ang) * overlap;
-                        e.y -= Math.sin(ang) * overlap;
-                        other.x += Math.cos(ang) * overlap;
-                        other.y += Math.sin(ang) * overlap;
+                    const other = dusmanlar[j];
+                    const m2 = mesafe(d.x, d.y, other.x, other.y);
+                    const minD = d.radius + other.radius;
+                    if (m2 < minD && m2 > 0.01) {
+                        const a = Math.atan2(other.y - d.y, other.x - d.x);
+                        const carp = (minD - m2) / 2;
+                        d.x -= Math.cos(a) * carp;
+                        d.y -= Math.sin(a) * carp;
+                        other.x += Math.cos(a) * carp;
+                        other.y += Math.sin(a) * carp;
                     }
                 }
             }
 
-            // Düşman spawn
-            enemySpawnTimer++;
-            if (enemySpawnTimer > 120 && enemies.length < 15) {
-                enemies.push(createEnemy());
-                enemySpawnTimer = 0;
+            dusmanSpawn++;
+            if (dusmanSpawn > 100 && dusmanlar.length < 14) {
+                dusmanlar.push(dusmanOlustur());
+                dusmanSpawn = 0;
             }
 
-            updateHUD();
+            guncelleHUD();
         }
 
         // ============================================================
-        //  ÇİZİM
+        //  ÇİZ
         // ============================================================
 
-        function draw() {
+        function ciz() {
             ctx.clearRect(0, 0, W, H);
 
-            // ---- ARKA PLAN ----
             // Grid
-            const gridSize = 60;
-            const ox = -cam.x % gridSize;
-            const oy = -cam.y % gridSize;
+            const grid = 50;
+            const ox = -cam.x % grid;
+            const oy = -cam.y % grid;
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
             ctx.lineWidth = 1;
-            for (let x = ox - gridSize; x < W + gridSize; x += gridSize) {
+            for (let x = ox - grid; x < W + grid; x += grid) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, H);
                 ctx.stroke();
             }
-            for (let y = oy - gridSize; y < H + gridSize; y += gridSize) {
+            for (let y = oy - grid; y < H + grid; y += grid) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(W, y);
@@ -581,30 +581,23 @@
             }
 
             // ---- YEMEKLER ----
-            for (const f of foods) {
-                const sx = f.x - cam.x;
-                const sy = f.y - cam.y;
-                if (sx < -50 || sx > W + 50 || sy < -50 || sy > H + 50) continue;
+            for (const y of yemekler) {
+                const sx = y.x - cam.x;
+                const sy = y.y - cam.y;
+                if (sx < -30 || sx > W + 30 || sy < -30 || sy > H + 30) continue;
 
-                // Işıltı efekti
-                const pulse = Math.sin(f.pulse + frameCount * 0.05) * 0.15 + 0.85;
-                const r = f.radius * pulse;
+                const pulse = Math.sin(y.pulse + frame * 0.05) * 0.15 + 0.85;
+                const r = y.radius * pulse;
 
-                const grad = ctx.createRadialGradient(sx - r * 0.2, sy - r * 0.2, 0, sx, sy, r);
-                grad.addColorStop(0, '#fff');
-                grad.addColorStop(0.3, f.color);
-                grad.addColorStop(1, 'rgba(0,0,0,0.2)');
-
-                ctx.shadowColor = f.color;
-                ctx.shadowBlur = 15;
+                ctx.shadowColor = y.renk;
+                ctx.shadowBlur = 12;
                 ctx.beginPath();
                 ctx.arc(sx, sy, r, 0, Math.PI * 2);
-                ctx.fillStyle = grad;
+                ctx.fillStyle = y.renk;
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // Yıldız işareti ✦
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
                 ctx.font = `${r * 1.2}px monospace`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -612,20 +605,28 @@
             }
 
             // ---- DÜŞMANLAR ----
-            for (const e of enemies) {
-                const sx = e.x - cam.x;
-                const sy = e.y - cam.y;
-                if (sx < -100 || sx > W + 100 || sy < -100 || sy > H + 100) continue;
+            for (const d of dusmanlar) {
+                const sx = d.x - cam.x;
+                const sy = d.y - cam.y;
+                if (sx < -80 || sx > W + 80 || sy < -80 || sy > H + 80) continue;
 
                 ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 15;
 
                 const grad = ctx.createRadialGradient(
-                    sx - e.radius * 0.2, sy - e.radius * 0.2, 0,
-                    sx, sy, e.radius
+                    sx - d.radius * 0.2, sy - d.radius * 0.2, 0,
+                    sx, sy, d.radius
                 );
-                grad.addColorStop(0, e.color);
-                grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+                grad.addColorStop(0, d.renk);
+                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
 
                 ctx.beginPath();
-                ctx.
+                ctx.arc(sx, sy, d.radius, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Gözler
+                const gozBoyut = d.radius * 0.18;
+                const gozOfset = d.radius * 0.3;
+                ctx.fillStyle 
