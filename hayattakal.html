@@ -14,7 +14,7 @@ canvas { display: block; width: 100%; height: 100%; background-color: #1a0505; }
 #siralamaKutusu div { margin: 2px 0; white-space: nowrap; }
 #siralamaKutusu .ben { color: #ffe082; font-weight: 700; }
 #joystickTaban { position: absolute; left: 20px; bottom: 20px; width: 90px; height: 90px; border-radius: 50%; background-color: rgba(255,255,255,0.1); border: 2px solid rgba(255,82,82,0.6); z-index: 10; }
-#joystickTop { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(255,82,82,0.85); transform: translate(-50%, -50%); }
+#joystickTop { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(255,82,82,0.85); transform: translate(-50%, -50%); pointer-events: none; }
 button.baslat { margin-top: 10px; background-color: #ff5252; border: none; color: #2e0000; padding: 12px 26px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; }
 a { color: #ff5252; display: inline-block; margin-top: 20px; text-decoration: none; }
 </style>
@@ -44,7 +44,9 @@ const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Den
 let oyuncu, botlar, yemler, oyunAktif, animasyonId;
 let kamera = { x: 0, y: 0 };
 let zoom = 1;
+
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
+
 function oyunuBaslat() {
   oyuncu = { x: DUNYA_GENISLIK / 2, y: DUNYA_YUKSEKLIK / 2, r: 12, hiz: 2.6 };
   botlar = [];
@@ -59,6 +61,7 @@ function oyunuBaslat() {
   if (animasyonId) cancelAnimationFrame(animasyonId);
   dongu();
 }
+
 function botUret() {
   const kucukMu = Math.random() < 0.5;
   let r;
@@ -75,17 +78,20 @@ function botUret() {
   }
   botlar.push({ x: x, y: y, r: r, vx: rastgele(-1, 1), vy: rastgele(-1, 1), yonSayaci: 0, davranisBasi: 0, renk: RENKLER[Math.floor(Math.random() * RENKLER.length)], isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)] });
 }
+
 const joyTaban = document.getElementById("joystickTaban");
 const joyTop = document.getElementById("joystickTop");
 let joyAktif = false;
 let joyVektor = { x: 0, y: 0 };
 let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 35;
+
 function joyBasla(clientX, clientY) {
   joyAktif = true;
   const rect = joyTaban.getBoundingClientRect();
   joyMerkez = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
+
 function joyHareket(clientX, clientY) {
   if (!joyAktif) return;
   let dx = clientX - joyMerkez.x;
@@ -96,19 +102,22 @@ function joyHareket(clientX, clientY) {
   joyTop.style.top = "calc(50% + " + dy + "px)";
   joyVektor = { x: dx / joyYaricap, y: dy / joyYaricap };
 }
+
 function joyBitir() {
   joyAktif = false;
   joyVektor = { x: 0, y: 0 };
   joyTop.style.left = "50%";
   joyTop.style.top = "50%";
 }
+
 joyTaban.addEventListener("touchstart", function(e) { e.preventDefault(); const t = e.touches[0]; joyBasla(t.clientX, t.clientY); }, { passive: false });
 joyTaban.addEventListener("touchmove", function(e) { e.preventDefault(); const t = e.touches[0]; joyHareket(t.clientX, t.clientY); }, { passive: false });
 joyTaban.addEventListener("touchend", function(e) { e.preventDefault(); joyBitir(); }, { passive: false });
 joyTaban.addEventListener("mousedown", function(e) { joyBasla(e.clientX, e.clientY); });
 document.addEventListener("mousemove", function(e) { if (joyAktif) joyHareket(e.clientX, e.clientY); });
 document.addEventListener("mouseup", function() { joyBitir(); });
-  <script>
+
+// botDavranisGuncelle fonksiyonu eklendi
 function botDavranisGuncelle(bot, simdi) {
   const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
   const buyukTehdit = bot.r > oyuncu.r + 2;
@@ -130,6 +139,7 @@ function botDavranisGuncelle(bot, simdi) {
   if (bot.yonSayaci > 60) { bot.vx = rastgele(-1, 1); bot.vy = rastgele(-1, 1); bot.yonSayaci = 0; }
   return 1.1;
 }
+
 function dongu() {
   if (!oyunAktif) return;
   if (joyVektor.x !== 0 || joyVektor.y !== 0) {
@@ -176,10 +186,12 @@ function dongu() {
   cizim();
   animasyonId = requestAnimationFrame(dongu);
 }
+
 function oyunBitti() {
   oyunAktif = false;
   document.getElementById("durum").textContent = "Yakalandın! Boyut: " + Math.round(oyuncu.r);
 }
+
 function siralamaGuncelle() {
   const herkes = botlar.map(function(b) { return { r: b.r, isim: b.isim, ben: false }; });
   herkes.push({ r: oyuncu.r, isim: "Sen", ben: true });
@@ -193,6 +205,7 @@ function siralamaGuncelle() {
   }
   document.getElementById("siralamaKutusu").innerHTML = html;
 }
+
 function cizim() {
   ctx.fillStyle = "#1a0505";
   ctx.fillRect(0, 0, W, H);
@@ -246,8 +259,13 @@ function cizim() {
   ctx.fill();
   ctx.restore();
 }
+
+// İlk çizim
 ctx.fillStyle = "#1a0505";
 ctx.fillRect(0, 0, W, H);
+
+// Otomatik başlat
+oyunuBaslat();
 </script>
 </body>
 </html>
