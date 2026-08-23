@@ -14,7 +14,7 @@
       color: white;
       font-family: 'Poppins', sans-serif;
       text-align: center;
-      padding: 24px 16px;
+      padding: 20px 12px;
       min-height: 100vh;
       margin: 0;
     }
@@ -30,14 +30,14 @@
     h1 {
       color: #ff5252;
       animation: nabizAt 2.5s ease-in-out infinite;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       margin-bottom: 4px;
     }
     #skor {
       font-size: 16px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     canvas {
       background-color: #1a0505;
@@ -67,14 +67,14 @@
       font-family: 'Poppins', sans-serif;
     }
     p.aciklama {
-      font-size: 14px;
+      font-size: 13px;
       opacity: 0.75;
       margin-top: 10px;
     }
     a {
       color: #ff5252;
       display: inline-block;
-      margin-top: 22px;
+      margin-top: 20px;
       text-decoration: none;
       font-size: 17px;
       font-weight: 600;
@@ -85,11 +85,11 @@
   <h1>🔴 Hayatta Kal</h1>
   <p id="skor">Boyut: 10</p>
 
-  <canvas id="oyunAlani" width="320" height="380"></canvas>
+  <canvas id="oyunAlani" width="360" height="480"></canvas>
 
   <p id="durum">Ekrana dokun ve sürükle, küçükleri ye, büyüklerden kaç!</p>
   <button class="baslat" onclick="oyunuBaslat()">▶ Başlat / Yeniden Başlat</button>
-  <p class="aciklama">🟢 Yeşiller senden küçük (yenir) · 🔴 Kırmızılar senden büyük (tehlike)</p>
+  <p class="aciklama">🟢 Senden küçük (yenir) · 🔴 Senden büyük (tehlike)</p>
 
   <a href="index.html">⬅ Ana sayfaya dön</a>
 
@@ -97,6 +97,7 @@
     const canvas = document.getElementById("oyunAlani");
     const ctx = canvas.getContext("2d");
     const W = canvas.width, H = canvas.height;
+    const MAKS_BOT = 9;
 
     let oyuncu, botlar, yemler, oyunAktif, dokunmaVektor, animasyonId;
 
@@ -105,16 +106,16 @@
     }
 
     function oyunuBaslat() {
-      oyuncu = { x: W/2, y: H/2, r: 10, hiz: 2.4 };
+      oyuncu = { x: W/2, y: H/2, r: 10, hiz: 2.6 };
       botlar = [];
       yemler = [];
       dokunmaVektor = null;
       oyunAktif = true;
 
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 30; i++) {
         yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
       }
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < MAKS_BOT; i++) {
         botUret();
       }
 
@@ -126,12 +127,30 @@
     }
 
     function botUret() {
-      const r = rastgele(6, 22);
-      let x, y;
-      do {
-        x = rastgele(20, W-20);
-        y = rastgele(20, H-20);
-      } while (Math.hypot(x - oyuncu.x, y - oyuncu.y) < 80);
+      // Oyuncunun mevcut boyutuna göre karışık bot boyutları: bazıları küçük (yenilebilir), bazıları büyük (tehlikeli)
+      const kucukMu = Math.random() < 0.55;
+      let r;
+      if (kucukMu) {
+        r = rastgele(5, Math.max(6, oyuncu.r * 0.75));
+      } else {
+        r = rastgele(oyuncu.r * 1.15, oyuncu.r * 1.8 + 10);
+      }
+      r = Math.min(r, 45);
+
+      let x, y, denemeSayisi = 0;
+      let uygunYerBulundu = false;
+      while (denemeSayisi < 25 && !uygunYerBulundu) {
+        x = rastgele(r + 10, W - r - 10);
+        y = rastgele(r + 10, H - r - 10);
+        if (Math.hypot(x - oyuncu.x, y - oyuncu.y) > 90) {
+          uygunYerBulundu = true;
+        }
+        denemeSayisi++;
+      }
+      if (!uygunYerBulundu) {
+        x = rastgele(r + 10, W - r - 10);
+        y = rastgele(r + 10, H - r - 10);
+      }
 
       botlar.push({
         x, y, r,
@@ -145,15 +164,14 @@
     canvas.addEventListener("touchmove", hareket, {passive: true});
     canvas.addEventListener("touchend", bitir);
     canvas.addEventListener("mousedown", (e) => basla(donusturFare(e)));
-    canvas.addEventListener("mousemove", (e) => { if (dokunmaVektor !== null || fareBasili) hareket(donusturFare(e)); });
+    canvas.addEventListener("mousemove", (e) => { if (fareBasili) hareket(donusturFare(e)); });
     canvas.addEventListener("mouseup", bitir);
 
     let fareBasili = false;
     let baslangicNoktasi = null;
 
     function donusturFare(e) {
-      const rect = canvas.getBoundingClientRect();
-      return { touches: [{ clientX: e.clientX, clientY: e.clientY }], rectOverride: rect };
+      return { touches: [{ clientX: e.clientX, clientY: e.clientY }] };
     }
 
     function konumAl(e) {
@@ -216,25 +234,31 @@
       for (let i = yemler.length - 1; i >= 0; i--) {
         const y = yemler[i];
         if (Math.hypot(oyuncu.x - y.x, oyuncu.y - y.y) < oyuncu.r + y.r) {
-          oyuncu.r += 0.4;
+          oyuncu.r = Math.min(oyuncu.r + 0.4, 60);
           yemler.splice(i, 1);
           yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
         }
       }
 
+      const silinecekler = [];
       for (let i = botlar.length - 1; i >= 0; i--) {
         const bot = botlar[i];
         const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
         if (mesafe < oyuncu.r + bot.r) {
           if (oyuncu.r > bot.r + 2) {
-            oyuncu.r += bot.r * 0.35;
-            botlar.splice(i, 1);
-            botUret();
+            oyuncu.r = Math.min(oyuncu.r + bot.r * 0.3, 60);
+            silinecekler.push(i);
           } else if (bot.r > oyuncu.r + 2) {
             oyunBitti();
             return;
           }
         }
+      }
+      for (let i of silinecekler) {
+        botlar.splice(i, 1);
+      }
+      while (botlar.length < MAKS_BOT) {
+        botUret();
       }
 
       document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
@@ -274,4 +298,5 @@
 
     cizim();
   </script>
-  </body>
+</body>
+</html>
