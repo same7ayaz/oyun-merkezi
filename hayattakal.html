@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hayatta Kal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(-45deg, #3a0000, #5c0d00, #4a0500, #6b1400, #2e0000);
+      background-size: 500% 500%;
+      animation: gradientAkis 14s ease infinite;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes nabizAt {
+      0%, 100% { text-shadow: 0 0 15px #ff5252, 0 0 30px #ff5252; }
+      50% { text-shadow: 0 0 25px #ff5252, 0 0 50px #ff5252; }
+    }
+    h1 {
+      color: #ff5252;
+      animation: nabizAt 2.5s ease-in-out infinite;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    #skor {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    canvas {
+      background-color: #1a0505;
+      border: 3px solid #ff5252;
+      border-radius: 14px;
+      max-width: 100%;
+      touch-action: none;
+      display: block;
+      margin: 0 auto;
+    }
+    #durum {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 14px;
+      min-height: 28px;
+    }
+    button.baslat {
+      margin-top: 10px;
+      background-color: #ff5252;
+      border: none;
+      color: #2e0000;
+      padding: 12px 26px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    p.aciklama {
+      font-size: 14px;
+      opacity: 0.75;
+      margin-top: 10px;
+    }
+    a {
+      color: #ff5252;
+      display: inline-block;
+      margin-top: 22px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔴 Hayatta Kal</h1>
+  <p id="skor">Boyut: 10</p>
+
+  <canvas id="oyunAlani" width="320" height="380"></canvas>
+
+  <p id="durum">Ekrana dokun ve sürükle, küçükleri ye, büyüklerden kaç!</p>
+  <button class="baslat" onclick="oyunuBaslat()">▶ Başlat / Yeniden Başlat</button>
+  <p class="aciklama">🟢 Yeşiller senden küçük (yenir) · 🔴 Kırmızılar senden büyük (tehlike)</p>
+
+  <a href="index.html">⬅ Ana sayfaya dön</a>
+
+  <script>
+    const canvas = document.getElementById("oyunAlani");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+
+    let oyuncu, botlar, yemler, oyunAktif, dokunmaVektor, animasyonId;
+
+    function rastgele(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function oyunuBaslat() {
+      oyuncu = { x: W/2, y: H/2, r: 10, hiz: 2.4 };
+      botlar = [];
+      yemler = [];
+      dokunmaVektor = null;
+      oyunAktif = true;
+
+      for (let i = 0; i < 25; i++) {
+        yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
+      }
+      for (let i = 0; i < 7; i++) {
+        botUret();
+      }
+
+      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
+      document.getElementById("durum").textContent = "Hayatta kal!";
+
+      if (animasyonId) cancelAnimationFrame(animasyonId);
+      dongu();
+    }
+
+    function botUret() {
+      const r = rastgele(6, 22);
+      let x, y;
+      do {
+        x = rastgele(20, W-20);
+        y = rastgele(20, H-20);
+      } while (Math.hypot(x - oyuncu.x, y - oyuncu.y) < 80);
+
+      botlar.push({
+        x, y, r,
+        vx: rastgele(-1, 1),
+        vy: rastgele(-1, 1),
+        yonSayaci: 0
+      });
+    }
+
+    canvas.addEventListener("touchstart", basla, {passive: true});
+    canvas.addEventListener("touchmove", hareket, {passive: true});
+    canvas.addEventListener("touchend", bitir);
+    canvas.addEventListener("mousedown", (e) => basla(donusturFare(e)));
+    canvas.addEventListener("mousemove", (e) => { if (dokunmaVektor !== null || fareBasili) hareket(donusturFare(e)); });
+    canvas.addEventListener("mouseup", bitir);
+
+    let fareBasili = false;
+    let baslangicNoktasi = null;
+
+    function donusturFare(e) {
+      const rect = canvas.getBoundingClientRect();
+      return { touches: [{ clientX: e.clientX, clientY: e.clientY }], rectOverride: rect };
+    }
+
+    function konumAl(e) {
+      const rect = canvas.getBoundingClientRect();
+      const dokunma = e.touches[0];
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (dokunma.clientX - rect.left) * scaleX,
+        y: (dokunma.clientY - rect.top) * scaleY
+      };
+    }
+
+    function basla(e) {
+      fareBasili = true;
+      baslangicNoktasi = konumAl(e);
+    }
+
+    function hareket(e) {
+      if (!baslangicNoktasi) return;
+      const simdi = konumAl(e);
+      dokunmaVektor = { x: simdi.x - baslangicNoktasi.x, y: simdi.y - baslangicNoktasi.y };
+    }
+
+    function bitir() {
+      fareBasili = false;
+      dokunmaVektor = null;
+      baslangicNoktasi = null;
+    }
+
+    function dongu() {
+      if (!oyunAktif) return;
+
+      if (dokunmaVektor) {
+        const uzunluk = Math.hypot(dokunmaVektor.x, dokunmaVektor.y);
+        if (uzunluk > 5) {
+          const nx = dokunmaVektor.x / uzunluk;
+          const ny = dokunmaVektor.y / uzunluk;
+          oyuncu.x += nx * oyuncu.hiz;
+          oyuncu.y += ny * oyuncu.hiz;
+        }
+      }
+
+      oyuncu.x = Math.max(oyuncu.r, Math.min(W - oyuncu.r, oyuncu.x));
+      oyuncu.y = Math.max(oyuncu.r, Math.min(H - oyuncu.r, oyuncu.y));
+
+      for (let bot of botlar) {
+        bot.yonSayaci++;
+        if (bot.yonSayaci > 60) {
+          bot.vx = rastgele(-1, 1);
+          bot.vy = rastgele(-1, 1);
+          bot.yonSayaci = 0;
+        }
+        bot.x += bot.vx * 1.1;
+        bot.y += bot.vy * 1.1;
+        bot.x = Math.max(bot.r, Math.min(W - bot.r, bot.x));
+        bot.y = Math.max(bot.r, Math.min(H - bot.r, bot.y));
+      }
+
+      for (let i = yemler.length - 1; i >= 0; i--) {
+        const y = yemler[i];
+        if (Math.hypot(oyuncu.x - y.x, oyuncu.y - y.y) < oyuncu.r + y.r) {
+          oyuncu.r += 0.4;
+          yemler.splice(i, 1);
+          yemler.push({ x: rastgele(20, W-20), y: rastgele(20, H-20), r: 4 });
+        }
+      }
+
+      for (let i = botlar.length - 1; i >= 0; i--) {
+        const bot = botlar[i];
+        const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
+        if (mesafe < oyuncu.r + bot.r) {
+          if (oyuncu.r > bot.r + 2) {
+            oyuncu.r += bot.r * 0.35;
+            botlar.splice(i, 1);
+            botUret();
+          } else if (bot.r > oyuncu.r + 2) {
+            oyunBitti();
+            return;
+          }
+        }
+      }
+
+      document.getElementById("skor").textContent = "Boyut: " + Math.round(oyuncu.r);
+
+      cizim();
+      animasyonId = requestAnimationFrame(dongu);
+    }
+
+    function oyunBitti() {
+      oyunAktif = false;
+      document.getElementById("durum").textContent = "💀 Yakalandın! Boyut: " + Math.round(oyuncu.r);
+    }
+
+    function cizim() {
+      ctx.fillStyle = "#1a0505";
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      for (let y of yemler) {
+        ctx.beginPath();
+        ctx.arc(y.x, y.y, y.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (let bot of botlar) {
+        ctx.fillStyle = bot.r < oyuncu.r ? "#2ecc71" : "#ff5252";
+        ctx.beginPath();
+        ctx.arc(bot.x, bot.y, bot.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "#ffe082";
+      ctx.beginPath();
+      ctx.arc(oyuncu.x, oyuncu.y, oyuncu.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    cizim();
+  </script>
+  </body>
