@@ -108,7 +108,6 @@ joyTaban.addEventListener("touchend", function(e) { e.preventDefault(); joyBitir
 joyTaban.addEventListener("mousedown", function(e) { joyBasla(e.clientX, e.clientY); });
 document.addEventListener("mousemove", function(e) { if (joyAktif) joyHareket(e.clientX, e.clientY); });
 document.addEventListener("mouseup", function() { joyBitir(); });
-  
   <script>
 function botDavranisGuncelle(bot, simdi) {
   const mesafe = Math.hypot(oyuncu.x - bot.x, oyuncu.y - bot.y);
