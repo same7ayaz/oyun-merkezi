@@ -10,9 +10,9 @@
       box-sizing: border-box;
     }
     body {
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #1b1b4d, #2a1a4a, #24243e);
       background-size: 400% 400%;
-      animation: gradientAkis 15s ease infinite;
+      animation: gradientAkis 12s ease infinite;
       color: white;
       font-family: 'Poppins', sans-serif;
       text-align: center;
@@ -29,12 +29,22 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes renkGecisi {
+      0%   { color: #00fff2; text-shadow: 0 0 15px #00fff2, 0 0 30px #00fff2; }
+      33%  { color: #ff00e5; text-shadow: 0 0 15px #ff00e5, 0 0 30px #ff00e5; }
+      66%  { color: #7c4dff; text-shadow: 0 0 15px #7c4dff, 0 0 30px #7c4dff; }
+      100% { color: #00fff2; text-shadow: 0 0 15px #00fff2, 0 0 30px #00fff2; }
+    }
+    @keyframes kenarlikRenkleri {
+      0%   { border-color: #00fff2; box-shadow: 0 0 10px rgba(0,255,242,0.4); }
+      33%  { border-color: #ff00e5; box-shadow: 0 0 10px rgba(255,0,229,0.4); }
+      66%  { border-color: #7c4dff; box-shadow: 0 0 10px rgba(124,77,255,0.4); }
+      100% { border-color: #00fff2; box-shadow: 0 0 10px rgba(0,255,242,0.4); }
+    }
     h1 {
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
       font-size: 36px;
       font-weight: 700;
-      animation: girisAnimasyonu 0.6s ease;
+      animation: girisAnimasyonu 0.6s ease, renkGecisi 6s linear infinite;
     }
     p.altyazi {
       opacity: 0.8;
@@ -48,29 +58,24 @@
     .kart {
       display: inline-block;
       background-color: rgba(255,255,255,0.05);
-      border: 1px solid #00fff2;
+      border: 2px solid #00fff2;
       margin: 15px;
       padding: 25px;
       border-radius: 12px;
       width: 200px;
       text-decoration: none;
       color: white;
-      transition: 0.2s;
-      box-shadow: 0 0 8px rgba(0,255,242,0.3);
-      animation: girisAnimasyonu 0.6s ease backwards;
+      transition: transform 0.2s, background-color 0.2s, color 0.2s;
+      animation: girisAnimasyonu 0.6s ease backwards, kenarlikRenkleri 5s linear infinite;
     }
-    .kart:nth-child(1) { animation-delay: 0.15s; }
-    .kart:nth-child(2) { animation-delay: 0.3s; }
-    .kart:nth-child(3) { animation-delay: 0.45s; }
+    .kart:nth-child(1) { animation-delay: 0.15s, 0s; }
+    .kart:nth-child(2) { animation-delay: 0.3s, 1.2s; }
+    .kart:nth-child(3) { animation-delay: 0.45s, 2.4s; }
     .kart:hover {
-      background-color: #00fff2;
-      color: #0f0c29;
-      box-shadow: 0 0 25px #00fff2;
-      transform: scale(1.05);
+      background-color: rgba(255,255,255,0.15);
+      transform: scale(1.07);
     }
     .kart:active {
-      background-color: #00fff2;
-      color: #0f0c29;
       transform: scale(0.97);
     }
     .kart h2 {
