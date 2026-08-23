@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Oyun Merkezi</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientAkis 15s ease infinite;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 60px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientAkis {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      color: #00fff2;
+      text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2;
+      font-size: 36px;
+    }
+    .kart {
+      display: inline-block;
+      background-color: rgba(255,255,255,0.05);
+      border: 1px solid #00fff2;
+      margin: 15px;
+      padding: 25px;
+      border-radius: 12px;
+      width: 200px;
+      text-decoration: none;
+      color: white;
+      transition: 0.3s;
+      box-shadow: 0 0 8px rgba(0,255,242,0.3);
+    }
+    .kart:hover {
+      background-color: #00fff2;
+      color: #0f0c29;
+      box-shadow: 0 0 25px #00fff2;
+      transform: scale(1.05);
+    }
+    .kart h2 {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Oyun Merkezi</h1>
+  <p>Oynamak istediğin oyunu seç</p>
+
+  <a class="kart" href="tahmin.html">
+    <h2>🔢</h2>
+    <p>Sayı Tahmin</p>
+  </a>
+
+  <a class="kart" href="taskagit.html">
+    <h2>✊✋✌️</h2>
+    <p>Taş-Kağıt-Makas</p>
+  </a>
+
+  <a class="kart" href="hafiza.html">
+    <h2>🧠</h2>
+    <p>Hafıza Kartları</p>
+  </a>
+
+</body>
+    </html>
