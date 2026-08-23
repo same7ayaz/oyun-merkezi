@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Yılan Oyunu - Oyun Merkezi</title>
+    <style>
+        /* --- GENEL TEMA (Diğer oyunlarla aynı) --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #0f0f0f;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 30px 25px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            border: 1px solid #333;
+            text-align: center;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #f0f0f0;
+            letter-spacing: 1px;
+        }
+        h1 span {
+            color: #4fc3f7;
+        }
+        .score-area {
+            font-size: 18px;
+            background: #252525;
+            padding: 12px 15px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 10px auto 20px auto;
+            border: 1px solid #3a3a3a;
+            color: #bbb;
+        }
+        .score-area strong {
+            color: #fff;
+            font-size: 22px;
+        }
+
+        /* --- KART / OYUN ALANI --- */
+        .game-card {
+            background: #222;
+            border-radius: 18px;
+            padding: 20px 15px 25px 15px;
+            border: 1px solid #333;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        /* --- CANVAS (Oyun alanı) --- */
+        #oyunAlani {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background-color: #0a0a0a;
+            border-radius: 14px;
+            border: 2px solid #2a2a2a;
+            touch-action: none;
+            cursor: pointer;
+        }
+
+        /* --- KONTROLLER (Joystick / Mobil) --- */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        #joystickTaban {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            position: relative;
+            touch-action: none;
+            flex-shrink: 0;
+            margin: 0 auto;
+        }
+        #joystickTop {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4fc3f7;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(79, 195, 247, 0.3);
+        }
+        .hint-text {
+            color: #777;
+            font-size: 13px;
+            background: #1e1e1e;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #2c2c2c;
+        }
+
+        /* --- DURUM & BUTONLAR --- */
+        .status-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        #durumMesaji {
+            font-size: 16px;
+            color: #aaa;
+            background: #1e1e1e;
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #2c2c2c;
+            flex: 1;
+            min-width: 140px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            background: #2a2a2a;
+            border: none;
+            color: #f0f0f0;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #3a3a3a;
+        }
+        .btn-primary {
+            background: #4fc3f7;
+            color: #0f0f0f;
+            border-color: #4fc3f7;
+        }
+        .btn-primary:hover {
+            background: #81d4fa;
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            background: #333;
+            border-color: #555;
+        }
+        .btn-secondary:hover {
+            background: #444;
+        }
+        .btn-danger {
+            background: #e53935;
+            color: white;
+            border-color: #e53935;
+        }
+        .btn-danger:hover {
+            background: #ef5350;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 3px;
+        }
+        .back-link:hover {
+            color: #fff;
+            border-color: #555;
+        }
+
+        /* --- SIRALAMA KUTUSU (Hayatta Kal'daki gibi) --- */
+        #siralamaKutusu {
+            background: #1a1a1a;
+            border: 1px solid #2c2c2c;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            text-align: left;
+            font-size: 14px;
+            color: #ccc;
+        }
+        #siralamaKutusu .baslik {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        #siralamaKutusu .sira-satir {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid #252525;
+        }
+        #siralamaKutusu .ben {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+        #siralamaKutusu .sira-satir:last-child {
+            border-bottom: none;
+        }
+        .footer-note {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>🐍 <span>Yılan</span>.io</h1>
+    <div class="score-area">🎯 Skor: <strong id="skorGosterge">0</strong></div>
+
+    <div class="game-card">
+        <canvas id="oyunAlani" width="600" height="600"></canvas>
+
+        <!-- Joystick ve mobil kontroller -->
+        <div class="controls">
+            <div id="joystickTaban">
+                <div id="joystickTop"></div>
+            </div>
+            <div class="hint-text">👆 Sürükleyerek yön ver</div>
+        </div>
+    </div>
+
+    <!-- Durum ve butonlar -->
+    <div class="status-area">
+        <div id="durumMesaji">▶️ Oyunu başlat</div>
+        <div class="btn-group">
+            <button class="btn btn-primary" id="baslatBtn">▶ Başlat</button>
+            <button class="btn btn-secondary" id="sifirlaBtn">🔄 Sıfırla</button>
+        </div>
+    </div>
+
+    <!-- Sıralama (Hayatta Kal tarzı) -->
+    <div id="siralamaKutusu">
+        <div class="baslik">🏆 Sıralama</div>
+        <div id="siralamaListesi">
+            <div class="sira-satir">Henüz oyun oynanmadı.</div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Ana sayfaya dön</a>
+    <div class="footer-note">Büyüdükçe yavaşlarsın, dikkatli ol!</div>
+</div>
+
+<script>
+    // --- BAŞLANGIÇ AYARLARI ---
+    const canvas = document.getElementById('oyunAlani');
+    const ctx = canvas.getContext('2d');
+    const W = 600, H = 600;
+
+    // Oyun değişkenleri
+    let oyunAktif = false;
+    let oyunBitti = false;
+    let skor = 0;
+
+    // Yılan verileri
+    let yilan = [];
+    let yem = { x: 0, y: 0 };
+    let yon = { x: 1, y: 0 }; // Başlangıç yönü: sağ
+    let birSonrakiYon = { x: 1, y: 0 };
+    let hareketZamani = 0;
+    const HAREKET_ARALIGI = 150; // ms (başlangıç hızı)
+
+    // Bot yılanlar
+    let botYilanlar = [];
+    const BOT_SAYISI = 6;
+
+    // Sıralama
+    let skorGecmisi = [];
+
+    // Joystick
+    const joyTaban = document.getElementById('joystickTaban');
+    const joyTop = document.getElementById('joystickTop');
+    let joyAktif = false;
+    let joyVektor = { x: 0, y: 0 };
+    let joyMerkez = { x: 0, y: 0 };
+    const joyYaricap = 35;
+
+    // DOM referansları
+    const skorGosterge = document.getElementById('skorGosterge');
+    const durumMesaji = document.getElementById('durumMesaji');
+    const siralamaListesi = document.getElementById('siralamaListesi');
+    const baslatBtn = document.getElementById('baslatBtn');
+    const sifirlaBtn = document.getElementById('sifirlaBtn');
+
+    // --- YARDIMCI FONKSİYONLAR ---
+    function rastgele(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // --- YILAN OLUŞTURMA ---
+    function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY) {
+        const y = [];
+        for (let i = 0; i < uzunluk; i++) {
+            y.push({
+                x: baslangicX - i * 15 * yonX,
+                y: baslangicY - i * 15 * yonY
+            });
+        }
+        return y;
+    }
+
+    // --- OYUNU BAŞLAT ---
+    function oyunuBaslat() {
+        // Yılanı sıfırla
+        yilan = yilanOlustur(300, 300, 5, 1, 0);
+        yon = { x: 1, y: 0 };
+        birSonrakiYon = { x: 1, y: 0 };
+        skor = 0;
+        oyunBitti = false;
+        oyunAktif = true;
+        skorGosterge.textContent = skor;
+        durumMesaji.textContent = '🎮 Oyun başladı!';
+        baslatBtn.textContent = '⏸ Oynanıyor...';
+        baslatBtn.disabled = true;
+
+        // İlk yemi oluştur
+        yemUret();
+
+        // Botları oluştur
+        botYilanOlustur();
+
+        // Zamanı sıfırla
+        hareketZamani = performance.now();
+
+        // Sıralamayı güncelle
+        siralamaGuncelle();
+    }
+
+    // --- YEM ÜRET ---
+    function yemUret() {
+        let yeniYem;
+        let carpisma = true;
+        let deneme = 0;
+        while (carpisma && deneme < 100) {
+            yeniYem = {
+                x: rastgele(20, W - 20),
+                y: rastgele(20, H - 20)
+            };
+            carpisma = false;
+            // Yılanın üzerine denk gelmesin
+            for (let segment of yilan) {
+                if (Math.hypot(segment.x - yeniYem.x, segment.y - yeniYem.y) < 20) {
+                    carpisma = true;
+                    break;
+                }
+            }
+            // Botların üzerine denk gelmesin
+            if (!carpisma) {
+                for (let bot of botYilanlar) {
+                    for (let seg of bot.segmentler) {
+                        if (Math.hypot(seg.x - yeniYem.x, seg.y - yeniYem.y) < 20) {
+                            carpisma = true;
+                            break;
+                        }
+                    }
+                    if (carpisma) break;
+                }
+            }
+            deneme++;
+        }
+        yem = yeniYem || { x: rastgele(20, W - 20), y: rastgele(20, H - 20) };
+    }
+
+    // --- BOT YILANLAR ---
+    function botYilanOlustur() {
+        botYilanlar = [];
+        const renkler = ['#e53935', '#ffb300', '#43a047', '#8e24aa', '#fb8c00', '#00acc1'];
+        for (let i = 0; i < BOT_SAYISI; i++) {
+            let x, y, carpisma = true, deneme = 0;
+            while (carpisma && deneme < 50) {
+                x = rastgele(50, W - 50);
+                y = rastgele(50, H - 50);
+                carpisma = false;
+                // Oyuncu yılanıyla çakışmasın
+                for (let seg of yilan) {
+                    if (Math.hypot(seg.x - x, seg.y - y) < 50) {
+                        carpisma = true;
+                        break;
+                    }
+                }
+                // Diğer botlarla çakışmasın
+                if (!carpisma) {
+                    for (let bot of botYilanlar) {
+                        if (Math.hypot(bot.segmentler[0].x - x, bot.segmentler[0].y - y) < 60) {
+                            carpisma = true;
+                            break;
+                        }
+                    }
+                }
+                deneme++;
+            }
+            const uzunluk = rastgele(4, 10);
+            const yonlar = [{x:1,y:0}, {x:-1,y:0}, {x:0,y:1}, {x:0,y:-1}];
+            const yonSec = yonlar[rastgele(0,3)];
+            const bot = {
+                segmentler: yilanOlustur(x, y, uzunluk, yonSec.x, yonSec.y),
+                yon: { x: yonSec.x, y: yonSec.y },
+                renk: renkler[i % renkler.length],
+                hedefX: rastgele(50, W - 50),
+                hedefY: rastgele(50, H - 50),
+                hedefDegistir: 0,
+                uzunluk: uzunluk
+            };
+            botYilanlar.push(bot);
+        }
+    }
+
+    // --- BOT YAPAY ZEKASI ---
+    function botYonGuncelle(bot) {
+        bot.hedefDegistir++;
+        if (bot.hedefDegistir > 60 + rastgele(0, 40)) {
+            bot.hedefX = rastgele(30, W - 30);
+            bot.hedefY = rastgele(30, H - 30);
+            bot.hedefDegistir = 0;
+        }
+
+        const bas = bot.segmentler[0];
+        const dx = bot.hedefX - bas.x;
+        const dy = bot.hedefY - bas.y;
+        const mesafe = Math.hypot(dx, dy);
+
+        if (mesafe < 10) {
+            bot.hedefX = rastgele(30, W - 30);
+            bot.hedefY = rastgele(30, H - 30);
+            return;
+        }
+
+        // Yön değiştir (daha doğal hareket için)
+        if (Math.abs(dx) > Math.abs(dy)) {
+            bot.yon = { x: Math.sign(dx), y: 0 };
+        } else {
+            bot.yon = { x: 0, y: Math.sign(dy) };
+        }
+
+        // Ters yöne gitmesin
+        if (bot.segmentler.length > 1) {
+            const ikinci = bot.segmentler[1];
+            if (bot.yon.x === 1 && bas.x < ikinci.x) bot.yon.x = -1;
+            if (bot.yon.x === -1 && bas.x > ikinci.x) bot.yon.x = 1;
+            if (bot.yon.y === 1 && bas.y < ikinci.y) bot.yon.y = -1;
+            if (bot.yon.y === -1 && bas.y > ikinci.y) bot.yon.y = 1;
+        }
+    }
+
+    // --- OYUN DÖNGÜSÜ (Hareket) ---
+    function oyunDongusu(zaman) {
+        if (!oyunAktif || oyunBitti) {
+            animasyonId = requestAnimationFrame(oyunDongusu);
+            return;
+        }
+
+        // Hareket zamanı kontrolü
+        if (zaman - hareketZamani > HAREKET_ARALIGI) {
+            hareketZamani = zaman;
+
+            // 1. Yön güncelle (joystick)
+            if (joyVektor.x !== 0 || joyVektor.y !== 0) {
+                // En baskın yönü seç
+                if (Math.abs(joyVektor.x) > Math.abs(joyVektor.y)) {
+                    const yeniYon = { x: Math.sign(joyVektor.x), y: 0 };
+                    // Ters yöne gitme
+                    if (yilan.length > 1 && !(yeniYon.x === -yon.x && yeniYon.y === -yon.y)) {
+                        yon = yeniYon;
+                    }
+                } else if (Math.abs(joyVektor.y) > Math.abs(joyVektor.x)) {
+                    const yeniYon = { x: 0, y: Math.sign(joyVektor.y) };
+                    if (yilan.length > 1 && !(yeniYon.x === -yon.x && yeniYon.y === -yon.y)) {
+                        yon = yeniYon;
+                    }
+                }
+            }
+
+            // 2. Yılanı hareket ettir
+            const bas = { ...yilan[0] };
+            const yeniBas = {
+                x: bas.x + yon.x * 15,
+                y: bas.y + yon.y * 15
+            };
+
+            // Duvara çarpma kontrolü
+            if (yeniBas.x < 0 || yeniBas.x >= W || yeniBas.y < 0 || yeniBas.y >= H) {
+                oyunuBitir('💀 Duvara çarptın!');
+                return;
+            }
+
+            // Kendine çarpma kontrolü (baş hariç)
+            for (let i = 1; i < yilan.length; i++) {
+                if (yeniBas.x === yilan[i].x && yeniBas.y === yilan[i].y) {
+                    oyunuBitir('💀 Kendine çarptın!');
+                    return;
+                }
+            }
+
+            // Yem yeme kontrolü
+            let yemYendi = false;
+            if (Math.hypot(yeniBas.x - yem.x, yeniBas.y - yem.y) < 18) {
+                skor += 10;
+                skorGosterge.textContent = skor;
+                yemYendi = true;
+                // Büyüdükçe yavaşla
+                yemUret();
+                // Skor geçmişine ekle
+                skorGecmisi.push(skor);
+                siralamaGuncelle();
+            }
+
+            // Yılanı güncelle (başa ekle, kuyruktan çıkar)
+            yilan.unshift(yeniBas);
+            if (!yemYendi) {
+                yilan.pop();
+            }
+
+            // 3. Botları güncelle
+            for (let bot of botYilanlar) {
+                botYonGuncelle(bot);
+                const botBas = bot.segmentler[0];
+                const botYeniBas = {
+                    x: botBas.x + bot.yon.x * 12,
+                    y: botBas.y + bot.yon.y * 12
+                };
+
+                // Bot duvar kontrolü
+                if (botYeniBas.x < 0 || botYeniBas.x >= W || botYeniBas.y < 0 || botYeniBas.y >= H) {
+                    bot.yon.x *= -1;
+                    bot.yon.y *= -1;
+                    continue;
+                }
+
+                // Bot kendi kuyruğuna çarpmasın
+                let botCarpti = false;
+                for (let i = 1; i < bot.segmentler.length; i++) {
+                    if (botYeniBas.x === bot.segmentler[i].x && botYeniBas.y === bot.segmentler[i].y) {
+                        botCarpti = true;
+                        break;
+                    }
+                }
+                if (botCarpti) {
+                    const yonlar = [{x:1,y:0}, {x:-1,y:0}, {x:0,y:1}, {x:0,y:-1}];
+                    const yeniYon = yonlar[rastgele(0,3)];
+                    bot.yon = yeniYon;
+                    continue;
+                }
+
+                // Bot yem yeme
+                if (Math.hypot(botYeniBas.x - yem.x, botYeniBas.y - yem.y) < 18) {
+                    bot.segmentler.unshift(botYeniBas);
+                    yemUret();
+                } else {
+                    bot.segmentler.unshift(botYeniBas);
+                    bot.segmentler.pop();
+                }
+            }
+
+            // 4. Bot-oyuncu çarpışma kontrolü
+            const oyuncuBas = yilan[0];
+            for (let bot of botYilanlar) {
+                const botBas = bot.segmentler[0];
+                // 4. Bot-oyuncu çarpışma kontrolü
+const oyuncuBas = yilan[0];
+for (let bot of botYilanlar) {
+    const botBas = bot.segmentler[0];
+    
+    // OYUNCU BAŞI BOT BAŞINA ÇARPARSA
+    if (Math.hypot(oyuncuBas.x - botBas.x, oyuncuBas.y - botBas.y) < 15) {
+        if (yilan.length > bot.segmentler.length + 3) {
+            // Oyuncu daha büyük: botu ye
+            skor += bot.segmentler.length * 2;
+            skorGosterge.textContent = skor;
+            // Botu yeniden doğur
+            const yeniBot = {
+                segmentler: yilanOlustur(rastgele(50, W-50), rastgele(50, H-50), rastgele(4, 8), 1, 0),
+                yon: { x: 1, y: 0 },
+                renk: bot.renk,
+                hedefX: rastgele(50, W-50),
+                hedefY: rastgele(50, H-50),
+                hedefDegistir: 0,
+                uzunluk: rastgele(4, 10)
+            };
+            const index = botYilanlar.indexOf(bot);
+            botYilanlar[index] = yeniBot;
+            siralamaGuncelle();
+        } else if (bot.segmentler.length > yilan.length + 3) {
+            // Bot daha büyük: oyuncu ölür
+            oyunuBitir('💀 Bir bot yılan seni yedi!');
+            return;
+        }
+        continue;
+    }
+      
+    // OYUNCU BAŞI BOT GÖVDESİNE ÇARPARSA
+    for (let i = 1; i < bot.segmentler.length; i++) {
+        if (Math.hypot(oyuncuBas.x - bot.segmentler[i].x, oyuncuBas.y - bot.segmentler[i].y) < 12) {
+            if (yilan.length > bot.segmentler.length + 3) {
+                // Oyuncu daha büyük: botu ye
+                skor += bot.segmentler.length;
+                skorGosterge.textContent = skor;
+                const index = botYilanlar.indexOf(bot);
+                botYilanlar.splice(index, 1);
+                // Yeni bot oluştur
+                const yeniBot = {
+                    segmentler: yilanOlustur(rastgele(50, W-50), rastgele(50, H-50), rastgele(4, 8), 1, 0),
+                    yon: { x: 1, y: 0 },
+                    renk: bot.renk,
+                    hedefX: rastgele(50, W-50),
+                    hedefY: rastgele(50, H-50),
+                    hedefDegistir: 0,
+                    uzunluk: rastgele(4, 10)
+                };
+                botYilanlar.push(yeniBot);
+                siralamaGuncelle();
+                break;
+            } else if (bot.segmentler.length > yilan.length + 3) {
+                // Bot daha büyük: oyuncu ölür
+                oyunuBitir('💀 Bot yılana çarptın!');
+                return;
+            }
+        }
+    }
+}
