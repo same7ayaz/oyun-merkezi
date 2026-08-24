@@ -603,7 +603,7 @@ function oyunuBaslat() {
   } else {
     takimAviBaslat();
   }
-}
+  }
   // ============================================================
 // PART 4/8 - HAYATTA KALMA MODU (AKILLI BOT)
 // ============================================================
@@ -970,7 +970,7 @@ function yemUretHayattaKalma() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-  }
+                          }
   // ============================================================
 // PART 5/8 - TAKIM AVI (BAŞLATMA)
 // ============================================================
@@ -1097,7 +1097,7 @@ function takimAviBaslat() {
 
   if (animasyonId) cancelAnimationFrame(animasyonId);
   takimAviDongusu();
-  }
+                                   }
   // ============================================================
 // PART 6/8 - TAKIM AVI (DÖNGÜ - BOT KONTROLÜ)
 // ============================================================
@@ -1501,7 +1501,7 @@ function takimAviDongusu() {
         yemUret();
       }
     }
-        }
+    }
   // ============================================================
 // PART 7/8 - TAKIM AVI (ÇARPIŞMA KONTROLÜ)
 // ============================================================
@@ -1745,7 +1745,7 @@ function takimAviDongusu() {
   siralamaGuncelle();
   takimAviCizim();
   animasyonId = requestAnimationFrame(takimAviDongusu);
-  }
+    }
   // ============================================================
 // PART 8/8 - ÇİZİM, BAŞLATMA VE SIFIRLAMA
 // ============================================================
