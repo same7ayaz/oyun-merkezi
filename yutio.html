@@ -712,7 +712,6 @@ function oyunDongusu() {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
-  }
   // ============================================================
 // 3. PARÇA - ÇARPIŞMA + KAMERA + ÇİZİM + BUTONLAR
 // ============================================================
@@ -766,7 +765,8 @@ function oyunDongusu() {
     }
   }
 
-  const ayarlar = ZORLUK_AYARLARI[zorluk];
+  // const ayarlar = ZORLUK_AYARLARI[zorluk];  <--- BURASI SİLİNDİ! ZATEN 2. PARÇADA TANIMLI
+
   while (botlar.length < ayarlar.botSayisi) { botOlustur(); }
 
   skor = bas.r;
