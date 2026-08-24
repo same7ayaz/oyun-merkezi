@@ -263,7 +263,6 @@ let joyVektor = { x: 0, y: 0 };
 let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
 
-// === ZORLUK SEÇİMİ ===
 zorlukBtnleri.forEach(function(btn) {
   btn.addEventListener('click', function() {
     zorlukBtnleri.forEach(function(b) { b.classList.remove('aktif'); });
@@ -362,7 +361,6 @@ function yemUret() {
 }
 
 function yemOlustur(x, y, miktar) {
-  const ayarlar = ZORLUK_AYARLARI[zorluk];
   const sayi = Math.min(Math.floor(miktar / 5) + 3, 15);
   for (let i = 0; i < sayi; i++) {
     yemler.push({
@@ -682,7 +680,7 @@ document.addEventListener('keyup', function(e) {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
-     for (let i = botlar.length - 1; i >= 0; i--) {
+      for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
 
@@ -959,4 +957,4 @@ function baslangic() {
 baslangic();
 </script>
 </body>
-</html> 
+</html>
