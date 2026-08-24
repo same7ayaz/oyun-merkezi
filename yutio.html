@@ -206,7 +206,6 @@ const YEM_SAYISI = 350;
 const RENKLER = ['#e53935','#ffb300','#43a047','#8e24aa','#fb8c00','#00acc1','#d81b60','#6a1b9a','#ff6f00','#00838f','#ad1457','#1a237e'];
 const YEM_RENKLERI = ['#ff5252','#ff8a80','#ffab40','#ffd740','#69f0ae','#40c4ff','#448aff','#b388ff','#ff80ab','#ff6e40'];
 const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin","Bora","Aylin","Naz","Cem","Ela","Tan","Ada","Koray","Leyla","Demir","Alya","Ege","Nisa","Sara","Ali","Defne","Okan","Melis"];
-const DESEN_TIPLERI = ['cizgili', 'benekli', 'halkali', 'zigzag'];
 
 const skorGosterge = document.getElementById('skorGosterge');
 const durumMesaji = document.getElementById('durumMesaji');
@@ -228,14 +227,12 @@ function rastgele(min, max) { return Math.random() * (max - min) + min; }
 function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
   const y = [];
   const basR = r || 12;
-  const desen = DESEN_TIPLERI[Math.floor(Math.random() * DESEN_TIPLERI.length)];
   for (let i = 0; i < uzunluk; i++) {
     const oran = 1 - (i / Math.max(uzunluk, 1)) * 0.35;
     y.push({
       x: baslangicX - i * 9 * yonX,
       y: baslangicY - i * 9 * yonY,
-      r: Math.max(basR * oran, 2),
-      desen: desen
+      r: Math.max(basR * oran, 2)
     });
   }
   return y;
@@ -284,23 +281,15 @@ function botOlustur() {
     deneme++;
   } while (deneme < 40 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 250);
 
-  const desen = DESEN_TIPLERI[Math.floor(Math.random() * DESEN_TIPLERI.length)];
-  const segmentler = yilanOlustur(x, y, uzunluk, 1, 0, botR);
-  // Her segmente aynı deseni ata
-  for (let i = 0; i < segmentler.length; i++) {
-    segmentler[i].desen = desen;
-  }
-  
   botlar.push({
-    segmentler: segmentler,
+    segmentler: yilanOlustur(x, y, uzunluk, 1, 0, botR),
     yon: { x: rastgele(-1, 1), y: rastgele(-1, 1) },
     renk: RENKLER[Math.floor(Math.random() * RENKLER.length)],
     isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)],
     hedefX: rastgele(50, DUNYA_GENISLIK - 50),
     hedefY: rastgele(50, DUNYA_YUKSEKLIK - 50),
     yonDegistir: 0,
-    skor: botR,
-    desen: desen
+    skor: botR
   });
 }
 
@@ -505,7 +494,6 @@ document.addEventListener('keyup', function(e) {
     if (yilan[i-1]) {
       const oran = 1 - (i / yilan.length) * 0.35;
       yilan[i].r = Math.max(yilan[0].r * oran, 2);
-      yilan[i].desen = yilan[0].desen;
     }
   }
 
@@ -521,7 +509,7 @@ document.addEventListener('keyup', function(e) {
       skor += 0.5;
       bas.r += 0.3;
       const son = yilan[yilan.length - 1];
-      yilan.push({ x: son.x, y: son.y, r: Math.max(bas.r * 0.65, 2), desen: bas.desen });
+      yilan.push({ x: son.x, y: son.y, r: Math.max(bas.r * 0.65, 2) });
       yemler.splice(i, 1);
       yemUret();
     }
@@ -587,7 +575,6 @@ document.addEventListener('keyup', function(e) {
       if (bot.segmentler[j-1]) {
         const oran = 1 - (j / bot.segmentler.length) * 0.35;
         bot.segmentler[j].r = Math.max(bot.segmentler[0].r * oran, 2);
-        bot.segmentler[j].desen = bot.desen;
       }
     }
 
@@ -602,7 +589,7 @@ document.addEventListener('keyup', function(e) {
         bot.skor += 0.5;
         botBas.r += 0.25;
         const son = bot.segmentler[bot.segmentler.length - 1];
-        bot.segmentler.push({ x: son.x, y: son.y, r: Math.max(botBas.r * 0.65, 2), desen: bot.desen });
+        bot.segmentler.push({ x: son.x, y: son.y, r: Math.max(botBas.r * 0.65, 2) });
         yemler.splice(j, 1);
         yemUret();
       }
@@ -687,9 +674,7 @@ document.addEventListener('keyup', function(e) {
   skor = bas.r;
   skorGosterge.textContent = Math.round(skor);
 
-  // ============================================================
-  // === KAMERA: TÜM YILANI TAKİP ET ===
-  // ============================================================
+  // Kamera: tüm yılanı takip et
   let toplamX = 0, toplamY = 0;
   for (let i = 0; i < yilan.length; i++) {
     toplamX += yilan[i].x;
@@ -720,7 +705,7 @@ document.addEventListener('keyup', function(e) {
 }
 
 // ============================================================
-// === ÇİZİM (DESENLİ + OPTİMİZE) ===
+// === ÇİZİM (DESENSİZ - OPTİMİZE - YENİ RENKLER) ===
 // ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
@@ -758,14 +743,12 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // === BOT YILANLARI (DESENLİ) ===
+  // === BOT YILANLARI ===
   for (let bot of botlar) {
-    const desen = bot.desen || 'cizgili';
     for (let i = 0; i < bot.segmentler.length; i++) {
       const seg = bot.segmentler[i];
       const radius = Math.max(seg.r, 2);
       
-      // Ana gövde
       const grad = ctx.createRadialGradient(
         seg.x - radius * 0.2, seg.y - radius * 0.3, radius * 0.1,
         seg.x, seg.y, radius
@@ -779,57 +762,9 @@ function cizimYap() {
       ctx.beginPath();
       ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
       ctx.fill();
-
-      // === DESEN ÇİZ (sadece gövde segmentlerine, optimize) ===
-      if (i > 0 && radius > 4 && bot.segmentler.length < 60) {
-        ctx.shadowBlur = 0;
-        ctx.lineWidth = Math.max(1, radius * 0.15) / zoom;
-        
-        if (desen === 'cizgili') {
-          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-          ctx.beginPath();
-          ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
-          ctx.stroke();
-        } else if (desen === 'benekli') {
-          ctx.fillStyle = 'rgba(255,255,255,0.12)';
-          const benekSayisi = Math.floor(radius / 3);
-          for (let b = 0; b < benekSayisi && b < 4; b++) {
-            const aci = b * 1.2 + i * 0.3;
-            const uzaklik = radius * (0.3 + Math.random() * 0.4);
-            ctx.beginPath();
-            ctx.arc(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik, radius * 0.15, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        } else if (desen === 'halkali') {
-          ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-          ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
-          for (let h = 0; h < 3; h++) {
-            const oranH = 0.3 + h * 0.2;
-            ctx.beginPath();
-            ctx.arc(seg.x, seg.y, radius * oranH, 0, Math.PI * 2);
-            ctx.stroke();
-          }
-        } else if (desen === 'zigzag') {
-          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-          ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
-          ctx.beginPath();
-          for (let z = 0; z < 8; z++) {
-            const aci = (z / 8) * Math.PI * 2;
-            const uzaklik = radius * (0.5 + (z % 2 === 0 ? 0.3 : -0.3));
-            if (z === 0) ctx.moveTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
-            else ctx.lineTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
-          }
-          ctx.closePath();
-          ctx.stroke();
-        }
-      }
     }
     ctx.shadowBlur = 0;
 
-    // Bot gözleri ve ismi
     const botBas = bot.segmentler[0];
     const gozR = Math.max(botBas.r * 0.18, 2);
     const gozOffset = botBas.r * 0.35;
@@ -866,82 +801,29 @@ function cizimYap() {
     ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // === OYUNCU YILANI (DESENLİ) ===
-  const oyuncuDesen = yilan[0]?.desen || 'cizgili';
+  // ============================================================
+  // === OYUNCU YILANI (Turuncu-Kırmızı Gradient) ===
+  // ============================================================
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = Math.max(seg.r, 2);
     
+    // Turuncu-kırmızı gradient (göz yormayan, kontrastlı)
     const grad = ctx.createRadialGradient(
       seg.x - radius * 0.2, seg.y - radius * 0.3, radius * 0.1,
       seg.x, seg.y, radius
     );
-    grad.addColorStop(0, '#fff6d5');
-    grad.addColorStop(0.3, '#ffe082');
-    grad.addColorStop(1, '#ffca28');
+    grad.addColorStop(0, '#ff8a65');   // Açık turuncu
+    grad.addColorStop(0.4, '#e64a19'); // Turuncu
+    grad.addColorStop(0.7, '#bf360c'); // Koyu turuncu
+    grad.addColorStop(1, '#880e4f');   // Koyu kırmızı-mor
+    
     ctx.fillStyle = grad;
-    ctx.shadowColor = '#ffca28';
-    ctx.shadowBlur = i === 0 ? 25 / zoom : 8 / zoom;
+    ctx.shadowColor = '#ff6d00';
+    ctx.shadowBlur = i === 0 ? 20 / zoom : 6 / zoom;
     ctx.beginPath();
     ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
     ctx.fill();
-
-    // Oyuncu deseni (optimize)
-    if (i > 0 && radius > 4 && yilan.length < 60) {
-      ctx.shadowBlur = 0;
-      ctx.lineWidth = Math.max(1, radius * 0.15) / zoom;
-      
-      if (oyuncuDesen === 'cizgili') {
-        ctx.strokeStyle = 'rgba(180,120,50,0.2)';
-        ctx.beginPath();
-        ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
-        ctx.lineWidth = 1 / zoom;
-        ctx.beginPath();
-        ctx.moveTo(seg.x - radius * 0.6, seg.y - radius * 0.6);
-        ctx.lineTo(seg.x + radius * 0.6, seg.y + radius * 0.6);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(seg.x + radius * 0.6, seg.y - radius * 0.6);
-        ctx.lineTo(seg.x - radius * 0.6, seg.y + radius * 0.6);
-        ctx.stroke();
-      } else if (oyuncuDesen === 'benekli') {
-        ctx.fillStyle = 'rgba(180,120,50,0.15)';
-        const benekSayisi = Math.floor(radius / 3);
-        for (let b = 0; b < benekSayisi && b < 4; b++) {
-          const aci = b * 1.2 + i * 0.3;
-          const uzaklik = radius * (0.3 + Math.random() * 0.4);
-          ctx.beginPath();
-          ctx.arc(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik, radius * 0.15, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (oyuncuDesen === 'halkali') {
-        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
-        ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
-        for (let h = 0; h < 3; h++) {
-          const oranH = 0.3 + h * 0.2;
-          ctx.beginPath();
-          ctx.arc(seg.x, seg.y, radius * oranH, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-      } else if (oyuncuDesen === 'zigzag') {
-        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
-        ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
-        ctx.beginPath();
-        for (let z = 0; z < 8; z++) {
-          const aci = (z / 8) * Math.PI * 2;
-          const uzaklik = radius * (0.5 + (z % 2 === 0 ? 0.3 : -0.3));
-          if (z === 0) ctx.moveTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
-          else ctx.lineTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
-        }
-        ctx.closePath();
-        ctx.stroke();
-      }
-    }
   }
   ctx.shadowBlur = 0;
 
@@ -963,7 +845,7 @@ function cizimYap() {
             gozR, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#3e2723';
+    ctx.fillStyle = '#1a0000';
     const bebekR = Math.max(gozR * 0.5, 1);
     ctx.beginPath();
     ctx.arc(bas.x + yon.x * gozOffset * 1.4 - yon.y * gozOffset * 0.5,
