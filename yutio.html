@@ -146,12 +146,15 @@ let kamera = { x: 0, y: 0 };
 let zoom = 1;
 let animasyonId;
 
-const DUNYA_GENISLIK = 3500;
-const DUNYA_YUKSEKLIK = 3500;
-const BOT_SAYISI = 12;
-const YEM_SAYISI = 180;
-const RENKLER = ['#e53935','#ffb300','#43a047','#8e24aa','#fb8c00','#00acc1','#d81b60','#6a1b9a','#ff6f00','#00838f'];
-const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin"];
+// ============================================================
+// === BÜYÜK HARİTA + ÇOK BOT ===
+// ============================================================
+const DUNYA_GENISLIK = 6000;
+const DUNYA_YUKSEKLIK = 6000;
+const BOT_SAYISI = 25;
+const YEM_SAYISI = 350;
+const RENKLER = ['#e53935','#ffb300','#43a047','#8e24aa','#fb8c00','#00acc1','#d81b60','#6a1b9a','#ff6f00','#00838f','#ad1457','#1a237e'];
+const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin","Bora","Aylin","Naz","Cem","Ela","Tan","Ada","Koray","Leyla","Demir","Alya","Ege","Nisa","Sara","Ali","Defne","Okan","Melis"];
 
 const skorGosterge = document.getElementById('skorGosterge');
 const durumMesaji = document.getElementById('durumMesaji');
@@ -168,16 +171,15 @@ const joyYaricap = 30;
 
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
-// --- YILAN OLUŞTUR (pürüzsüz gövde) ---
 function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
   const y = [];
   const basR = r || 12;
   for (let i = 0; i < uzunluk; i++) {
-    const oran = 1 - (i / uzunluk) * 0.4;
+    const oran = 1 - (i / Math.max(uzunluk, 1)) * 0.4;
     y.push({
       x: baslangicX - i * 9 * yonX,
       y: baslangicY - i * 9 * yonY,
-      r: basR * oran
+      r: Math.max(basR * oran, 2)
     });
   }
   return y;
@@ -207,14 +209,14 @@ function oyunuBaslat() {
 }
 
 function botOlustur() {
-  const botR = rastgele(10, 28);
-  const uzunluk = Math.floor(rastgele(4, 10));
+  const botR = rastgele(10, 30);
+  const uzunluk = Math.floor(rastgele(4, 12));
   let x, y, deneme = 0;
   do {
     x = rastgele(botR + 10, DUNYA_GENISLIK - botR - 10);
     y = rastgele(botR + 10, DUNYA_YUKSEKLIK - botR - 10);
     deneme++;
-  } while (deneme < 30 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 200);
+  } while (deneme < 40 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 250);
 
   const bot = {
     segmentler: yilanOlustur(x, y, uzunluk, 1, 0, botR),
@@ -238,7 +240,11 @@ function yemUret() {
 function yemOlustur(x, y, miktar) {
   const sayi = Math.min(Math.floor(miktar / 5) + 3, 15);
   for (let i = 0; i < sayi; i++) {
-    yemler.push({ x: x + rastgele(-30, 30), y: y + rastgele(-30, 30), r: 6 });
+    yemler.push({
+      x: Math.max(10, Math.min(DUNYA_GENISLIK - 10, x + rastgele(-40, 40))),
+      y: Math.max(10, Math.min(DUNYA_YUKSEKLIK - 10, y + rastgele(-40, 40))),
+      r: 6
+    });
   }
 }
 
@@ -314,7 +320,7 @@ function oyunDongusu() {
 
   // Oyuncu hareketi
   if (joyVektor.x !== 0 || joyVektor.y !== 0) {
-    const hiz = Math.max(1.5, 5 - skor * 0.012);
+    const hiz = Math.max(1.5, 5 - skor * 0.01);
     yilan[0].x += joyVektor.x * hiz;
     yilan[0].y += joyVektor.y * hiz;
   }
@@ -346,7 +352,7 @@ function oyunDongusu() {
       skor += 0.5;
       bas.r += 0.3;
       const son = yilan[yilan.length - 1];
-      yilan.push({ x: son.x, y: son.y, r: bas.r * 0.6 });
+      yilan.push({ x: son.x, y: son.y, r: Math.max(bas.r * 0.6, 2) });
       yemler.splice(i, 1);
       yemUret();
     }
@@ -363,11 +369,11 @@ function oyunDongusu() {
       let hedefX, hedefY;
 
       if (rastgeleSecim < 0.4 && bot.skor > skor * 0.7) {
-        hedefX = bas.x + rastgele(-50, 50);
-        hedefY = bas.y + rastgele(-50, 50);
+        hedefX = bas.x + rastgele(-80, 80);
+        hedefY = bas.y + rastgele(-80, 80);
       } else if (rastgeleSecim < 0.6 && skor > bot.skor * 1.3) {
-        hedefX = botBas.x + (botBas.x - bas.x) * 3 + rastgele(-50, 50);
-        hedefY = botBas.y + (botBas.y - bas.y) * 3 + rastgele(-50, 50);
+        hedefX = botBas.x + (botBas.x - bas.x) * 3 + rastgele(-80, 80);
+        hedefY = botBas.y + (botBas.y - bas.y) * 3 + rastgele(-80, 80);
       } else {
         let enYakinYem = null;
         let enYakinMesafe = Infinity;
@@ -376,9 +382,9 @@ function oyunDongusu() {
           const d = Math.hypot(botBas.x - y.x, botBas.y - y.y);
           if (d < enYakinMesafe) { enYakinMesafe = d; enYakinYem = y; }
         }
-        if (enYakinYem && enYakinMesafe < 350) {
-          hedefX = enYakinYem.x + rastgele(-20, 20);
-          hedefY = enYakinYem.y + rastgele(-20, 20);
+        if (enYakinYem && enYakinMesafe < 400) {
+          hedefX = enYakinYem.x + rastgele(-30, 30);
+          hedefY = enYakinYem.y + rastgele(-30, 30);
         } else {
           hedefX = rastgele(50, DUNYA_GENISLIK - 50);
           hedefY = rastgele(50, DUNYA_YUKSEKLIK - 50);
@@ -395,7 +401,7 @@ function oyunDongusu() {
     const mesafe = Math.hypot(dx, dy);
     if (mesafe > 5) { bot.yon.x = dx / mesafe; bot.yon.y = dy / mesafe; }
 
-    const hiz = Math.max(0.8, 3.5 - bot.skor * 0.012);
+    const hiz = Math.max(0.8, 3.5 - bot.skor * 0.01);
     botBas.x += bot.yon.x * hiz;
     botBas.y += bot.yon.y * hiz;
 
@@ -424,7 +430,7 @@ function oyunDongusu() {
         bot.skor += 0.5;
         botBas.r += 0.25;
         const son = bot.segmentler[bot.segmentler.length - 1];
-        bot.segmentler.push({ x: son.x, y: son.y, r: botBas.r * 0.6 });
+        bot.segmentler.push({ x: son.x, y: son.y, r: Math.max(botBas.r * 0.6, 2) });
         yemler.splice(j, 1);
         yemUret();
       }
@@ -459,13 +465,12 @@ function oyunDongusu() {
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
     // ============================================================
   // === OYUNCU-BOT ÇARPIŞMA MANTIĞI ===
-  // KURAL: Başını çarptıran ÖLÜR!
   // ============================================================
   for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
 
-    // --- 1. BAŞ vs BAŞ (Boyut karşılaştırması) ---
+    // --- 1. BAŞ vs BAŞ ---
     if (Math.hypot(bas.x - botBas.x, bas.y - botBas.y) < bas.r + botBas.r) {
       if (bas.r > botBas.r + 3) {
         skor += bot.skor * 0.3;
@@ -486,7 +491,7 @@ function oyunDongusu() {
       }
     }
 
-    // --- 2. BOT BAŞI vs OYUNCU GÖVDESİ (Bot başı çarptı → BOT ÖLÜR) ---
+    // --- 2. BOT BAŞI vs OYUNCU GÖVDESİ (Bot ölür) ---
     let botCarpti = false;
     for (let j = 1; j < yilan.length; j++) {
       const seg = yilan[j];
@@ -502,7 +507,7 @@ function oyunDongusu() {
     }
     if (botCarpti) continue;
 
-    // --- 3. OYUNCU BAŞI vs BOT GÖVDESİ (Oyuncu başı çarptı → OYUNCU ÖLÜR) ---
+    // --- 3. OYUNCU BAŞI vs BOT GÖVDESİ (Oyuncu ölür) ---
     for (let j = 1; j < bot.segmentler.length; j++) {
       const seg = bot.segmentler[j];
       if (Math.hypot(bas.x - seg.x, bas.y - seg.y) < bas.r + seg.r) {
@@ -517,12 +522,17 @@ function oyunDongusu() {
   skor = bas.r;
   skorGosterge.textContent = Math.round(skor);
 
-  // === KAMERA ZOOM (Büyüdükçe uzaklaş) ===
+  // ============================================================
+  // === KAMERA ZOOM (Büyüdükçe uzaklaş - DÜZELTİLDİ) ===
+  // ============================================================
+  // zoom = 60 / skor  →  60/12=5 (çok yakın), 60/150=0.4 (çok uzak)
+  // 0.1 ile 1.0 arasında sınırla
+  zoom = Math.max(0.08, Math.min(1.0, 45 / skor));
+
   const viewW = W / zoom;
   const viewH = H / zoom;
   kamera.x = Math.max(0, Math.min(DUNYA_GENISLIK - viewW, bas.x - viewW / 2));
   kamera.y = Math.max(0, Math.min(DUNYA_YUKSEKLIK - viewH, bas.y - viewH / 2));
-  zoom = Math.max(0.1, Math.min(0.9, 35 / skor));
 
   cizimYap();
   siralamaGuncelle();
@@ -531,7 +541,7 @@ function oyunDongusu() {
 }
 
 // ============================================================
-// === ÇİZİM (YILAN GÖVDESİ + GÖZLER) ===
+// === ÇİZİM ===
 // ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
@@ -539,19 +549,17 @@ function cizimYap() {
   ctx.scale(zoom, zoom);
   ctx.translate(-kamera.x, -kamera.y);
 
-  // Arka plan
   ctx.fillStyle = '#0a0000';
   ctx.fillRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-  // Izgara
+  // Izgara (daha seyrek - performans)
   ctx.strokeStyle = '#1a0505';
   ctx.lineWidth = 1 / zoom;
-  for (let i = 0; i < DUNYA_GENISLIK; i += 50) {
+  for (let i = 0; i < DUNYA_GENISLIK; i += 80) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, DUNYA_YUKSEKLIK); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(DUNYA_GENISLIK, i); ctx.stroke();
   }
 
-  // Sınır
   ctx.strokeStyle = '#ff5252';
   ctx.lineWidth = 4 / zoom;
   ctx.strokeRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
@@ -567,9 +575,8 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // === BOT YILANLARI ÇİZ ===
+  // Bot yılanları
   for (let bot of botlar) {
-    // Gövde
     for (let i = 0; i < bot.segmentler.length; i++) {
       const seg = bot.segmentler[i];
       const radius = seg.r;
@@ -589,12 +596,10 @@ function cizimYap() {
     }
     ctx.shadowBlur = 0;
 
-    // Bot başı - gözler
     const botBas = bot.segmentler[0];
     const gozR = botBas.r * 0.18;
     const gozOffset = botBas.r * 0.35;
 
-    // Göz beyleri (beyaz)
     ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.arc(botBas.x + bot.yon.x * gozOffset - bot.yon.y * gozOffset * 0.5,
@@ -607,7 +612,6 @@ function cizimYap() {
             gozR, 0, Math.PI * 2);
     ctx.fill();
 
-    // Göz bebeği (siyah)
     ctx.fillStyle = '#1a0000';
     const bebekR = gozR * 0.5;
     ctx.beginPath();
@@ -621,7 +625,6 @@ function cizimYap() {
             bebekR, 0, Math.PI * 2);
     ctx.fill();
 
-    // Bot ismi
     ctx.fillStyle = 'white';
     ctx.font = Math.max(8, botBas.r * 0.4) + 'px Arial';
     ctx.textAlign = 'center';
@@ -629,7 +632,7 @@ function cizimYap() {
     ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // === OYUNCU YILANI ÇİZ ===
+  // Oyuncu yılanı
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = seg.r;
@@ -649,7 +652,6 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // Oyuncu başı - gözler
   const bas = yilan[0];
   const gozR = bas.r * 0.14;
   const gozOffset = bas.r * 0.3;
