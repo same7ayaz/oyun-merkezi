@@ -604,8 +604,9 @@ function baslangic() {
   cizimYap();
   durumMesaji.textContent = '▶️ Başlat\'a basarak oyuna başla';
 }
+window.onerror = function(msg) { alert("HATA: " + msg); };
 
-baslangic();
+  baslangic();
 </script>
 </body>
 </html>
