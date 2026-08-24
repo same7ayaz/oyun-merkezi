@@ -106,8 +106,32 @@ canvas { display: block; width: 100%; height: 100%; }
 .btnPrimary { background-color: #ff5252; color: #2e0000; }
 .btnPrimary:disabled { opacity: 0.5; }
 .btnSecondary { background-color: rgba(255,255,255,0.1); color: #ff8a80; border: 1px solid #ff5252; }
+#boostBtn {
+  background-color: #ff8a80;
+  color: #2e0000;
+  border: 2px solid #ff5252;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-left: 5px;
+}
+#boostBtn:active { transform: scale(0.9); background-color: #ff5252; }
+#boostBtn.turbo { background-color: #ff1744; color: white; box-shadow: 0 0 20px #ff1744; }
 .ipucu { font-size: 12px; opacity: 0.7; margin-top: 8px; }
 a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: none; font-weight: 600; }
+.boost-gosterge {
+  font-size: 13px;
+  color: #ff8a80;
+  background: rgba(0,0,0,0.3);
+  padding: 5px 14px;
+  border-radius: 20px;
+  display: inline-block;
+  border: 1px solid #ff5252;
+}
 </style>
 </head>
 <body>
@@ -125,8 +149,9 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
 <div class="btnGrup">
   <button class="btn btnPrimary" id="baslatBtn">▶ Başlat</button>
   <button class="btn btnSecondary" id="sifirlaBtn">🔄 Sıfırla</button>
+  <button id="boostBtn">⚡ Boost (Z)</button>
 </div>
-<p class="ipucu">Büyüdükçe yavaşlarsın, dikkatli ol!</p>
+<p class="ipucu">⚡ Boost (Z) ile hızlan ama küçül! Büyüdükçe yavaşlarsın.</p>
 
 <a href="index.html">⬅ Ana sayfaya dön</a>
 
@@ -147,8 +172,12 @@ let zoom = 1;
 let animasyonId;
 
 // ============================================================
-// === BÜYÜK HARİTA + ÇOK BOT ===
+// === BOOST (HIZLANMA/KÜÇÜLME) MEKANİĞİ ===
 // ============================================================
+let boostAktif = false;
+const BOOST_HIZ = 2.8;
+const NORMAL_HIZ = 1;
+
 const DUNYA_GENISLIK = 6000;
 const DUNYA_YUKSEKLIK = 6000;
 const BOT_SAYISI = 25;
@@ -161,6 +190,7 @@ const durumMesaji = document.getElementById('durumMesaji');
 const siralamaKutusu = document.getElementById('siralamaKutusu');
 const baslatBtn = document.getElementById('baslatBtn');
 const sifirlaBtn = document.getElementById('sifirlaBtn');
+const boostBtn = document.getElementById('boostBtn');
 
 const joyTaban = document.getElementById('joystickTaban');
 const joyTop = document.getElementById('joystickTop');
@@ -192,6 +222,9 @@ function oyunuBaslat() {
   skor = oyuncuR;
   oyunBittiMi = false;
   oyunAktif = true;
+  boostAktif = false;
+  boostBtn.classList.remove('turbo');
+  boostBtn.textContent = '⚡ Boost (Z)';
   skorGosterge.textContent = Math.round(skor);
   durumMesaji.textContent = '🎮 Oyun başladı!';
   baslatBtn.textContent = '⏸ Oynanıyor...';
@@ -218,7 +251,7 @@ function botOlustur() {
     deneme++;
   } while (deneme < 40 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 250);
 
-  const bot = {
+  botlar.push({
     segmentler: yilanOlustur(x, y, uzunluk, 1, 0, botR),
     yon: { x: rastgele(-1, 1), y: rastgele(-1, 1) },
     renk: RENKLER[Math.floor(Math.random() * RENKLER.length)],
@@ -227,8 +260,7 @@ function botOlustur() {
     hedefY: rastgele(50, DUNYA_YUKSEKLIK - 50),
     yonDegistir: 0,
     skor: botR
-  };
-  botlar.push(bot);
+  });
 }
 
 function yemUret() {
@@ -252,6 +284,8 @@ function oyunuBitir(mesaj) {
   if (oyunBittiMi) return;
   oyunBittiMi = true;
   oyunAktif = false;
+  boostAktif = false;
+  boostBtn.classList.remove('turbo');
   durumMesaji.textContent = mesaj + ' Boyut: ' + Math.round(skor);
   baslatBtn.textContent = '▶ Tekrar Başlat';
   baslatBtn.disabled = false;
@@ -300,13 +334,34 @@ joyTaban.addEventListener('mousedown', function(e) { joyBasla(e.clientX, e.clien
 document.addEventListener('mousemove', function(e) { if (joyAktif) joyHareket(e.clientX, e.clientY); });
 document.addEventListener('mouseup', function() { joyBitir(); });
 
+// --- BOOST (Z Tuşu) ---
+function boostToggle() {
+  if (!oyunAktif || oyunBittiMi) return;
+  boostAktif = !boostAktif;
+  if (boostAktif) {
+    boostBtn.classList.add('turbo');
+    boostBtn.textContent = '⚡ BOOST AKTİF (Z)';
+  } else {
+    boostBtn.classList.remove('turbo');
+    boostBtn.textContent = '⚡ Boost (Z)';
+  }
+}
+
 document.addEventListener('keydown', function(e) {
   if (!oyunAktif || oyunBittiMi) return;
+  if (e.key === 'z' || e.key === 'Z') {
+    e.preventDefault();
+    boostToggle();
+    return;
+  }
   if (e.key === 'ArrowUp') { joyVektor = { x: 0, y: -1 }; e.preventDefault(); }
   else if (e.key === 'ArrowDown') { joyVektor = { x: 0, y: 1 }; e.preventDefault(); }
   else if (e.key === 'ArrowLeft') { joyVektor = { x: -1, y: 0 }; e.preventDefault(); }
   else if (e.key === 'ArrowRight') { joyVektor = { x: 1, y: 0 }; e.preventDefault(); }
 });
+
+boostBtn.addEventListener('click', boostToggle);
+
 document.addEventListener('keyup', function(e) {
   if (e.key.indexOf('Arrow') === 0) { joyVektor = { x: 0, y: 0 }; }
 });
@@ -318,9 +373,23 @@ function oyunDongusu() {
     return;
   }
 
+  // ============================================================
+  // === BOOST MEKANİĞİ: Hızlan ama küçül! ===
+  // ============================================================
+  let hizCarpani = NORMAL_HIZ;
+  if (boostAktif) {
+    hizCarpani = BOOST_HIZ;
+    // Boost aktifken yavaşça küçül
+    if (yilan[0].r > 8) {
+      yilan[0].r -= 0.04;
+      skor = yilan[0].r;
+    }
+  }
+
   // Oyuncu hareketi
   if (joyVektor.x !== 0 || joyVektor.y !== 0) {
-    const hiz = Math.max(1.5, 5 - skor * 0.01);
+    const tabanHiz = Math.max(1.5, 5 - skor * 0.01);
+    const hiz = tabanHiz * hizCarpani;
     yilan[0].x += joyVektor.x * hiz;
     yilan[0].y += joyVektor.y * hiz;
   }
@@ -523,11 +592,13 @@ function oyunDongusu() {
   skorGosterge.textContent = Math.round(skor);
 
   // ============================================================
-  // === KAMERA ZOOM (Büyüdükçe uzaklaş - DÜZELTİLDİ) ===
+  // === KAMERA ZOOM - DÜZGÜN ÇALIŞAN VERSİYON ===
   // ============================================================
-  // zoom = 60 / skor  →  60/12=5 (çok yakın), 60/150=0.4 (çok uzak)
-  // 0.1 ile 1.0 arasında sınırla
-  zoom = Math.max(0.08, Math.min(1.0, 45 / skor));
+  // zoom = 65 / skor → başlangıçta 65/12≈5.4, 1'e kısıtlanır
+  // 30 boyutunda 65/30≈2.1, 1'e kısıtlanır
+  // 65 boyutunda 65/65=1.0 (tam ekran)
+  // 130 boyutunda 65/130=0.5 (uzaklaşır)
+  zoom = Math.max(0.08, Math.min(1.0, 65 / skor));
 
   const viewW = W / zoom;
   const viewH = H / zoom;
@@ -552,7 +623,6 @@ function cizimYap() {
   ctx.fillStyle = '#0a0000';
   ctx.fillRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-  // Izgara (daha seyrek - performans)
   ctx.strokeStyle = '#1a0505';
   ctx.lineWidth = 1 / zoom;
   for (let i = 0; i < DUNYA_GENISLIK; i += 80) {
@@ -692,6 +762,9 @@ baslatBtn.addEventListener('click', function() {
 sifirlaBtn.addEventListener('click', function() {
   oyunAktif = false;
   oyunBittiMi = false;
+  boostAktif = false;
+  boostBtn.classList.remove('turbo');
+  boostBtn.textContent = '⚡ Boost (Z)';
   skor = 12;
   skorGosterge.textContent = '12';
   durumMesaji.textContent = '🔄 Oyun sıfırlandı';
