@@ -297,7 +297,8 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('keyup', function(e) {
   if (e.key.indexOf('Arrow') === 0) { joyVektor = { x: 0, y: 0 }; }
 });
-  
+
+// --- OYUN DÖNGÜSÜ ---
 function oyunDongusu() {
   if (!oyunAktif || oyunBittiMi) {
     animasyonId = requestAnimationFrame(oyunDongusu);
@@ -333,7 +334,8 @@ function oyunDongusu() {
     }
   }
 
-  for (let bot of botlar) {
+  for (let i = 0; i < botlar.length; i++) {
+    const bot = botlar[i];
     const botBas = bot.segmentler[0];
     bot.yonDegistir++;
 
@@ -350,7 +352,8 @@ function oyunDongusu() {
       } else {
         let enYakinYem = null;
         let enYakinMesafe = Infinity;
-        for (let y of yemler) {
+        for (let j = 0; j < yemler.length; j++) {
+          const y = yemler[j];
           const d = Math.hypot(botBas.x - y.x, botBas.y - y.y);
           if (d < enYakinMesafe) { enYakinMesafe = d; enYakinYem = y; }
         }
@@ -377,29 +380,30 @@ function oyunDongusu() {
     botBas.x += bot.yon.x * hiz;
     botBas.y += bot.yon.y * hiz;
 
-    for (let i = bot.segmentler.length - 1; i > 0; i--) {
-      bot.segmentler[i].x = bot.segmentler[i-1].x;
-      bot.segmentler[i].y = bot.segmentler[i-1].y;
+    for (let j = bot.segmentler.length - 1; j > 0; j--) {
+      bot.segmentler[j].x = bot.segmentler[j-1].x;
+      bot.segmentler[j].y = bot.segmentler[j-1].y;
     }
 
     if (botBas.x < botBas.r || botBas.x > DUNYA_GENISLIK - botBas.r) bot.yon.x *= -1;
-    if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.r) bot.yon.y *= -1;
+    if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.y) bot.yon.y *= -1;
     botBas.x = Math.max(botBas.r, Math.min(DUNYA_GENISLIK - botBas.r, botBas.x));
     botBas.y = Math.max(botBas.r, Math.min(DUNYA_YUKSEKLIK - botBas.r, botBas.y));
 
-    for (let i = yemler.length - 1; i >= 0; i--) {
-      const y = yemler[i];
+    for (let j = yemler.length - 1; j >= 0; j--) {
+      const y = yemler[j];
       if (Math.hypot(botBas.x - y.x, botBas.y - y.y) < botBas.r + y.r) {
         bot.skor += 0.5;
         botBas.r += 0.25;
         const son = bot.segmentler[bot.segmentler.length - 1];
         bot.segmentler.push({ x: son.x, y: son.y, r: botBas.r - 1 });
-        yemler.splice(i, 1);
+        yemler.splice(j, 1);
         yemUret();
       }
     }
   }
 
+  // --- BOTLAR BİRBİRİNİ YEMESİ ---
   const silinecekBotlar = new Set();
   for (let i = 0; i < botlar.length; i++) {
     if (silinecekBotlar.has(i)) continue;
@@ -425,66 +429,69 @@ function oyunDongusu() {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
-
+    // ============================================================
+  // === OYUNCU-BOT ÇARPIŞMA MANTIĞI (DÜZELTİLDİ) ===
+  // KURAL: Başını çarptıran ÖLÜR!
+  // ============================================================
   for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
 
+    // --- 1. OYUNCU BAŞI vs BOT BAŞI (Boyut karşılaştırması) ---
     if (Math.hypot(bas.x - botBas.x, bas.y - botBas.y) < bas.r + botBas.r) {
       if (bas.r > botBas.r + 3) {
+        // Oyuncu büyük → botu yer
         skor += bot.skor * 0.3;
         bas.r += bot.skor * 0.1;
         yemOlustur(botBas.x, botBas.y, bot.skor * 0.4);
         botlar.splice(i, 1);
         botOlustur();
+        continue;
       } else if (botBas.r > bas.r + 3) {
+        // Bot büyük → oyuncu ölür
         oyunuBitir('💀 ' + bot.isim + ' seni yedi!');
         return;
       } else {
+        // Eşit → berabere
         yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
         botlar.splice(i, 1);
         botOlustur();
         oyunuBitir('💀 Berabere!');
         return;
       }
-      continue;
     }
 
-    for (let j = 1; j < bot.segmentler.length; j++) {
-      const seg = bot.segmentler[j];
-      if (Math.hypot(bas.x - seg.x, bas.y - seg.y) < bas.r + seg.r) {
-        if (bas.r > bot.skor + 3) {
-          skor += bot.skor * 0.2;
-          bas.r += bot.skor * 0.05;
-          yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
-          botlar.splice(i, 1);
-          botOlustur();
-          break;
-        } else {
-          oyunuBitir('💀 ' + bot.isim + '\'in gövdesine çarptın!');
-          return;
-        }
-      }
-    }
-
+    // --- 2. BOT BAŞI vs OYUNCU GÖVDESİ (Botun başı çarptı → BOT ÖLÜR) ---
+    let botCarpti = false;
     for (let j = 1; j < yilan.length; j++) {
       const seg = yilan[j];
       if (Math.hypot(botBas.x - seg.x, botBas.y - seg.y) < botBas.r + seg.r) {
-        if (bot.skor > bas.r + 3) {
-          oyunuBitir('💀 ' + bot.isim + ' sana çarptı!');
-          return;
-        } else {
-          skor += bot.skor * 0.2;
-          bas.r += bot.skor * 0.05;
-          yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
-          botlar.splice(i, 1);
-          botOlustur();
-          break;
-        }
+        // BOT BAŞI ÇARPTI → BOT ÖLÜR (doğru kural)
+        skor += bot.skor * 0.2;
+        bas.r += bot.skor * 0.05;
+        yemOlustur(botBas.x, botBas.y, bot.skor * 0.3);
+        botlar.splice(i, 1);
+        botOlustur();
+        botCarpti = true;
+        break;
       }
     }
+    if (botCarpti) continue;
+
+    // --- 3. OYUNCU BAŞI vs BOT GÖVDESİ (Oyuncunun başı çarptı → OYUNCU ÖLÜR) ---
+    let oyuncuCarpti = false;
+    for (let j = 1; j < bot.segmentler.length; j++) {
+      const seg = bot.segmentler[j];
+      if (Math.hypot(bas.x - seg.x, bas.y - seg.y) < bas.r + seg.r) {
+        // OYUNCU BAŞI ÇARPTI → OYUNCU ÖLÜR (doğru kural)
+        oyunuBitir('💀 ' + bot.isim + '\'in gövdesine çarptın!');
+        return;
+      }
+    }
+    if (oyuncuCarpti) return;
   }
 
+  // Bot sayısını sabit tut
   while (botlar.length < BOT_SAYISI) { botOlustur(); }
 
   skor = bas.r;
@@ -604,9 +611,8 @@ function baslangic() {
   cizimYap();
   durumMesaji.textContent = '▶️ Başlat\'a basarak oyuna başla';
 }
-window.onerror = function(msg) { alert("HATA: " + msg); };
 
-  baslangic();
+baslangic();
 </script>
 </body>
 </html>
