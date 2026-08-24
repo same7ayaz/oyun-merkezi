@@ -149,6 +149,35 @@ canvas { display: block; width: 100%; height: 100%; }
 .btnPrimary { background-color: #ff5252; color: #2e0000; }
 .btnPrimary:disabled { opacity: 0.5; }
 .btnSecondary { background-color: rgba(255,255,255,0.1); color: #ff8a80; border: 1px solid #ff5252; }
+
+/* ZORLUK SEVİYESİ BUTONLARI */
+.zorlukGrup {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.zorlukBtn {
+  border: 2px solid #ff5252;
+  background: rgba(0,0,0,0.3);
+  color: #ff8a80;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+.zorlukBtn:hover { background: rgba(255,82,82,0.2); }
+.zorlukBtn.aktif {
+  background: #ff5252;
+  color: #2e0000;
+  border-color: #ff5252;
+  box-shadow: 0 0 20px rgba(255,82,82,0.3);
+}
+
 .ipucu { font-size: 12px; opacity: 0.7; margin-top: 8px; }
 a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: none; font-weight: 600; }
 </style>
@@ -170,6 +199,13 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
 </div>
 
 <p id="durumMesaji">▶️ Oyunu başlat</p>
+
+<div class="zorlukGrup">
+  <button class="zorlukBtn aktif" data-zorluk="kolay">🟢 Kolay</button>
+  <button class="zorlukBtn" data-zorluk="orta">🟡 Orta</button>
+  <button class="zorlukBtn" data-zorluk="zor">🔴 Zor</button>
+</div>
+
 <div class="btnGrup">
   <button class="btn btnPrimary" id="baslatBtn">▶ Başlat</button>
   <button class="btn btnSecondary" id="sifirlaBtn">🔄 Sıfırla</button>
@@ -199,10 +235,36 @@ let boostBasili = false;
 const BOOST_HIZ = 2.8;
 const NORMAL_HIZ = 1;
 
+// ============================================================
+// === ZORLUK SEVİYESİ AYARLARI ===
+// ============================================================
+let zorluk = 'kolay';
+const ZORLUK_AYARLARI = {
+  kolay: {
+    botSayisi: 15,
+    botHiz: 0.6,
+    agresiflik: 0.3,    // 0-1 arası, ne kadar sık oyuncuyu hedef aldığı
+    botBoyutMax: 25,
+    yemSayisi: 250
+  },
+  orta: {
+    botSayisi: 25,
+    botHiz: 0.8,
+    agresiflik: 0.55,
+    botBoyutMax: 32,
+    yemSayisi: 300
+  },
+  zor: {
+    botSayisi: 40,
+    botHiz: 1.0,
+    agresiflik: 0.8,
+    botBoyutMax: 40,
+    yemSayisi: 350
+  }
+};
+
 const DUNYA_GENISLIK = 6000;
 const DUNYA_YUKSEKLIK = 6000;
-const BOT_SAYISI = 25;
-const YEM_SAYISI = 350;
 const RENKLER = ['#e53935','#ffb300','#43a047','#8e24aa','#fb8c00','#00acc1','#d81b60','#6a1b9a','#ff6f00','#00838f','#ad1457','#1a237e'];
 const YEM_RENKLERI = ['#ff5252','#ff8a80','#ffab40','#ffd740','#69f0ae','#40c4ff','#448aff','#b388ff','#ff80ab','#ff6e40'];
 const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin","Bora","Aylin","Naz","Cem","Ela","Tan","Ada","Koray","Leyla","Demir","Alya","Ege","Nisa","Sara","Ali","Defne","Okan","Melis"];
@@ -214,6 +276,7 @@ const baslatBtn = document.getElementById('baslatBtn');
 const sifirlaBtn = document.getElementById('sifirlaBtn');
 const boostBtn = document.getElementById('boostBtn');
 const boostBoyut = document.getElementById('boostBoyut');
+const zorlukBtnleri = document.querySelectorAll('.zorlukBtn');
 
 const joyTaban = document.getElementById('joystickTaban');
 const joyTop = document.getElementById('joystickTop');
@@ -221,6 +284,18 @@ let joyAktif = false;
 let joyVektor = { x: 0, y: 0 };
 let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
+
+// === ZORLUK SEÇİMİ ===
+zorlukBtnleri.forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    zorlukBtnleri.forEach(function(b) { b.classList.remove('aktif'); });
+    btn.classList.add('aktif');
+    zorluk = btn.dataset.zorluk;
+    if (!oyunAktif) {
+      durumMesaji.textContent = '🎯 Zorluk: ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1);
+    }
+  });
+});
 
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
@@ -239,6 +314,7 @@ function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
 }
 
 function oyunuBaslat() {
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
   const oyuncuR = 12;
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, oyuncuR);
   yon = { x: 1, y: 0 };
@@ -251,12 +327,12 @@ function oyunuBaslat() {
   boostBtn.style.background = 'rgba(255,82,82,0.2)';
   boostBoyut.textContent = '-0%';
   skorGosterge.textContent = Math.round(skor);
-  durumMesaji.textContent = '🎮 Oyun başladı!';
+  durumMesaji.textContent = '🎮 ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1) + ' mod başladı!';
   baslatBtn.textContent = '⏸ Oynanıyor...';
   baslatBtn.disabled = true;
 
   yemler = [];
-  for (let i = 0; i < YEM_SAYISI; i++) {
+  for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
       x: rastgele(20, DUNYA_GENISLIK - 20),
       y: rastgele(20, DUNYA_YUKSEKLIK - 20),
@@ -265,14 +341,15 @@ function oyunuBaslat() {
     });
   }
   botlar = [];
-  for (let i = 0; i < BOT_SAYISI; i++) { botOlustur(); }
+  for (let i = 0; i < ayarlar.botSayisi; i++) { botOlustur(); }
 
   if (animasyonId) cancelAnimationFrame(animasyonId);
   oyunDongusu();
 }
 
 function botOlustur() {
-  const botR = rastgele(10, 30);
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
+  const botR = rastgele(10, ayarlar.botBoyutMax);
   const uzunluk = Math.floor(rastgele(4, 12));
   let x, y, deneme = 0;
   do {
@@ -294,7 +371,8 @@ function botOlustur() {
 }
 
 function yemUret() {
-  if (yemler.length < YEM_SAYISI) {
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
+  if (yemler.length < ayarlar.yemSayisi) {
     yemler.push({
       x: rastgele(20, DUNYA_GENISLIK - 20),
       y: rastgele(20, DUNYA_YUKSEKLIK - 20),
@@ -305,6 +383,7 @@ function yemUret() {
 }
 
 function yemOlustur(x, y, miktar) {
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
   const sayi = Math.min(Math.floor(miktar / 5) + 3, 15);
   for (let i = 0; i < sayi; i++) {
     yemler.push({
@@ -454,6 +533,7 @@ document.addEventListener('keyup', function(e) {
     return;
   }
 
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
   let hizCarpani = NORMAL_HIZ;
   let boostKuculme = 0;
 
@@ -515,6 +595,9 @@ document.addEventListener('keyup', function(e) {
     }
   }
 
+  // ============================================================
+  // === BOT HAREKETİ (ZORLUĞA GÖRE AGRESİFLİK) ===
+  // ============================================================
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
@@ -524,13 +607,19 @@ document.addEventListener('keyup', function(e) {
       const rastgeleSecim = Math.random();
       let hedefX, hedefY;
 
-      if (rastgeleSecim < 0.4 && bot.skor > skor * 0.7) {
+      // AGRESİFLİK: Oyuncuyu hedef alma ihtimali zorlukla artar
+      const oyuncuHedefIhtimal = ayarlar.agresiflik;
+      
+      if (rastgeleSecim < oyuncuHedefIhtimal && bot.skor > skor * 0.6) {
+        // Oyuncuyu hedef al (agresif)
         hedefX = bas.x + rastgele(-80, 80);
         hedefY = bas.y + rastgele(-80, 80);
-      } else if (rastgeleSecim < 0.6 && skor > bot.skor * 1.3) {
+      } else if (rastgeleSecim < oyuncuHedefIhtimal + 0.2 && skor > bot.skor * 1.2) {
+        // Oyuncudan kaç (akıllıca)
         hedefX = botBas.x + (botBas.x - bas.x) * 3 + rastgele(-80, 80);
         hedefY = botBas.y + (botBas.y - bas.y) * 3 + rastgele(-80, 80);
       } else {
+        // Yem veya rastgele
         let enYakinYem = null;
         let enYakinMesafe = Infinity;
         for (let j = 0; j < yemler.length; j++) {
@@ -557,7 +646,8 @@ document.addEventListener('keyup', function(e) {
     const mesafe = Math.hypot(dx, dy);
     if (mesafe > 5) { bot.yon.x = dx / mesafe; bot.yon.y = dy / mesafe; }
 
-    const hiz = Math.max(0.8, 3.5 - bot.skor * 0.01);
+    // Zorluğa göre bot hızı
+    const hiz = Math.max(0.8, (3.0 + ayarlar.botHiz) - bot.skor * 0.01);
     botBas.x += bot.yon.x * hiz;
     botBas.y += bot.yon.y * hiz;
 
@@ -669,7 +759,9 @@ document.addEventListener('keyup', function(e) {
     }
   }
 
-  while (botlar.length < BOT_SAYISI) { botOlustur(); }
+  // Bot sayısını zorluk seviyesine göre sabit tut
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
+  while (botlar.length < ayarlar.botSayisi) { botOlustur(); }
 
   skor = bas.r;
   skorGosterge.textContent = Math.round(skor);
@@ -705,7 +797,7 @@ document.addEventListener('keyup', function(e) {
 }
 
 // ============================================================
-// === ÇİZİM (DESENSİZ - OPTİMİZE - YENİ RENKLER) ===
+// === ÇİZİM ===
 // ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
@@ -743,7 +835,7 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // === BOT YILANLARI ===
+  // Bot yılanları
   for (let bot of botlar) {
     for (let i = 0; i < bot.segmentler.length; i++) {
       const seg = bot.segmentler[i];
@@ -801,22 +893,19 @@ function cizimYap() {
     ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // ============================================================
-  // === OYUNCU YILANI (Turuncu-Kırmızı Gradient) ===
-  // ============================================================
+  // Oyuncu yılanı (Turuncu-kırmızı gradient)
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = Math.max(seg.r, 2);
     
-    // Turuncu-kırmızı gradient (göz yormayan, kontrastlı)
     const grad = ctx.createRadialGradient(
       seg.x - radius * 0.2, seg.y - radius * 0.3, radius * 0.1,
       seg.x, seg.y, radius
     );
-    grad.addColorStop(0, '#ff8a65');   // Açık turuncu
-    grad.addColorStop(0.4, '#e64a19'); // Turuncu
-    grad.addColorStop(0.7, '#bf360c'); // Koyu turuncu
-    grad.addColorStop(1, '#880e4f');   // Koyu kırmızı-mor
+    grad.addColorStop(0, '#ff8a65');
+    grad.addColorStop(0.4, '#e64a19');
+    grad.addColorStop(0.7, '#bf360c');
+    grad.addColorStop(1, '#880e4f');
     
     ctx.fillStyle = grad;
     ctx.shadowColor = '#ff6d00';
@@ -884,7 +973,8 @@ sifirlaBtn.addEventListener('click', function() {
   yon = { x: 1, y: 0 };
   yemler = [];
   botlar = [];
-  for (let i = 0; i < YEM_SAYISI; i++) {
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
+  for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
       x: rastgele(20, DUNYA_GENISLIK - 20),
       y: rastgele(20, DUNYA_YUKSEKLIK - 20),
@@ -892,16 +982,17 @@ sifirlaBtn.addEventListener('click', function() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-  for (let i = 0; i < BOT_SAYISI; i++) { botOlustur(); }
+  for (let i = 0; i < ayarlar.botSayisi; i++) { botOlustur(); }
   siralamaGuncelle();
   cizimYap();
 });
 
 function baslangic() {
+  const ayarlar = ZORLUK_AYARLARI[zorluk];
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, 12);
   yemler = [];
   botlar = [];
-  for (let i = 0; i < YEM_SAYISI; i++) {
+  for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
       x: rastgele(20, DUNYA_GENISLIK - 20),
       y: rastgele(20, DUNYA_YUKSEKLIK - 20),
@@ -909,12 +1000,12 @@ function baslangic() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-  for (let i = 0; i < BOT_SAYISI; i++) { botOlustur(); }
+  for (let i = 0; i < ayarlar.botSayisi; i++) { botOlustur(); }
   skor = 12;
   skorGosterge.textContent = '12';
   siralamaGuncelle();
   cizimYap();
-  durumMesaji.textContent = '▶️ Başlat\'a basarak oyuna başla';
+  durumMesaji.textContent = '▶️ ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1) + ' mod - Başlat\'a bas';
 }
 
 baslangic();
