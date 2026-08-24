@@ -267,7 +267,7 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
 
 <script>
   // ============================================================
-// PART 2 - DEĞİŞKENLER, SABİTLER VE YARDIMCI FONKSİYONLAR
+// PART 2 - DEĞİŞKENLER VE YARDIMCI FONKSİYONLAR
 // ============================================================
 
 const canvas = document.getElementById('oyunAlani');
@@ -285,7 +285,6 @@ const BOOST_HIZ = 4.0, NORMAL_HIZ = 1;
 let zorluk = 'kolay';
 let oyunModu = 'takimAvi';
 
-// TAKIM AVI DEĞİŞKENLERİ
 let tumYilanlar = [];
 let oyuncuTakim = '';
 let oyuncuYilan = null;
@@ -299,19 +298,17 @@ const TAKIM_RENK_LISTESI = ['#ffd740', '#ff1744', '#448aff', '#69f0ae'];
 const TAKIM_ISIMLERI = ['Sarı', 'Kırmızı', 'Mavi', 'Yeşil'];
 const TAKIM_ANAHTARLARI = ['sari', 'kirmizi', 'mavi', 'yesil'];
 
-// HARİTA (2500x2500)
 const DUNYA_GENISLIK = 2500;
 const DUNYA_YUKSEKLIK = 2500;
 
-// HEDEF MERKEZ
 hedefMerkez.x = DUNYA_GENISLIK / 2;
 hedefMerkez.y = DUNYA_YUKSEKLIK / 2;
 
 const TAKIM_KOSE = [
-  { x: 120, y: 120 },                                    // Sarı - sol üst
-  { x: DUNYA_GENISLIK - 120, y: 120 },                  // Kırmızı - sağ üst
-  { x: 120, y: DUNYA_YUKSEKLIK - 120 },                 // Mavi - sol alt
-  { x: DUNYA_GENISLIK - 120, y: DUNYA_YUKSEKLIK - 120 } // Yeşil - sağ alt
+  { x: 120, y: 120 },
+  { x: DUNYA_GENISLIK - 120, y: 120 },
+  { x: 120, y: DUNYA_YUKSEKLIK - 120 },
+  { x: DUNYA_GENISLIK - 120, y: DUNYA_YUKSEKLIK - 120 }
 ];
 
 const TAKIM_AYARLARI = {
@@ -322,7 +319,6 @@ const TAKIM_AYARLARI = {
   baslangicBoyut: 12
 };
 
-// HAYATTA KALMA ZORLUK AYARLARI
 const ZORLUK_AYARLARI = {
   kolay: { botSayisi: 12, botHiz: 0.8, agresiflik: 0.4, botBoyutMax: 25, yemSayisi: 200, botBoostIhtimal: 0.1 },
   orta: { botSayisi: 20, botHiz: 1.2, agresiflik: 0.6, botBoyutMax: 32, yemSayisi: 250, botBoostIhtimal: 0.2 },
@@ -614,7 +610,7 @@ function oyunuBaslat() {
   } else {
     takimAviBaslat();
   }
-               }
+}
   // ============================================================
 // PART 4A - HAYATTA KALMA MODU
 // ============================================================
@@ -881,9 +877,9 @@ function yemUretHayattaKalma() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-}
+  }
   // ============================================================
-// PART 4B - TAKIM AVI (BAŞLATMA, DÖNGÜ, ÇİZİM)
+// PART 4B - TAKIM AVI (BAŞLATMA + DÖNGÜ + ÇİZİM)
 // ============================================================
 
 function takimAviBaslat() {
@@ -906,15 +902,14 @@ function takimAviBaslat() {
   baslatBtn.textContent = '⏸ Oynanıyor...';
   baslatBtn.disabled = true;
 
-  // OYUNCU SABİT OLARAK SARI (0. TAKIM)
   const oyuncuTakimIndex = 0;
   oyuncuTakim = TAKIM_ANAHTARLARI[oyuncuTakimIndex];
   const oyuncuRenk = TAKIM_RENK_LISTESI[oyuncuTakimIndex];
   const oyuncuKose = TAKIM_KOSE[oyuncuTakimIndex];
 
   const oyuncuSeg = yilanOlusturRenkli(
-    oyuncuKose.x + rastgele(-80, 80),
-    oyuncuKose.y + rastgele(-80, 80),
+    oyuncuKose.x + rastgele(-200, 200),
+    oyuncuKose.y + rastgele(-200, 200),
     8, 1, 0, oyuncuR, oyuncuRenk
   );
   oyuncuYilan = {
@@ -933,7 +928,6 @@ function takimAviBaslat() {
   };
   tumYilanlar.push(oyuncuYilan);
 
-  // HER TAKIM KENDİ KÖŞESİNDE BAŞLASIN
   for (let i = 0; i < 4; i++) {
     const takimAdi = TAKIM_ANAHTARLARI[i];
     const renkKodu = TAKIM_RENK_LISTESI[i];
@@ -944,8 +938,8 @@ function takimAviBaslat() {
       const uzunluk = Math.floor(rastgele(5, 10));
       const yonX = rastgele(-1, 1) || 1;
       const yonY = rastgele(-1, 1) || 1;
-      const x = kose.x + rastgele(-120, 120);
-      const y = kose.y + rastgele(-120, 120);
+      const x = kose.x + rastgele(-250, 250);
+      const y = kose.y + rastgele(-250, 250);
 
       tumYilanlar.push({
         segmentler: yilanOlusturRenkli(x, y, uzunluk, yonX, yonY, r, renkKodu),
@@ -964,7 +958,6 @@ function takimAviBaslat() {
     }
   }
 
-  // YEMLER
   yemler = [];
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
@@ -997,9 +990,8 @@ function takimAviDongusu() {
 
   const ayarlar = TAKIM_AYARLARI;
   const hiz = ayarlar.botHiz;
-  const saldiriAraligi = ayarlar.saldiriAraligi;
+  const saldiriAraligi = ayarlar.saldiriAralagi;
 
-  // ---- OYUNCU ----
   if (oyuncuYilan && !oyuncuOludu) {
     const bas = oyuncuYilan.segmentler[0];
 
@@ -1011,11 +1003,9 @@ function takimAviDongusu() {
       } else { boostBitir(); boostBoyut.textContent = '-0%'; }
     } else boostBoyut.textContent = '-0%';
 
-    // Önce merkeze git, sonra savaş
     const mesafeMerkez = mesafe(bas, hedefMerkez);
 
-    if (mesafeMerkez > 100) {
-      // MERKEZE DOĞRU GİT
+    if (mesafeMerkez > 350) {
       const dx = hedefMerkez.x - bas.x;
       const dy = hedefMerkez.y - bas.y;
       const m = Math.hypot(dx, dy);
@@ -1025,7 +1015,6 @@ function takimAviDongusu() {
         bas.y += (dy / m) * hareketHiz;
       }
     } else {
-      // MERKEZE VARDI, HEDEFİNİ GÜNCELLE (savaş modu)
       oyuncuYilan.hedefeVaris = true;
       if (joyVektor.x !== 0 || joyVektor.y !== 0) {
         const boyutCarpani = 1 + (bas.r - 12) * 0.015;
@@ -1080,7 +1069,6 @@ function takimAviDongusu() {
     }
   }
 
-  // ---- BOTLAR ----
   for (let i = 0; i < tumYilanlar.length; i++) {
     const y = tumYilanlar[i];
     if (y.oyuncu) continue;
@@ -1088,8 +1076,7 @@ function takimAviDongusu() {
     const bas = y.segmentler[0];
     const mesafeMerkez = mesafe(bas, hedefMerkez);
 
-    if (mesafeMerkez > 100) {
-      // MERKEZE DOĞRU GİT
+    if (mesafeMerkez > 350) {
       const dx = hedefMerkez.x - bas.x;
       const dy = hedefMerkez.y - bas.y;
       const m = Math.hypot(dx, dy);
@@ -1101,7 +1088,6 @@ function takimAviDongusu() {
         bas.y += y.yon.y * hareketHiz;
       }
     } else {
-      // MERKEZE VARDI, SAVAŞ MODU
       y.hedefeVaris = true;
       y.yonDegistir++;
 
@@ -1201,7 +1187,6 @@ function takimAviDongusu() {
     }
   }
 
-  // ---- ÇARPİŞMA ----
   const silinecekler = new Set();
 
   for (let i = 0; i < tumYilanlar.length; i++) {
@@ -1372,21 +1357,23 @@ function takimAviCizim() {
     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(DUNYA_GENISLIK, i); ctx.stroke();
   }
 
-  // MERKEZ İŞARETİ
+  // KOLEZYUM (300 birim çap)
   ctx.beginPath();
-  ctx.arc(hedefMerkez.x, hedefMerkez.y, 80, 0, Math.PI * 2);
-  ctx.strokeStyle = '#ffffff33';
-  ctx.lineWidth = 2 / zoomOran;
+  ctx.arc(hedefMerkez.x, hedefMerkez.y, 300, 0, Math.PI * 2);
+  ctx.strokeStyle = '#ffffff44';
+  ctx.lineWidth = 3 / zoomOran;
+  ctx.setLineDash([10, 10]);
   ctx.stroke();
-  ctx.fillStyle = '#ffffff11';
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ffffff08';
   ctx.fill();
+
   ctx.fillStyle = '#ffffff44';
-  ctx.font = '16px Arial';
+  ctx.font = '24px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('⚔️', hedefMerkez.x, hedefMerkez.y);
+  ctx.fillText('⚔️ KOLEZYUM ⚔️', hedefMerkez.x, hedefMerkez.y - 320);
 
-  // TAKIM BÖLGELERİ
   for (let i = 0; i < 4; i++) {
     ctx.beginPath();
     ctx.arc(TAKIM_KOSE[i].x, TAKIM_KOSE[i].y, 70, 0, Math.PI * 2);
