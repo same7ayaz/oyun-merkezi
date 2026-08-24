@@ -601,7 +601,7 @@ function oyunuBaslat() {
   } else {
     takimAviBaslat();
   }
-}
+                                                 }
   // ============================================================
 // PART 4/8 - HAYATTA KALMA MODU
 // ============================================================
@@ -995,7 +995,7 @@ function takimAviBaslat() {
 
   if (animasyonId) cancelAnimationFrame(animasyonId);
   takimAviDongusu();
-  }
+}
   // ============================================================
 // PART 6/8 - TAKIM AVI (DÖNGÜ - BOT KONTROLÜ)
 // ============================================================
@@ -1399,12 +1399,12 @@ function takimAviDongusu() {
         yemUret();
       }
     }
-  }
+          }
   // ============================================================
-// PART 7/8 - TAKIM AVI (ÇARPIŞMA KONTROLÜ)
+// PART 7/8 - TAKIM AVI (ÇARPIŞMA KONTROLÜ - DÜZELTİLDİ)
 // ============================================================
 
-  // ÇARPIŞMA KONTROLÜ - SADECE BAŞ-BAŞ
+  // ÇARPIŞMA KONTROLÜ - BAŞ-BAŞ + BAŞ-GÖVDE (GÖVDEDEN GEÇME YOK!)
   const silinecekler = new Set();
 
   for (let i = 0; i < tumYilanlar.length; i++) {
@@ -1425,6 +1425,7 @@ function takimAviDongusu() {
 
       if (!y1Kolezyumda || !y2Kolezyumda) continue;
 
+      // ---- BAŞ-BAŞ ÇARPIŞMASI ----
       const dist = mesafe(bas1, bas2);
       const minDist = bas1.r + bas2.r;
 
@@ -1483,11 +1484,134 @@ function takimAviDongusu() {
             break;
           }
         }
+        continue;
+      }
+
+      // ---- YENİ: BAŞ-GÖVDE ÇARPIŞMASI (y1'in başı y2'nin gövdesine) ----
+      // KESİNLİKLE GÖVDEDEN GEÇME YOK!
+      let carpismaOldu = false;
+      
+      for (let s = 1; s < y2.segmentler.length; s++) {
+        const seg2 = y2.segmentler[s];
+        const distToBody = mesafe(bas1, seg2);
+        const minDistBody = bas1.r + seg2.r;
+
+        if (distToBody < minDistBody) {
+          carpismaOldu = true;
+          const y1Oyuncu = y1.oyuncu || false;
+          const y2Oyuncu = y2.oyuncu || false;
+
+          if (y1Oyuncu || y2Oyuncu) {
+            if (y1Oyuncu) {
+              // Oyuncu (y1) rakibin (y2) gövdesine çarptı → oyuncu ölür!
+              oyuncuOludu = true;
+              oyuncuYilan = null;
+              silinecekler.add(i);
+              durumMesaji.textContent = '💀 Rakibin gövdesine çarptın! İzleyici modu...';
+              break;
+            } else if (y2Oyuncu) {
+              // Rakip (y1) oyuncunun (y2) gövdesine çarptı → rakip ölür!
+              if (y1.skor > 0) {
+                y2.skor += y1.skor * 0.2;
+                y2.segmentler[0].r += y1.skor * 0.05;
+                yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
+              }
+              silinecekler.add(i);
+              durumMesaji.textContent = '⚔️ Rakip gövdesine çarptı! +' + Math.round(y1.skor * 0.2);
+              break;
+            }
+          } else {
+            // İki bot arasında baş-gövde çarpışması
+            if (y1.skor > y2.skor + 3) {
+              y1.skor += y2.skor * 0.2;
+              bas1.r += y2.skor * 0.05;
+              yemOlustur(seg2.x, seg2.y, y2.skor * 0.3);
+              silinecekler.add(j);
+              y1.yonDegistir = 0;
+              break;
+            } else if (y2.skor > y1.skor + 3) {
+              y2.skor += y1.skor * 0.2;
+              bas2.r += y1.skor * 0.05;
+              yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
+              silinecekler.add(i);
+              y2.yonDegistir = 0;
+              break;
+            } else {
+              silinecekler.add(i);
+              silinecekler.add(j);
+              yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
+              yemOlustur(seg2.x, seg2.y, y2.skor * 0.3);
+              break;
+            }
+          }
+        }
+        if (carpismaOldu) break;
+      }
+      
+      if (carpismaOldu || silinecekler.has(i) || silinecekler.has(j)) continue;
+
+      // ---- YENİ: y2'in başı y1'in gövdesine çarpıyor mu? ----
+      carpismaOldu = false;
+      
+      for (let s = 1; s < y1.segmentler.length; s++) {
+        const seg1 = y1.segmentler[s];
+        const distToBody = mesafe(bas2, seg1);
+        const minDistBody = bas2.r + seg1.r;
+
+        if (distToBody < minDistBody) {
+          carpismaOldu = true;
+          const y1Oyuncu = y1.oyuncu || false;
+          const y2Oyuncu = y2.oyuncu || false;
+
+          if (y1Oyuncu || y2Oyuncu) {
+            if (y2Oyuncu) {
+              // Oyuncu (y2) rakibin (y1) gövdesine çarptı → oyuncu ölür!
+              oyuncuOludu = true;
+              oyuncuYilan = null;
+              silinecekler.add(j);
+              durumMesaji.textContent = '💀 Rakibin gövdesine çarptın! İzleyici modu...';
+              break;
+            } else if (y1Oyuncu) {
+              // Rakip (y2) oyuncunun (y1) gövdesine çarptı → rakip ölür!
+              if (y2.skor > 0) {
+                y1.skor += y2.skor * 0.2;
+                y1.segmentler[0].r += y2.skor * 0.05;
+                yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
+              }
+              silinecekler.add(j);
+              durumMesaji.textContent = '⚔️ Rakip gövdesine çarptı! +' + Math.round(y2.skor * 0.2);
+              break;
+            }
+          } else {
+            if (y2.skor > y1.skor + 3) {
+              y2.skor += y1.skor * 0.2;
+              bas2.r += y1.skor * 0.05;
+              yemOlustur(seg1.x, seg1.y, y1.skor * 0.3);
+              silinecekler.add(i);
+              y2.yonDegistir = 0;
+              break;
+            } else if (y1.skor > y2.skor + 3) {
+              y1.skor += y2.skor * 0.2;
+              bas1.r += y2.skor * 0.05;
+              yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
+              silinecekler.add(j);
+              y1.yonDegistir = 0;
+              break;
+            } else {
+              silinecekler.add(i);
+              silinecekler.add(j);
+              yemOlustur(seg1.x, seg1.y, y1.skor * 0.3);
+              yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
+              break;
+            }
+          }
+        }
+        if (carpismaOldu) break;
       }
     }
   }
 
-  // OYUNCU GÖVDESİ İLE RAKİP BAŞI ÇARPIŞMASI - KALDIRILDI
+  // OYUNCU GÖVDESİ İLE RAKİP BAŞI ÇARPIŞMASI - KALDIRILDI (yukarıda var)
 
   if (silinecekler.size > 0) {
     const sorted = Array.from(silinecekler).sort((a, b) => b - a);
@@ -1527,7 +1651,7 @@ function takimAviDongusu() {
   siralamaGuncelle();
   takimAviCizim();
   animasyonId = requestAnimationFrame(takimAviDongusu);
-    }
+  }
   // ============================================================
 // PART 8/8 - ÇİZİM, BAŞLATMA VE SIFIRLAMA
 // ============================================================
