@@ -214,6 +214,9 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
 <a href="index.html">⬅ Ana sayfaya dön</a>
 
 <script>
+// ============================================================
+// 1. PARÇA - BAŞLANGIÇ AYARLARI
+// ============================================================
 const canvas = document.getElementById('oyunAlani');
 const ctx = canvas.getContext('2d');
 const W = 360, H = 360;
@@ -263,6 +266,9 @@ let joyVektor = { x: 0, y: 0 };
 let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
 
+// ============================================================
+// ZORLUK SEÇİMİ
+// ============================================================
 zorlukBtnleri.forEach(function(btn) {
   btn.addEventListener('click', function() {
     zorlukBtnleri.forEach(function(b) { b.classList.remove('aktif'); });
@@ -275,6 +281,9 @@ zorlukBtnleri.forEach(function(btn) {
   });
 });
 
+// ============================================================
+// YARDIMCI FONKSİYONLAR
+// ============================================================
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
 function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
@@ -291,24 +300,32 @@ function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
   return y;
 }
 
+// ============================================================
+// OYUNU BAŞLAT
+// ============================================================
 function oyunuBaslat() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   const oyuncuR = 12;
+  
+  // Yılanı oluştur
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, oyuncuR);
   yon = { x: 1, y: 0 };
   skor = oyuncuR;
   oyunBittiMi = false;
   oyunAktif = true;
+  
   boostAktif = false;
   boostBasili = false;
   boostBtn.classList.remove('turbo');
   boostBtn.style.background = 'rgba(255,82,82,0.2)';
   boostBoyut.textContent = '-0%';
+  
   skorGosterge.textContent = Math.round(skor);
   durumMesaji.textContent = '🎮 ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1) + ' mod başladı!';
   baslatBtn.textContent = '⏸ Oynanıyor...';
   baslatBtn.disabled = true;
 
+  // Yemleri oluştur
   yemler = [];
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
@@ -318,8 +335,12 @@ function oyunuBaslat() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
+  
+  // Botları oluştur
   botlar = [];
-  for (let i = 0; i < ayarlar.botSayisi; i++) { botOlustur(); }
+  for (let i = 0; i < ayarlar.botSayisi; i++) { 
+    botOlustur(); 
+  }
 
   if (animasyonId) cancelAnimationFrame(animasyonId);
   oyunDongusu();
@@ -400,6 +421,9 @@ function siralamaGuncelle() {
   siralamaKutusu.innerHTML = html;
 }
 
+// ============================================================
+// JOYSTICK KONTROLLERİ
+// ============================================================
 function joyBasla(clientX, clientY) {
   joyAktif = true;
   const rect = joyTaban.getBoundingClientRect();
@@ -446,6 +470,9 @@ document.addEventListener('mouseup', function() {
   joyBitir();
 });
 
+// ============================================================
+// BOOST KONTROLLERİ
+// ============================================================
 function boostBasla() {
   if (!oyunAktif || oyunBittiMi) return;
   boostBasili = true;
@@ -485,6 +512,9 @@ boostBtn.addEventListener('mouseleave', function(e) {
   if (boostBasili) boostBitir();
 });
 
+// ============================================================
+// KLAVYE KONTROLLERİ
+// ============================================================
 document.addEventListener('keydown', function(e) {
   if (!oyunAktif || oyunBittiMi) return;
   if (e.key === 'z' || e.key === 'Z') {
@@ -504,7 +534,10 @@ document.addEventListener('keyup', function(e) {
   }
   if (e.key.indexOf('Arrow') === 0) { joyVektor = { x: 0, y: 0 }; }
 });
-  function oyunDongusu() {
+ // ============================================================
+// 2. PARÇA - OYUN DÖNGÜSÜ
+// ============================================================
+function oyunDongusu() {
   if (!oyunAktif || oyunBittiMi) {
     animasyonId = requestAnimationFrame(oyunDongusu);
     return;
@@ -680,7 +713,10 @@ document.addEventListener('keyup', function(e) {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
-      for (let i = botlar.length - 1; i >= 0; i--) {
+  // ============================================================
+// 3. PARÇA - ÇARPIŞMA + KAMERA + ÇİZİM + BUTONLAR
+// ============================================================
+  for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
 
@@ -763,6 +799,9 @@ document.addEventListener('keyup', function(e) {
   animasyonId = requestAnimationFrame(oyunDongusu);
 }
 
+// ============================================================
+// ÇİZİM
+// ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
   ctx.save();
@@ -911,6 +950,9 @@ function cizimYap() {
   ctx.restore();
 }
 
+// ============================================================
+// BUTON OLAYLARI
+// ============================================================
 baslatBtn.addEventListener('click', function() {
   if (oyunAktif && !oyunBittiMi) return;
   oyunuBaslat();
@@ -932,6 +974,9 @@ sifirlaBtn.addEventListener('click', function() {
   baslangic();
 });
 
+// ============================================================
+// BAŞLANGIÇ
+// ============================================================
 function baslangic() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, 12);
