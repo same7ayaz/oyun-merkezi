@@ -267,7 +267,7 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
 
 <script>
   // ============================================================
-// PART 2 - DEĞİŞKENLER, SABİTLER VE YARDIMCI FONKSİYONLAR
+// PART 2 - DEĞİŞKENLER VE YARDIMCI FONKSİYONLAR
 // ============================================================
 
 const canvas = document.getElementById('oyunAlani');
@@ -298,7 +298,7 @@ const TAKIM_RENK_LISTESI = ['#ffd740', '#ff1744', '#448aff', '#69f0ae'];
 const TAKIM_ISIMLERI = ['Sarı', 'Kırmızı', 'Mavi', 'Yeşil'];
 const TAKIM_ANAHTARLARI = ['sari', 'kirmizi', 'mavi', 'yesil'];
 
-// HARİTA 2.5 KAT BÜYÜK (2500x2500)
+// HARİTA (2500x2500)
 const DUNYA_GENISLIK = 2500;
 const DUNYA_YUKSEKLIK = 2500;
 
@@ -309,7 +309,6 @@ const TAKIM_KOSE = [
   { x: DUNYA_GENISLIK - 80, y: DUNYA_YUKSEKLIK - 80 }
 ];
 
-// TAKIM SAVAŞI AYARLARI (SABİT - ZORLUK DEĞİŞMEZ)
 const TAKIM_AYARLARI = {
   takimBasi: 10,
   botHiz: 2.0,
@@ -318,7 +317,6 @@ const TAKIM_AYARLARI = {
   baslangicBoyut: 12
 };
 
-// HAYATTA KALMA ZORLUK AYARLARI (ESKİSİ GİBİ)
 const ZORLUK_AYARLARI = {
   kolay: { botSayisi: 12, botHiz: 0.8, agresiflik: 0.4, botBoyutMax: 25, yemSayisi: 200, botBoostIhtimal: 0.1 },
   orta: { botSayisi: 20, botHiz: 1.2, agresiflik: 0.6, botBoyutMax: 32, yemSayisi: 250, botBoostIhtimal: 0.2 },
@@ -344,10 +342,6 @@ const joyTaban = document.getElementById('joystickTaban');
 const joyTop = document.getElementById('joystickTop');
 let joyAktif = false, joyVektor = { x: 0, y: 0 }, joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
-
-// ============================================================
-// YARDIMCI FONKSİYONLAR
-// ============================================================
 
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
@@ -511,10 +505,9 @@ function oyunuBitir(mesaj) {
   siralamaGuncelle();
   }
   // ============================================================
-// PART 3 - MOD SEÇİMİ, ZORLUK VE JOYSTICK KONTROLLERİ
+// PART 3 - MOD SEÇİMİ, ZORLUK VE JOYSTICK
 // ============================================================
 
-// ---- ZORLUK SEÇİMİ ----
 zorlukBtnleri.forEach(btn => {
   btn.addEventListener('click', function() {
     zorlukBtnleri.forEach(b => b.classList.remove('aktif'));
@@ -526,7 +519,6 @@ zorlukBtnleri.forEach(btn => {
   });
 });
 
-// ---- MOD SEÇİMİ ----
 modBtnleri.forEach(function(btn) {
   btn.addEventListener('click', function() {
     modBtnleri.forEach(function(b) {
@@ -543,7 +535,6 @@ modBtnleri.forEach(function(btn) {
   });
 });
 
-// ---- JOYSTICK ----
 function joyBasla(cx, cy) {
   joyAktif = true;
   const rect = joyTaban.getBoundingClientRect();
@@ -571,7 +562,6 @@ joyTaban.addEventListener('mousedown', e => joyBasla(e.clientX, e.clientY));
 document.addEventListener('mousemove', e => { if(joyAktif) joyHareket(e.clientX, e.clientY); });
 document.addEventListener('mouseup', joyBitir);
 
-// ---- BOOST ----
 function boostBasla() {
   if (!oyunAktif || oyunBittiMi) return;
   if (oyunModu === 'takimAvi' && oyuncuOludu) return;
@@ -593,7 +583,6 @@ boostBtn.addEventListener('mousedown', e => { e.stopPropagation(); boostBasla();
 boostBtn.addEventListener('mouseup', e => { e.stopPropagation(); boostBitir(); });
 boostBtn.addEventListener('mouseleave', e => { if(boostBasili) boostBitir(); });
 
-// ---- KLAVYE ----
 document.addEventListener('keydown', e => {
   if (!oyunAktif || oyunBittiMi) return;
   if (e.key === 'z' || e.key === 'Z') {
@@ -612,7 +601,6 @@ document.addEventListener('keyup', e => {
   if (e.key.indexOf('Arrow') === 0) joyVektor = {x:0, y:0};
 });
 
-// ---- OYUN BAŞLAT (Ana) ----
 function oyunuBaslat() {
   boostBtn.style.display = 'flex';
   if (oyunModu === 'hayattaKalma') {
@@ -620,9 +608,9 @@ function oyunuBaslat() {
   } else {
     takimAviBaslat();
   }
-    }
+  }
   // ============================================================
-// PART 4A - HAYATTA KALMA MODU (ESKİSİ GİBİ)
+// PART 4A - HAYATTA KALMA MODU
 // ============================================================
 
 function hayattaKalmaBaslat() {
@@ -889,7 +877,7 @@ function yemUretHayattaKalma() {
   }
   }
   // ============================================================
-// PART 4B - TAKIM AVI BAŞLATMA VE OYUNCU HAREKETİ
+// PART 4B - TAKIM AVI BAŞLATMA VE ÇİZİM
 // ============================================================
 
 function takimAviBaslat() {
@@ -912,16 +900,15 @@ function takimAviBaslat() {
   baslatBtn.textContent = '⏸ Oynanıyor...';
   baslatBtn.disabled = true;
 
-  // Rastgele oyuncu takımı seç
-  const oyuncuTakimIndex = Math.floor(rastgele(0, 4));
+  // OYUNCU SABİT OLARAK SARI (0. TAKIM)
+  const oyuncuTakimIndex = 0;
   oyuncuTakim = TAKIM_ANAHTARLARI[oyuncuTakimIndex];
   const oyuncuRenk = TAKIM_RENK_LISTESI[oyuncuTakimIndex];
   const oyuncuKose = TAKIM_KOSE[oyuncuTakimIndex];
 
-  // Oyuncuyu oluştur (boyut 12)
   const oyuncuSeg = yilanOlusturRenkli(
-    oyuncuKose.x + rastgele(-80, 80),
-    oyuncuKose.y + rastgele(-80, 80),
+    oyuncuKose.x + rastgele(-60, 60),
+    oyuncuKose.y + rastgele(-60, 60),
     8, 1, 0, oyuncuR, oyuncuRenk
   );
   oyuncuYilan = {
@@ -939,7 +926,7 @@ function takimAviBaslat() {
   };
   tumYilanlar.push(oyuncuYilan);
 
-  // Her takımdan 10'ar bot oluştur (boyut 12)
+  // HER TAKIM KENDİ KENARINDA
   for (let i = 0; i < 4; i++) {
     const takimAdi = TAKIM_ANAHTARLARI[i];
     const renkKodu = TAKIM_RENK_LISTESI[i];
@@ -950,8 +937,8 @@ function takimAviBaslat() {
       const uzunluk = Math.floor(rastgele(5, 10));
       const yonX = rastgele(-1, 1) || 1;
       const yonY = rastgele(-1, 1) || 1;
-      const x = kose.x + rastgele(-120, 120);
-      const y = kose.y + rastgele(-120, 120);
+      const x = kose.x + rastgele(-100, 100);
+      const y = kose.y + rastgele(-100, 100);
 
       tumYilanlar.push({
         segmentler: yilanOlusturRenkli(x, y, uzunluk, yonX, yonY, r, renkKodu),
@@ -969,7 +956,6 @@ function takimAviBaslat() {
     }
   }
 
-  // Yemler (200 adet)
   yemler = [];
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
@@ -1004,11 +990,10 @@ function takimAviDongusu() {
   const hiz = ayarlar.botHiz;
   const saldiriAraligi = ayarlar.saldiriAraligi;
 
-  // ---- OYUNCU HAREKETİ (ÖLÜRSE İZLEYİCİ MOD) ----
+  // OYUNCU
   if (oyuncuYilan && !oyuncuOludu) {
     const bas = oyuncuYilan.segmentler[0];
 
-    // Boost
     if (boostAktif) {
       if (bas.r > 6) {
         bas.r -= 0.06;
@@ -1017,7 +1002,6 @@ function takimAviDongusu() {
       } else { boostBitir(); boostBoyut.textContent = '-0%'; }
     } else boostBoyut.textContent = '-0%';
 
-    // Hareket (hayatta kalmadan daha hızlı)
     if (joyVektor.x !== 0 || joyVektor.y !== 0) {
       const boyutCarpani = 1 + (bas.r - 12) * 0.015;
       const tabanHiz = Math.max(2.0, 5 + bas.r * 0.02);
@@ -1027,7 +1011,6 @@ function takimAviDongusu() {
       bas.y += joyVektor.y * hareketHiz;
     }
 
-    // Sınır
     if (bas.x < bas.r || bas.x > DUNYA_GENISLIK - bas.r ||
         bas.y < bas.r || bas.y > DUNYA_YUKSEKLIK - bas.r) {
       oyuncuOludu = true;
@@ -1040,7 +1023,6 @@ function takimAviDongusu() {
       return;
     }
 
-    // Oyuncu segmentleri
     for (let i = oyuncuYilan.segmentler.length - 1; i > 0; i--) {
       const dx = oyuncuYilan.segmentler[i-1].x - oyuncuYilan.segmentler[i].x;
       const dy = oyuncuYilan.segmentler[i-1].y - oyuncuYilan.segmentler[i].y;
@@ -1058,7 +1040,6 @@ function takimAviDongusu() {
       }
     }
 
-    // Oyuncu yem yeme
     const bas2 = oyuncuYilan.segmentler[0];
     for (let i = yemler.length - 1; i >= 0; i--) {
       const y = yemler[i];
@@ -1071,12 +1052,9 @@ function takimAviDongusu() {
         yemUret();
       }
     }
-      }
-  // ============================================================
-// PART 4C - TAKIM AVI BOT HAREKETLERİ VE ÇARPİŞMA
-// ============================================================
+  }
 
-  // ---- BOT HAREKETLERİ (HIZLI VE REKABETÇİ) ----
+  // BOTLAR
   for (let i = 0; i < tumYilanlar.length; i++) {
     const y = tumYilanlar[i];
     if (y.oyuncu) continue;
@@ -1179,9 +1157,7 @@ function takimAviDongusu() {
     }
   }
 
-  // ============================================================
-  // ÇARPİŞMA KONTROLÜ (KESİN ÇÖZÜM)
-  // ============================================================
+  // ÇARPİŞMA
   const silinecekler = new Set();
 
   for (let i = 0; i < tumYilanlar.length; i++) {
@@ -1307,12 +1283,8 @@ function takimAviDongusu() {
   siralamaGuncelle();
   takimAviCizim();
   animasyonId = requestAnimationFrame(takimAviDongusu);
-        }
-  // ============================================================
-// PART 4D - TAKIM AVI ÇİZİM, ANA ÇİZİM VE BAŞLATMA
-// ============================================================
+}
 
-// ---- TAKIM AVI ÇİZİM ----
 function takimAviCizim() {
   ctx.clearRect(0, 0, W, H);
   ctx.save();
@@ -1441,9 +1413,11 @@ function takimAviCizim() {
   }
 
   ctx.restore();
-}
+  }
+  // ============================================================
+// PART 4C - ANA ÇİZİM VE BAŞLATMA
+// ============================================================
 
-// ---- ANA ÇİZİM ----
 function cizimYap() {
   if (oyunModu === 'takimAvi') {
     takimAviCizim();
@@ -1584,7 +1558,6 @@ function cizimYap() {
   ctx.restore();
 }
 
-// ---- BUTONLAR ----
 baslatBtn.addEventListener('click', function() {
   if (oyunAktif && !oyunBittiMi) return;
   oyunuBaslat();
@@ -1616,7 +1589,6 @@ sifirlaBtn.addEventListener('click', function() {
   baslangicGorunumu();
 });
 
-// ---- BAŞLANGIÇ GÖRÜNÜMÜ ----
 function baslangicGorunumu() {
   if (oyunModu === 'hayattaKalma') {
     const ayarlar = ZORLUK_AYARLARI[zorluk];
@@ -1657,7 +1629,6 @@ function baslangicGorunumu() {
   }
 }
 
-// ---- BAŞLAT ----
 baslangicGorunumu();
 </script>
 </body>
