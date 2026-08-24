@@ -180,6 +180,35 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .ipucu { font-size: 12px; opacity: 0.7; margin-top: 8px; }
 a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: none; font-weight: 600; }
+/* MOD SEÇİM BUTONLARI */
+#modSecim {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.modBtn {
+  border: 2px solid #ff5252;
+  background: rgba(0,0,0,0.3);
+  color: #ff8a80;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+.modBtn:hover {
+  background: rgba(255,82,82,0.2);
+}
+.modBtn.aktif {
+  background: #ff5252;
+  color: #2e0000;
+  border-color: #ff5252;
+  box-shadow: 0 0 20px rgba(255,82,82,0.3);
+}
 </style>
 </head>
 <body>
