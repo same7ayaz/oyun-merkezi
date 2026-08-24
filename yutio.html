@@ -267,16 +267,21 @@ let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
 
 // ============================================================
-// ZORLUK SEÇİMİ
+// ZORLUK SEÇİMİ - DÜZELTİLDİ
 // ============================================================
 zorlukBtnleri.forEach(function(btn) {
   btn.addEventListener('click', function() {
     zorlukBtnleri.forEach(function(b) { b.classList.remove('aktif'); });
     btn.classList.add('aktif');
     zorluk = btn.dataset.zorluk;
+    durumMesaji.textContent = '🎯 Zorluk: ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1);
+    
+    // Oyun aktif değilse sadece görünümü güncelle
     if (!oyunAktif) {
-      durumMesaji.textContent = '🎯 Zorluk: ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1);
-      baslangic();
+      baslangicGorunumu();
+    } else {
+      // Oyun aktifse yeniden başlat
+      oyunuBaslat();
     }
   });
 });
@@ -301,13 +306,12 @@ function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
 }
 
 // ============================================================
-// OYUNU BAŞLAT
+// OYUN FONKSİYONLARI
 // ============================================================
 function oyunuBaslat() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   const oyuncuR = 12;
   
-  // Yılanı oluştur
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, oyuncuR);
   yon = { x: 1, y: 0 };
   skor = oyuncuR;
@@ -325,7 +329,6 @@ function oyunuBaslat() {
   baslatBtn.textContent = '⏸ Oynanıyor...';
   baslatBtn.disabled = true;
 
-  // Yemleri oluştur
   yemler = [];
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({
@@ -336,7 +339,6 @@ function oyunuBaslat() {
     });
   }
   
-  // Botları oluştur
   botlar = [];
   for (let i = 0; i < ayarlar.botSayisi; i++) { 
     botOlustur(); 
@@ -971,13 +973,13 @@ sifirlaBtn.addEventListener('click', function() {
   durumMesaji.textContent = '🔄 Oyun sıfırlandı';
   baslatBtn.textContent = '▶ Başlat';
   baslatBtn.disabled = false;
-  baslangic();
+  baslangicGorunumu();
 });
 
 // ============================================================
-// BAŞLANGIÇ
+// BAŞLANGIÇ GÖRÜNÜMÜ (Sadece görsel, oyun başlamaz)
 // ============================================================
-function baslangic() {
+function baslangicGorunumu() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, 12);
   yon = { x: 1, y: 0 };
@@ -997,9 +999,14 @@ function baslangic() {
   siralamaGuncelle();
   cizimYap();
   durumMesaji.textContent = '▶️ ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1) + ' mod - Başlat\'a bas';
+  baslatBtn.textContent = '▶ Başlat';
+  baslatBtn.disabled = false;
 }
 
-baslangic();
+// ============================================================
+// BAŞLAT
+// ============================================================
+baslangicGorunumu();
 </script>
 </body>
 </html>
