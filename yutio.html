@@ -601,9 +601,9 @@ function oyunuBaslat() {
   } else {
     takimAviBaslat();
   }
-                 }
+      }
   // ============================================================
-// PART 4 - HAYATTA KALMA MODU (ESKİ HALİ - DOKUNULMADI)
+// PART 4 - HAYATTA KALMA MODU
 // ============================================================
 
 function hayattaKalmaBaslat() {
@@ -868,9 +868,9 @@ function yemUretHayattaKalma() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-}
+        }
   // ============================================================
-// PART 5 - TAKIM AVI (BAŞLATMA + DÖNGÜ) - DAĞITIK SALDIRI
+// PART 5 - TAKIM AVI (BAŞLATMA + DÖNGÜ) - DÜZELTİLDİ
 // ============================================================
 
 function takimAviBaslat() {
@@ -959,7 +959,8 @@ function takimAviBaslat() {
         kolezyumda: false,
         hedefBekleme: 0,
         saldiriHedefi: null,
-        saldiriSuresi: 0
+        saldiriSuresi: 0,
+        hedefBelirlemeZamani: 0
       };
       tumYilanlar.push(yilanNesnesi);
     }
@@ -1070,7 +1071,9 @@ function takimAviDongusu() {
     }
   }
 
-  // BOT YILANLARI KONTROLÜ - DAĞITIK HEDEFLER
+  // ============================================================
+  // BOT YILANLARI KONTROLÜ - DÜZELTİLDİ
+  // ============================================================
   for (let i = 0; i < tumYilanlar.length; i++) {
     const y = tumYilanlar[i];
     if (y.oyuncu) continue;
@@ -1078,29 +1081,30 @@ function takimAviDongusu() {
     const bas = y.segmentler[0];
     const kolezyumda = mesafe(bas, hedefMerkez) < KOLEZYUM_YARICAP;
 
-    // KOLEZYUM İÇİNDEYSE AGRESİF DAVRAN - DAĞITIK HEDEFLER
-    if (kolezyumda) {
-      // RAKİP KOVALAMA - HER BOT FARKLI BİR HEDEF SEÇSİN
-      let hedefRakip = null;
-      let enYakinMesafe = Infinity;
+    // ---- HEDEF BELİRLEME ----
+    let hedefBelirlendi = false;
 
-      // Önce mevcut saldırı hedefi varsa onu kovala
-      if (y.saldiriHedefi && y.saldiriSuresi > 0) {
-        const hedefBas = y.saldiriHedefi.segmentler[0];
-        const d = mesafe(bas, hedefBas);
-        if (d < 800) {
-          y.hedefX = hedefBas.x + rastgele(-30, 30);
-          y.hedefY = hedefBas.y + rastgele(-30, 30);
-          y.saldiriSuresi--;
-          continue;
-        } else {
-          y.saldiriHedefi = null;
-          y.saldiriSuresi = 0;
-        }
+    // 1. Eğer saldırı hedefi varsa ve süresi devam ediyorsa
+    if (y.saldiriHedefi && y.saldiriSuresi > 0) {
+      const hedefBas = y.saldiriHedefi.segmentler[0];
+      const d = mesafe(bas, hedefBas);
+      // Hedef hala kolezyumda mı ve çok uzak değil mi?
+      const hedefKolezyumda = mesafe(hedefBas, hedefMerkez) < KOLEZYUM_YARICAP;
+      if (hedefKolezyumda && d < 900) {
+        y.hedefX = hedefBas.x + rastgele(-30, 30);
+        y.hedefY = hedefBas.y + rastgele(-30, 30);
+        y.saldiriSuresi--;
+        hedefBelirlendi = true;
+      } else {
+        // Hedef geçersiz oldu, saldırıyı iptal et
+        y.saldiriHedefi = null;
+        y.saldiriSuresi = 0;
       }
+    }
 
-      // Yeni hedef ara - HER BOT FARKLI BİR RAKİP KOVALASIN
-      // Botun kendi takımından olmayan ve kolezyumda olan rakipleri tara
+    // 2. Yeni hedef belirle (sadece kolezyum içinde ve hedef belirlenmediyse)
+    if (!hedefBelirlendi && kolezyumda) {
+      // Rakipleri topla
       let rakipler = [];
       for (let j = 0; j < tumYilanlar.length; j++) {
         if (i === j) continue;
@@ -1131,37 +1135,38 @@ function takimAviDongusu() {
           const hedefBas = secilen.rakip.segmentler[0];
           y.hedefX = hedefBas.x + rastgele(-30, 30);
           y.hedefY = hedefBas.y + rastgele(-30, 30);
-          continue;
+          hedefBelirlendi = true;
         }
       }
 
-      // Rakip yoksa veya çok uzaksa rastgele dolaş
-      y.saldiriSuresi = Math.max(0, y.saldiriSuresi - 1);
-      y.hedefBekleme++;
-      
-      if (y.hedefBekleme > 20 + rastgele(0, 20)) {
-        const aci = rastgele(0, Math.PI * 2);
-        const mesafe = rastgele(80, KOLEZYUM_YARICAP - 60);
-        y.hedefX = hedefMerkez.x + Math.cos(aci) * mesafe;
-        y.hedefY = hedefMerkez.y + Math.sin(aci) * mesafe;
-        y.hedefBekleme = 0;
+      // 3. Hala hedef belirlenmediyse rastgele dolaş
+      if (!hedefBelirlendi) {
+        y.hedefBekleme++;
+        if (y.hedefBekleme > 15 + rastgele(0, 15)) {
+          const aci = rastgele(0, Math.PI * 2);
+          const mesafe = rastgele(80, KOLEZYUM_YARICAP - 60);
+          y.hedefX = hedefMerkez.x + Math.cos(aci) * mesafe;
+          y.hedefY = hedefMerkez.y + Math.sin(aci) * mesafe;
+          y.hedefBekleme = 0;
+          hedefBelirlendi = true;
+        }
       }
-    } else {
-      // KOLEZYUM DIŞINDA - KOLEZYUMA DOĞRU İLERLE
-      y.saldiriSuresi = 0;
-      y.saldiriHedefi = null;
+    }
+
+    // KOLEZYUM DIŞINDA - KOLEZYUMA DOĞRU İLERLE
+    if (!kolezyumda && !hedefBelirlendi) {
       y.hedefBekleme++;
-      
-      if (y.hedefBekleme > 15) {
+      if (y.hedefBekleme > 10) {
         const aci = rastgele(0, Math.PI * 2);
         const mesafe = rastgele(100, KOLEZYUM_YARICAP - 100);
         y.hedefX = hedefMerkez.x + Math.cos(aci) * mesafe;
         y.hedefY = hedefMerkez.y + Math.sin(aci) * mesafe;
         y.hedefBekleme = 0;
+        hedefBelirlendi = true;
       }
     }
 
-    // HEDEFE DOĞRU HAREKET ET
+    // ---- HEDEFE DOĞRU HAREKET ET ----
     const dx = y.hedefX - bas.x;
     const dy = y.hedefY - bas.y;
     const m = Math.hypot(dx, dy);
@@ -1378,7 +1383,7 @@ function takimAviDongusu() {
   siralamaGuncelle();
   takimAviCizim();
   animasyonId = requestAnimationFrame(takimAviDongusu);
-  }
+          }
   // ============================================================
 // PART 6 - ÇİZİM, BAŞLATMA VE SIFIRLAMA
 // ============================================================
