@@ -150,7 +150,6 @@ canvas { display: block; width: 100%; height: 100%; }
 .btnPrimary:disabled { opacity: 0.5; }
 .btnSecondary { background-color: rgba(255,255,255,0.1); color: #ff8a80; border: 1px solid #ff5252; }
 
-/* ZORLUK SEVİYESİ BUTONLARI */
 .zorlukGrup {
   display: flex;
   gap: 8px;
@@ -235,32 +234,11 @@ let boostBasili = false;
 const BOOST_HIZ = 2.8;
 const NORMAL_HIZ = 1;
 
-// ============================================================
-// === ZORLUK SEVİYESİ AYARLARI ===
-// ============================================================
 let zorluk = 'kolay';
 const ZORLUK_AYARLARI = {
-  kolay: {
-    botSayisi: 15,
-    botHiz: 0.6,
-    agresiflik: 0.3,    // 0-1 arası, ne kadar sık oyuncuyu hedef aldığı
-    botBoyutMax: 25,
-    yemSayisi: 250
-  },
-  orta: {
-    botSayisi: 25,
-    botHiz: 0.8,
-    agresiflik: 0.55,
-    botBoyutMax: 32,
-    yemSayisi: 300
-  },
-  zor: {
-    botSayisi: 40,
-    botHiz: 1.0,
-    agresiflik: 0.8,
-    botBoyutMax: 40,
-    yemSayisi: 350
-  }
+  kolay: { botSayisi: 15, botHiz: 0.6, agresiflik: 0.3, botBoyutMax: 25, yemSayisi: 250 },
+  orta: { botSayisi: 25, botHiz: 0.8, agresiflik: 0.55, botBoyutMax: 32, yemSayisi: 300 },
+  zor: { botSayisi: 40, botHiz: 1.0, agresiflik: 0.8, botBoyutMax: 40, yemSayisi: 350 }
 };
 
 const DUNYA_GENISLIK = 6000;
@@ -293,6 +271,7 @@ zorlukBtnleri.forEach(function(btn) {
     zorluk = btn.dataset.zorluk;
     if (!oyunAktif) {
       durumMesaji.textContent = '🎯 Zorluk: ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1);
+      baslangic();
     }
   });
 });
@@ -595,9 +574,6 @@ document.addEventListener('keyup', function(e) {
     }
   }
 
-  // ============================================================
-  // === BOT HAREKETİ (ZORLUĞA GÖRE AGRESİFLİK) ===
-  // ============================================================
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
@@ -607,19 +583,15 @@ document.addEventListener('keyup', function(e) {
       const rastgeleSecim = Math.random();
       let hedefX, hedefY;
 
-      // AGRESİFLİK: Oyuncuyu hedef alma ihtimali zorlukla artar
       const oyuncuHedefIhtimal = ayarlar.agresiflik;
       
       if (rastgeleSecim < oyuncuHedefIhtimal && bot.skor > skor * 0.6) {
-        // Oyuncuyu hedef al (agresif)
         hedefX = bas.x + rastgele(-80, 80);
         hedefY = bas.y + rastgele(-80, 80);
       } else if (rastgeleSecim < oyuncuHedefIhtimal + 0.2 && skor > bot.skor * 1.2) {
-        // Oyuncudan kaç (akıllıca)
         hedefX = botBas.x + (botBas.x - bas.x) * 3 + rastgele(-80, 80);
         hedefY = botBas.y + (botBas.y - bas.y) * 3 + rastgele(-80, 80);
       } else {
-        // Yem veya rastgele
         let enYakinYem = null;
         let enYakinMesafe = Infinity;
         for (let j = 0; j < yemler.length; j++) {
@@ -646,7 +618,6 @@ document.addEventListener('keyup', function(e) {
     const mesafe = Math.hypot(dx, dy);
     if (mesafe > 5) { bot.yon.x = dx / mesafe; bot.yon.y = dy / mesafe; }
 
-    // Zorluğa göre bot hızı
     const hiz = Math.max(0.8, (3.0 + ayarlar.botHiz) - bot.skor * 0.01);
     botBas.x += bot.yon.x * hiz;
     botBas.y += bot.yon.y * hiz;
@@ -711,7 +682,7 @@ document.addEventListener('keyup', function(e) {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
-      for (let i = botlar.length - 1; i >= 0; i--) {
+     for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
 
@@ -759,14 +730,12 @@ document.addEventListener('keyup', function(e) {
     }
   }
 
-  // Bot sayısını zorluk seviyesine göre sabit tut
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   while (botlar.length < ayarlar.botSayisi) { botOlustur(); }
 
   skor = bas.r;
   skorGosterge.textContent = Math.round(skor);
 
-  // Kamera: tüm yılanı takip et
   let toplamX = 0, toplamY = 0;
   for (let i = 0; i < yilan.length; i++) {
     toplamX += yilan[i].x;
@@ -796,9 +765,6 @@ document.addEventListener('keyup', function(e) {
   animasyonId = requestAnimationFrame(oyunDongusu);
 }
 
-// ============================================================
-// === ÇİZİM ===
-// ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
   ctx.save();
@@ -819,7 +785,6 @@ function cizimYap() {
   ctx.lineWidth = 4 / zoom;
   ctx.strokeRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-  // Yemler
   for (let y of yemler) {
     ctx.shadowColor = y.renk;
     ctx.shadowBlur = 12 / zoom;
@@ -835,7 +800,6 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // Bot yılanları
   for (let bot of botlar) {
     for (let i = 0; i < bot.segmentler.length; i++) {
       const seg = bot.segmentler[i];
@@ -893,7 +857,6 @@ function cizimYap() {
     ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // Oyuncu yılanı (Turuncu-kırmızı gradient)
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = Math.max(seg.r, 2);
@@ -916,7 +879,6 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // Oyuncu gözleri
   const bas = yilan[0];
   if (bas) {
     const gozR = Math.max(bas.r * 0.14, 2);
@@ -969,27 +931,13 @@ sifirlaBtn.addEventListener('click', function() {
   durumMesaji.textContent = '🔄 Oyun sıfırlandı';
   baslatBtn.textContent = '▶ Başlat';
   baslatBtn.disabled = false;
-  yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, 12);
-  yon = { x: 1, y: 0 };
-  yemler = [];
-  botlar = [];
-  const ayarlar = ZORLUK_AYARLARI[zorluk];
-  for (let i = 0; i < ayarlar.yemSayisi; i++) {
-    yemler.push({
-      x: rastgele(20, DUNYA_GENISLIK - 20),
-      y: rastgele(20, DUNYA_YUKSEKLIK - 20),
-      r: 6,
-      renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
-    });
-  }
-  for (let i = 0; i < ayarlar.botSayisi; i++) { botOlustur(); }
-  siralamaGuncelle();
-  cizimYap();
+  baslangic();
 });
 
 function baslangic() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
   yilan = yilanOlustur(DUNYA_GENISLIK / 2, DUNYA_YUKSEKLIK / 2, 8, 1, 0, 12);
+  yon = { x: 1, y: 0 };
   yemler = [];
   botlar = [];
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
@@ -1011,4 +959,4 @@ function baslangic() {
 baslangic();
 </script>
 </body>
-</html>
+</html> 
