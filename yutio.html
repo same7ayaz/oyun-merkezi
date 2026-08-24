@@ -206,6 +206,7 @@ const YEM_SAYISI = 350;
 const RENKLER = ['#e53935','#ffb300','#43a047','#8e24aa','#fb8c00','#00acc1','#d81b60','#6a1b9a','#ff6f00','#00838f','#ad1457','#1a237e'];
 const YEM_RENKLERI = ['#ff5252','#ff8a80','#ffab40','#ffd740','#69f0ae','#40c4ff','#448aff','#b388ff','#ff80ab','#ff6e40'];
 const BOT_ISIMLERI = ["Ahmet","Zeynep","Mehmet","Elif","Can","Ayşe","Emre","Deniz","Kerem","Su","Berk","Nil","Arda","Ece","Kaan","Mira","Efe","Lara","Mert","Selin","Bora","Aylin","Naz","Cem","Ela","Tan","Ada","Koray","Leyla","Demir","Alya","Ege","Nisa","Sara","Ali","Defne","Okan","Melis"];
+const DESEN_TIPLERI = ['cizgili', 'benekli', 'halkali', 'zigzag'];
 
 const skorGosterge = document.getElementById('skorGosterge');
 const durumMesaji = document.getElementById('durumMesaji');
@@ -227,12 +228,14 @@ function rastgele(min, max) { return Math.random() * (max - min) + min; }
 function yilanOlustur(baslangicX, baslangicY, uzunluk, yonX, yonY, r) {
   const y = [];
   const basR = r || 12;
+  const desen = DESEN_TIPLERI[Math.floor(Math.random() * DESEN_TIPLERI.length)];
   for (let i = 0; i < uzunluk; i++) {
     const oran = 1 - (i / Math.max(uzunluk, 1)) * 0.35;
     y.push({
       x: baslangicX - i * 9 * yonX,
       y: baslangicY - i * 9 * yonY,
-      r: Math.max(basR * oran, 2)
+      r: Math.max(basR * oran, 2),
+      desen: desen
     });
   }
   return y;
@@ -281,15 +284,23 @@ function botOlustur() {
     deneme++;
   } while (deneme < 40 && Math.hypot(x - yilan[0].x, y - yilan[0].y) < 250);
 
+  const desen = DESEN_TIPLERI[Math.floor(Math.random() * DESEN_TIPLERI.length)];
+  const segmentler = yilanOlustur(x, y, uzunluk, 1, 0, botR);
+  // Her segmente aynı deseni ata
+  for (let i = 0; i < segmentler.length; i++) {
+    segmentler[i].desen = desen;
+  }
+  
   botlar.push({
-    segmentler: yilanOlustur(x, y, uzunluk, 1, 0, botR),
+    segmentler: segmentler,
     yon: { x: rastgele(-1, 1), y: rastgele(-1, 1) },
     renk: RENKLER[Math.floor(Math.random() * RENKLER.length)],
     isim: BOT_ISIMLERI[Math.floor(Math.random() * BOT_ISIMLERI.length)],
     hedefX: rastgele(50, DUNYA_GENISLIK - 50),
     hedefY: rastgele(50, DUNYA_YUKSEKLIK - 50),
     yonDegistir: 0,
-    skor: botR
+    skor: botR,
+    desen: desen
   });
 }
 
@@ -494,6 +505,7 @@ document.addEventListener('keyup', function(e) {
     if (yilan[i-1]) {
       const oran = 1 - (i / yilan.length) * 0.35;
       yilan[i].r = Math.max(yilan[0].r * oran, 2);
+      yilan[i].desen = yilan[0].desen;
     }
   }
 
@@ -509,7 +521,7 @@ document.addEventListener('keyup', function(e) {
       skor += 0.5;
       bas.r += 0.3;
       const son = yilan[yilan.length - 1];
-      yilan.push({ x: son.x, y: son.y, r: Math.max(bas.r * 0.65, 2) });
+      yilan.push({ x: son.x, y: son.y, r: Math.max(bas.r * 0.65, 2), desen: bas.desen });
       yemler.splice(i, 1);
       yemUret();
     }
@@ -575,6 +587,7 @@ document.addEventListener('keyup', function(e) {
       if (bot.segmentler[j-1]) {
         const oran = 1 - (j / bot.segmentler.length) * 0.35;
         bot.segmentler[j].r = Math.max(bot.segmentler[0].r * oran, 2);
+        bot.segmentler[j].desen = bot.desen;
       }
     }
 
@@ -589,7 +602,7 @@ document.addEventListener('keyup', function(e) {
         bot.skor += 0.5;
         botBas.r += 0.25;
         const son = bot.segmentler[bot.segmentler.length - 1];
-        bot.segmentler.push({ x: son.x, y: son.y, r: Math.max(botBas.r * 0.65, 2) });
+        bot.segmentler.push({ x: son.x, y: son.y, r: Math.max(botBas.r * 0.65, 2), desen: bot.desen });
         yemler.splice(j, 1);
         yemUret();
       }
@@ -675,7 +688,7 @@ document.addEventListener('keyup', function(e) {
   skorGosterge.textContent = Math.round(skor);
 
   // ============================================================
-  // === KAMERA: TÜM YILANI TAKİP ET (Merkez noktası) ===
+  // === KAMERA: TÜM YILANI TAKİP ET ===
   // ============================================================
   let toplamX = 0, toplamY = 0;
   for (let i = 0; i < yilan.length; i++) {
@@ -685,7 +698,6 @@ document.addEventListener('keyup', function(e) {
   const merkezX = toplamX / yilan.length;
   const merkezY = toplamY / yilan.length;
 
-  // Zoom: yılanın en uç noktalarına göre ayarla
   let maxR = 0;
   for (let i = 0; i < yilan.length; i++) {
     const mesafe = Math.hypot(yilan[i].x - merkezX, yilan[i].y - merkezY);
@@ -693,7 +705,6 @@ document.addEventListener('keyup', function(e) {
       maxR = mesafe + yilan[i].r;
     }
   }
-  // Yılanın kapladığı alana göre zoom
   const idealZoom = Math.max(0.06, Math.min(0.9, (W * 0.4) / (maxR * 1.8)));
   zoom += (idealZoom - zoom) * 0.06;
 
@@ -709,7 +720,7 @@ document.addEventListener('keyup', function(e) {
 }
 
 // ============================================================
-// === ÇİZİM (Desenli yılan + Renkli yemler) ===
+// === ÇİZİM (DESENLİ + OPTİMİZE) ===
 // ============================================================
 function cizimYap() {
   ctx.clearRect(0, 0, W, H);
@@ -731,7 +742,7 @@ function cizimYap() {
   ctx.lineWidth = 4 / zoom;
   ctx.strokeRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
 
-  // === RENKLİ YEMLER ===
+  // Yemler
   for (let y of yemler) {
     ctx.shadowColor = y.renk;
     ctx.shadowBlur = 12 / zoom;
@@ -739,7 +750,6 @@ function cizimYap() {
     ctx.beginPath();
     ctx.arc(y.x, y.y, y.r, 0, Math.PI * 2);
     ctx.fill();
-    // Yem parlaklığı
     ctx.shadowBlur = 0;
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     ctx.beginPath();
@@ -748,8 +758,9 @@ function cizimYap() {
   }
   ctx.shadowBlur = 0;
 
-  // === BOT YILANLARI (Desenli) ===
+  // === BOT YILANLARI (DESENLİ) ===
   for (let bot of botlar) {
+    const desen = bot.desen || 'cizgili';
     for (let i = 0; i < bot.segmentler.length; i++) {
       const seg = bot.segmentler[i];
       const radius = Math.max(seg.r, 2);
@@ -769,28 +780,51 @@ function cizimYap() {
       ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Gövde deseni (pullar/çizgiler)
-      if (i > 0 && radius > 4) {
+      // === DESEN ÇİZ (sadece gövde segmentlerine, optimize) ===
+      if (i > 0 && radius > 4 && bot.segmentler.length < 60) {
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-        ctx.lineWidth = 1 / zoom;
-        ctx.beginPath();
-        ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
-        ctx.stroke();
-        // Çapraz desen
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.lineWidth = 1 / zoom;
-        ctx.beginPath();
-        ctx.moveTo(seg.x - radius * 0.6, seg.y - radius * 0.6);
-        ctx.lineTo(seg.x + radius * 0.6, seg.y + radius * 0.6);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(seg.x + radius * 0.6, seg.y - radius * 0.6);
-        ctx.lineTo(seg.x - radius * 0.6, seg.y + radius * 0.6);
-        ctx.stroke();
+        ctx.lineWidth = Math.max(1, radius * 0.15) / zoom;
+        
+        if (desen === 'cizgili') {
+          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+          ctx.beginPath();
+          ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (desen === 'benekli') {
+          ctx.fillStyle = 'rgba(255,255,255,0.12)';
+          const benekSayisi = Math.floor(radius / 3);
+          for (let b = 0; b < benekSayisi && b < 4; b++) {
+            const aci = b * 1.2 + i * 0.3;
+            const uzaklik = radius * (0.3 + Math.random() * 0.4);
+            ctx.beginPath();
+            ctx.arc(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik, radius * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else if (desen === 'halkali') {
+          ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+          ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
+          for (let h = 0; h < 3; h++) {
+            const oranH = 0.3 + h * 0.2;
+            ctx.beginPath();
+            ctx.arc(seg.x, seg.y, radius * oranH, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        } else if (desen === 'zigzag') {
+          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+          ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
+          ctx.beginPath();
+          for (let z = 0; z < 8; z++) {
+            const aci = (z / 8) * Math.PI * 2;
+            const uzaklik = radius * (0.5 + (z % 2 === 0 ? 0.3 : -0.3));
+            if (z === 0) ctx.moveTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
+            else ctx.lineTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
       }
     }
     ctx.shadowBlur = 0;
@@ -832,12 +866,12 @@ function cizimYap() {
     ctx.fillText(bot.isim, botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // === OYUNCU YILANI (Desenli) ===
+  // === OYUNCU YILANI (DESENLİ) ===
+  const oyuncuDesen = yilan[0]?.desen || 'cizgili';
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = Math.max(seg.r, 2);
     
-    // Ana gövde
     const grad = ctx.createRadialGradient(
       seg.x - radius * 0.2, seg.y - radius * 0.3, radius * 0.1,
       seg.x, seg.y, radius
@@ -852,61 +886,96 @@ function cizimYap() {
     ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Gövde deseni (pullar/çizgiler)
-    if (i > 0 && radius > 4) {
+    // Oyuncu deseni (optimize)
+    if (i > 0 && radius > 4 && yilan.length < 60) {
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = 'rgba(180,120,50,0.2)';
-      ctx.lineWidth = 1 / zoom;
-      ctx.beginPath();
-      ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
-      ctx.stroke();
-      // Çapraz desen
-      ctx.strokeStyle = 'rgba(180,120,50,0.12)';
-      ctx.lineWidth = 1 / zoom;
-      ctx.beginPath();
-      ctx.moveTo(seg.x - radius * 0.6, seg.y - radius * 0.6);
-      ctx.lineTo(seg.x + radius * 0.6, seg.y + radius * 0.6);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(seg.x + radius * 0.6, seg.y - radius * 0.6);
-      ctx.lineTo(seg.x - radius * 0.6, seg.y + radius * 0.6);
-      ctx.stroke();
+      ctx.lineWidth = Math.max(1, radius * 0.15) / zoom;
+      
+      if (oyuncuDesen === 'cizgili') {
+        ctx.strokeStyle = 'rgba(180,120,50,0.2)';
+        ctx.beginPath();
+        ctx.arc(seg.x, seg.y, radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(seg.x, seg.y, radius * 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
+        ctx.lineWidth = 1 / zoom;
+        ctx.beginPath();
+        ctx.moveTo(seg.x - radius * 0.6, seg.y - radius * 0.6);
+        ctx.lineTo(seg.x + radius * 0.6, seg.y + radius * 0.6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(seg.x + radius * 0.6, seg.y - radius * 0.6);
+        ctx.lineTo(seg.x - radius * 0.6, seg.y + radius * 0.6);
+        ctx.stroke();
+      } else if (oyuncuDesen === 'benekli') {
+        ctx.fillStyle = 'rgba(180,120,50,0.15)';
+        const benekSayisi = Math.floor(radius / 3);
+        for (let b = 0; b < benekSayisi && b < 4; b++) {
+          const aci = b * 1.2 + i * 0.3;
+          const uzaklik = radius * (0.3 + Math.random() * 0.4);
+          ctx.beginPath();
+          ctx.arc(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik, radius * 0.15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (oyuncuDesen === 'halkali') {
+        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
+        ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
+        for (let h = 0; h < 3; h++) {
+          const oranH = 0.3 + h * 0.2;
+          ctx.beginPath();
+          ctx.arc(seg.x, seg.y, radius * oranH, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      } else if (oyuncuDesen === 'zigzag') {
+        ctx.strokeStyle = 'rgba(180,120,50,0.12)';
+        ctx.lineWidth = Math.max(1, radius * 0.08) / zoom;
+        ctx.beginPath();
+        for (let z = 0; z < 8; z++) {
+          const aci = (z / 8) * Math.PI * 2;
+          const uzaklik = radius * (0.5 + (z % 2 === 0 ? 0.3 : -0.3));
+          if (z === 0) ctx.moveTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
+          else ctx.lineTo(seg.x + Math.cos(aci) * uzaklik, seg.y + Math.sin(aci) * uzaklik);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
     }
   }
   ctx.shadowBlur = 0;
 
   // Oyuncu gözleri
   const bas = yilan[0];
-  const gozR = Math.max(bas.r * 0.14, 2);
-  const gozOffset = bas.r * 0.3;
+  if (bas) {
+    const gozR = Math.max(bas.r * 0.14, 2);
+    const gozOffset = bas.r * 0.3;
 
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(bas.x + yon.x * gozOffset - yon.y * gozOffset * 0.5,
-          bas.y + yon.y * gozOffset + yon.x * gozOffset * 0.5,
-          gozR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(bas.x + yon.x * gozOffset + yon.y * gozOffset * 0.5,
-          bas.y + yon.y * gozOffset - yon.x * gozOffset * 0.5,
-          gozR, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(bas.x + yon.x * gozOffset - yon.y * gozOffset * 0.5,
+            bas.y + yon.y * gozOffset + yon.x * gozOffset * 0.5,
+            gozR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(bas.x + yon.x * gozOffset + yon.y * gozOffset * 0.5,
+            bas.y + yon.y * gozOffset - yon.x * gozOffset * 0.5,
+            gozR, 0, Math.PI * 2);
+    ctx.fill();
 
-  ctx.fillStyle = '#3e2723';
-  const bebekR = Math.max(gozR * 0.5, 1);
-  ctx.beginPath();
-  ctx.arc(bas.x + yon.x * gozOffset * 1.4 - yon.y * gozOffset * 0.5,
-          bas.y + yon.y * gozOffset * 1.4 + yon.x * gozOffset * 0.5,
-          bebekR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(bas.x + yon.x * gozOffset * 1.4 + yon.y * gozOffset * 0.5,
-          bas.y + yon.y * gozOffset * 1.4 - yon.x * gozOffset * 0.5,
-          bebekR, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.fillStyle = '#3e2723';
+    const bebekR = Math.max(gozR * 0.5, 1);
+    ctx.beginPath();
+    ctx.arc(bas.x + yon.x * gozOffset * 1.4 - yon.y * gozOffset * 0.5,
+            bas.y + yon.y * gozOffset * 1.4 + yon.x * gozOffset * 0.5,
+            bebekR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(bas.x + yon.x * gozOffset * 1.4 + yon.y * gozOffset * 0.5,
+            bas.y + yon.y * gozOffset * 1.4 - yon.x * gozOffset * 0.5,
+            bebekR, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.restore();
 }
