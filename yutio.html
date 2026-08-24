@@ -264,7 +264,8 @@ let boostAktif = false, boostBasili = false;
 const BOOST_HIZ = 3.5, NORMAL_HIZ = 1;
 
 let zorluk = 'kolay';
-const ZORLUK_AYARLARI = {
+let oyunModu = 'hayattaKalma';
+  const ZORLUK_AYARLARI = {
   kolay: { botSayisi: 20, botHiz: 1.2, agresiflik: 0.5, botBoyutMax: 30, yemSayisi: 250, botBoostIhtimal: 0.15 },
   orta:  { botSayisi: 35, botHiz: 1.6, agresiflik: 0.7, botBoyutMax: 38, yemSayisi: 300, botBoostIhtimal: 0.25 },
   zor:   { botSayisi: 50, botHiz: 2.0, agresiflik: 0.9, botBoyutMax: 45, yemSayisi: 350, botBoostIhtimal: 0.35 }
@@ -301,7 +302,24 @@ zorlukBtnleri.forEach(btn => {
   });
 });
 
-// Yardımcı
+// Mod seçimi
+const modBtnleri = document.querySelectorAll('.modBtn');
+modBtnleri.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        modBtnleri.forEach(function(b) {
+            b.classList.remove('aktif');
+        });
+        this.classList.add('aktif');
+        oyunModu = this.dataset.mod;
+        durumMesaji.textContent = '🎯 Mod: ' + (oyunModu === 'hayattaKalma' ? 'Hayatta Kal' : 'Takım Avı');
+        if (!oyunAktif) {
+            baslangicGorunumu();
+        } else {
+            oyunuBaslat();
+        }
+    });
+});
+  // Yardımcı
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
 function yilanOlustur(bx, by, uzunluk, yx, yy, r) {
