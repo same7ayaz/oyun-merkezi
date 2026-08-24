@@ -712,6 +712,7 @@ function oyunDongusu() {
   }
   const siraliSilinecek = Array.from(silinecekBotlar).sort(function(a,b) { return b - a; });
   for (let idx of siraliSilinecek) { botlar.splice(idx, 1); botOlustur(); }
+  }
   // ============================================================
 // 3. PARÇA - ÇARPIŞMA + KAMERA + ÇİZİM + BUTONLAR
 // ============================================================
