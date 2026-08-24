@@ -304,9 +304,9 @@ const TAKIM_KOSE = [
 ];
 
 const ZORLUK_AYARLARI = {
-  kolay: { botSayisi: 15, botHiz: 0.8, agresiflik: 0.4, botBoyutMax: 25, yemSayisi: 200, botBoostIhtimal: 0.1, takimBasi: 10, saldiriAraligi: 60 },
-  orta: { botSayisi: 25, botHiz: 1.2, agresiflik: 0.6, botBoyutMax: 32, yemSayisi: 250, botBoostIhtimal: 0.2, takimBasi: 10, saldiriAraligi: 45 },
-  zor: { botSayisi: 35, botHiz: 1.6, agresiflik: 0.8, botBoyutMax: 40, yemSayisi: 300, botBoostIhtimal: 0.3, takimBasi: 10, saldiriAraligi: 30 }
+  kolay: { botSayisi: 15, botHiz: 1, agresiflik: 0.6, botBoyutMax: 25, yemSayisi: 600, botBoostIhtimal: 0.15, takimBasi: 10, saldiriAraligi: 30 },
+  orta: { botSayisi: 25, botHiz: 1.2, agresiflik: 0.6, botBoyutMax: 32, yemSayisi: 800, botBoostIhtimal: 0.25, takimBasi: 10, saldiriAraligi: 20 },
+  zor: { botSayisi: 35, botHiz: 1.6, agresiflik: 0.8, botBoyutMax: 40, yemSayisi: 1000, botBoostIhtimal: 0.35, takimBasi: 10, saldiriAraligi: 12 }
 };
 
 const DUNYA_GENISLIK = 6000;
@@ -741,7 +741,7 @@ function hayattaKalmaDongusu() {
           const d = Math.hypot(botBas.x - y.x, botBas.y - y.y);
           if (d < enYakinMesafe) { enYakinMesafe = d; enYakinYem = y; }
         }
-        if (enYakinYem && enYakinMesafe < 500) {
+        if (enYakinYem && enYakinMesafe < 900) {
           hedefX = enYakinYem.x + rastgele(-30, 30);
           hedefY = enYakinYem.y + rastgele(-30, 30);
         } else {
@@ -1079,7 +1079,7 @@ function takimAviDongusu() {
         if (other.takim === y.takim) continue;
         const otherBas = other.segmentler[0];
         const d = mesafe(bas, otherBas);
-        if (d < enYakinMesafe && d < 800) {
+        if (d < enYakinMesafe && d < 1200) {
           enYakinMesafe = d;
           enYakin = other;
         }
@@ -1120,7 +1120,7 @@ function takimAviDongusu() {
       y.yon.y = dy / m;
     }
 
-    const hareketHiz = Math.max(0.8, hiz + (y.skor * 0.01));
+    const hareketHiz = Math.max(1.2, hiz * 1.5 + (y.skor * 0.015));
     bas.x += y.yon.x * hareketHiz;
     bas.y += y.yon.y * hareketHiz;
 
@@ -1165,35 +1165,37 @@ function takimAviDongusu() {
   for (let i = 0; i < tumYilanlar.length; i++) {
     if (silinecekler.has(i)) continue;
     const y1 = tumYilanlar[i];
-    const bas1 = y1.segmentler[0];
+const bas1 = y1.segmentler[0];
 
-    for (let j = i + 1; j < tumYilanlar.length; j++) {
-      if (silinecekler.has(j)) continue;
-      const y2 = tumYilanlar[j];
-      if (y1.takim === y2.takim) continue;
+for (let j = i + 1; j < tumYilanlar.length; j++) {
+  if (silinecekler.has(j)) continue;
+  const y2 = tumYilanlar[j];
+  if (y1.takim === y2.takim) continue;
 
-      const bas2 = y2.segmentler[0];
-      if (mesafe(bas1, bas2) < bas1.r + bas2.r) {
-        if (y1.skor > y2.skor + 3) {
-          silinecekler.add(j);
-          y1.skor += y2.skor * 0.2;
-          bas1.r += y2.skor * 0.05;
-          yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
-        } else if (y2.skor > y1.skor + 3) {
-          silinecekler.add(i);
-          y2.skor += y1.skor * 0.2;
-          bas2.r += y1.skor * 0.05;
-          yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
-          break;
-        } else {
-          silinecekler.add(i);
-          silinecekler.add(j);
-          yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
-          yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
-          break;
-        }
-      }
+  const bas2 = y2.segmentler[0];
+  if (mesafe(bas1, bas2) < bas1.r + bas2.r) {
+    if (y1.skor > y2.skor + 3) {
+      silinecekler.add(j);
+      y1.skor += y2.skor * 0.2;
+      bas1.r += y2.skor * 0.05;
+      yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
+      y1.yonDegistir = 0;
+    } else if (y2.skor > y1.skor + 3) {
+      silinecekler.add(i);
+      y2.skor += y1.skor * 0.2;
+      bas2.r += y1.skor * 0.05;
+      yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
+      y2.yonDegistir = 0;
+      break;
+    } else {
+      silinecekler.add(i);
+      silinecekler.add(j);
+      yemOlustur(bas1.x, bas1.y, y1.skor * 0.3);
+      yemOlustur(bas2.x, bas2.y, y2.skor * 0.3);
+      break;
     }
+  }
+}
   }
 
   // Ölenleri kaldır (oyuncuyu kontrol et)
@@ -1255,11 +1257,11 @@ function takimAviCizim() {
       const m = Math.hypot(seg.x - merkezX, seg.y - merkezY);
       if (m + seg.r > maxR) maxR = m + seg.r;
     }
-    const idealZoom = Math.max(0.06, Math.min(0.9, (W * 0.4) / (maxR * 1.8)));
+    const idealZoom = Math.max(0.06, Math.min(0.9, (W * 0.6) / (maxR * 2.5)));
     zoom += (idealZoom - zoom) * 0.06;
     zoomOran = zoom;
   } else {
-    zoomOran = Math.min(W / DUNYA_GENISLIK, H / DUNYA_YUKSEKLIK) * 0.85;
+    zoomOran = Math.min(W / DUNYA_GENISLIK, H / DUNYA_YUKSEKLIK) * 1.6;
     merkezX = DUNYA_GENISLIK / 2;
     merkezY = DUNYA_YUKSEKLIK / 2;
   }
