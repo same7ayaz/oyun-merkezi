@@ -267,7 +267,7 @@ let joyMerkez = { x: 0, y: 0 };
 const joyYaricap = 30;
 
 // ============================================================
-// ZORLUK SEÇİMİ - DÜZELTİLDİ
+// ZORLUK SEÇİMİ
 // ============================================================
 zorlukBtnleri.forEach(function(btn) {
   btn.addEventListener('click', function() {
@@ -275,12 +275,9 @@ zorlukBtnleri.forEach(function(btn) {
     btn.classList.add('aktif');
     zorluk = btn.dataset.zorluk;
     durumMesaji.textContent = '🎯 Zorluk: ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1);
-    
-    // Oyun aktif değilse sadece görünümü güncelle
     if (!oyunAktif) {
       baslangicGorunumu();
     } else {
-      // Oyun aktifse yeniden başlat
       oyunuBaslat();
     }
   });
@@ -536,7 +533,7 @@ document.addEventListener('keyup', function(e) {
   }
   if (e.key.indexOf('Arrow') === 0) { joyVektor = { x: 0, y: 0 }; }
 });
- // ============================================================
+  // ============================================================
 // 2. PARÇA - OYUN DÖNGÜSÜ
 // ============================================================
 function oyunDongusu() {
@@ -718,6 +715,8 @@ function oyunDongusu() {
   // ============================================================
 // 3. PARÇA - ÇARPIŞMA + KAMERA + ÇİZİM + BUTONLAR
 // ============================================================
+  const bas = yilan[0];
+  
   for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
@@ -977,7 +976,7 @@ sifirlaBtn.addEventListener('click', function() {
 });
 
 // ============================================================
-// BAŞLANGIÇ GÖRÜNÜMÜ (Sadece görsel, oyun başlamaz)
+// BAŞLANGIÇ GÖRÜNÜMÜ
 // ============================================================
 function baslangicGorunumu() {
   const ayarlar = ZORLUK_AYARLARI[zorluk];
@@ -1003,9 +1002,6 @@ function baslangicGorunumu() {
   baslatBtn.disabled = false;
 }
 
-// ============================================================
-// BAŞLAT
-// ============================================================
 baslangicGorunumu();
 </script>
 </body>
