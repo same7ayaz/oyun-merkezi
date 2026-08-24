@@ -38,6 +38,33 @@ h1 span { color: #fff; }
 }
 .skorAlani strong { color: #ff5252; font-size: 18px; }
 
+#modSecim {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.modBtn {
+  border: 2px solid #ff5252;
+  background: rgba(0,0,0,0.3);
+  color: #ff8a80;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+.modBtn:hover { background: rgba(255,82,82,0.2); }
+.modBtn.aktif {
+  background: #ff5252;
+  color: #2e0000;
+  border-color: #ff5252;
+  box-shadow: 0 0 20px rgba(255,82,82,0.3);
+}
+
 #oyunKapsayici {
   position: relative;
   width: 360px;
@@ -180,35 +207,6 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .ipucu { font-size: 12px; opacity: 0.7; margin-top: 8px; }
 a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: none; font-weight: 600; }
-/* MOD SEÇİM BUTONLARI */
-#modSecim {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 10px 0;
-  flex-wrap: wrap;
-}
-.modBtn {
-  border: 2px solid #ff5252;
-  background: rgba(0,0,0,0.3);
-  color: #ff8a80;
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.3s;
-}
-.modBtn:hover {
-  background: rgba(255,82,82,0.2);
-}
-.modBtn.aktif {
-  background: #ff5252;
-  color: #2e0000;
-  border-color: #ff5252;
-  box-shadow: 0 0 20px rgba(255,82,82,0.3);
-}
 </style>
 </head>
 <body>
@@ -233,7 +231,8 @@ a { color: #ff5252; display: inline-block; margin-top: 18px; text-decoration: no
   <button class="modBtn aktif" data-mod="hayattaKalma">🏃 Hayatta Kal</button>
   <button class="modBtn" data-mod="takimAvi">⚔️ Takım Avı</button>
 </div>
-  <div class="zorlukGrup">
+
+<div class="zorlukGrup">
   <button class="zorlukBtn aktif" data-zorluk="kolay">🟢 Kolay</button>
   <button class="zorlukBtn" data-zorluk="orta">🟡 Orta</button>
   <button class="zorlukBtn" data-zorluk="zor">🔴 Zor</button>
@@ -265,7 +264,8 @@ const BOOST_HIZ = 3.5, NORMAL_HIZ = 1;
 
 let zorluk = 'kolay';
 let oyunModu = 'hayattaKalma';
-  const ZORLUK_AYARLARI = {
+
+const ZORLUK_AYARLARI = {
   kolay: { botSayisi: 20, botHiz: 1.2, agresiflik: 0.5, botBoyutMax: 30, yemSayisi: 250, botBoostIhtimal: 0.15 },
   orta:  { botSayisi: 35, botHiz: 1.6, agresiflik: 0.7, botBoyutMax: 38, yemSayisi: 300, botBoostIhtimal: 0.25 },
   zor:   { botSayisi: 50, botHiz: 2.0, agresiflik: 0.9, botBoyutMax: 45, yemSayisi: 350, botBoostIhtimal: 0.35 }
@@ -305,21 +305,22 @@ zorlukBtnleri.forEach(btn => {
 // Mod seçimi
 const modBtnleri = document.querySelectorAll('.modBtn');
 modBtnleri.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        modBtnleri.forEach(function(b) {
-            b.classList.remove('aktif');
-        });
-        this.classList.add('aktif');
-        oyunModu = this.dataset.mod;
-        durumMesaji.textContent = '🎯 Mod: ' + (oyunModu === 'hayattaKalma' ? 'Hayatta Kal' : 'Takım Avı');
-        if (!oyunAktif) {
-            baslangicGorunumu();
-        } else {
-            oyunuBaslat();
-        }
+  btn.addEventListener('click', function() {
+    modBtnleri.forEach(function(b) {
+      b.classList.remove('aktif');
     });
+    this.classList.add('aktif');
+    oyunModu = this.dataset.mod;
+    durumMesaji.textContent = '🎯 Mod: ' + (oyunModu === 'hayattaKalma' ? 'Hayatta Kal' : 'Takım Avı');
+    if (!oyunAktif) {
+      baslangicGorunumu();
+    } else {
+      oyunuBaslat();
+    }
+  });
 });
-  // Yardımcı
+
+// Yardımcı fonksiyonlar
 function rastgele(min, max) { return Math.random() * (max - min) + min; }
 
 function yilanOlustur(bx, by, uzunluk, yx, yy, r) {
@@ -390,7 +391,7 @@ function siralamaGuncelle() {
   for (let i = 0; i < ilk5.length; i++) {
     const kisi = ilk5[i];
     const sinif = kisi.ben ? " class='ben'" : "";
-    html += `<div${sinif}>${i+1}. ${kisi.isim} (${Math.round(kisi.r)})</div>`;
+    html += "<div" + sinif + ">" + (i+1) + ". " + kisi.isim + " (" + Math.round(kisi.r) + ")</div>";
   }
   siralamaKutusu.innerHTML = html;
 }
@@ -407,6 +408,10 @@ function oyunuBitir(mesaj) {
   baslatBtn.textContent = '▶ Tekrar Başlat';
   baslatBtn.disabled = false;
   siralamaGuncelle();
+}
+
+function takimBolgesiCiz() {
+  // Bu fonksiyon ileride seçim süresi için kullanılacak
   }
   // ============================================================
 // PART 3 - OYUN DÖNGÜSÜ, KONTROLLER & ÇİZİM
@@ -747,6 +752,7 @@ function cizimYap() {
   ctx.scale(zoom, zoom);
   ctx.translate(-kamera.x, -kamera.y);
 
+  // Arka plan
   ctx.fillStyle = '#0a0000';
   ctx.fillRect(0, 0, DUNYA_GENISLIK, DUNYA_YUKSEKLIK);
   ctx.strokeStyle = '#1a0505';
@@ -831,7 +837,7 @@ function cizimYap() {
     ctx.fillText(bot.isim + (bot.boostAktif ? '⚡' : ''), botBas.x, botBas.y + botBas.r + 16);
   }
 
-  // Oyuncu
+  // Oyuncu yılanı
   for (let i = 0; i < yilan.length; i++) {
     const seg = yilan[i];
     const radius = Math.max(seg.r, 2);
@@ -876,6 +882,37 @@ function cizimYap() {
             bebekR, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  // Takım avı bölgeleri
+  if (oyunModu === 'takimAvi') {
+    const renkler = ['#ffd740', '#ff1744', '#448aff', '#69f0ae'];
+    const kose = [
+      { x: 150, y: 150 },
+      { x: DUNYA_GENISLIK - 150, y: 150 },
+      { x: 150, y: DUNYA_YUKSEKLIK - 150 },
+      { x: DUNYA_GENISLIK - 150, y: DUNYA_YUKSEKLIK - 150 }
+    ];
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(kose[i].x, kose[i].y, 100, 0, Math.PI * 2);
+      ctx.fillStyle = renkler[i] + '44';
+      ctx.fill();
+      ctx.strokeStyle = renkler[i];
+      ctx.lineWidth = 4 / zoom;
+      ctx.stroke();
+      ctx.fillStyle = renkler[i];
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const etiketler = ['🟡 Sarı', '🔴 Kırmızı', '🔵 Mavi', '🟢 Yeşil'];
+      ctx.fillText(etiketler[i], kose[i].x, kose[i].y - 60);
+      ctx.beginPath();
+      ctx.arc(kose[i].x, kose[i].y, 20, 0, Math.PI * 2);
+      ctx.fillStyle = renkler[i];
+      ctx.fill();
+    }
+  }
+
   ctx.restore();
 }
 
@@ -911,10 +948,18 @@ function baslangicGorunumu() {
   for (let i = 0; i < ayarlar.yemSayisi; i++) {
     yemler.push({ x: rastgele(20, DUNYA_GENISLIK-20), y: rastgele(20, DUNYA_YUKSEKLIK-20), r: 6, renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)] });
   }
-  for (let i = 0; i < ayarlar.botSayisi; i++) botOlustur();
+  for (let i = 0; i < ayarlar.botSayisi; i++) {
+    botOlustur();
+  }
   skor = 12;
   skorGosterge.textContent = '12';
   siralamaGuncelle();
+
+  // Takım avı modunda bölgeleri göster
+  if (oyunModu === 'takimAvi') {
+    // Şimdilik bir şey yapmıyoruz, çizim fonksiyonunda yapılıyor
+  }
+
   cizimYap();
   durumMesaji.textContent = '▶️ ' + zorluk.charAt(0).toUpperCase() + zorluk.slice(1) + ' mod - Başlat\'a bas';
   baslatBtn.textContent = '▶ Başlat';
