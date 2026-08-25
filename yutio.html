@@ -865,9 +865,9 @@ function hayattaKalmaDongusu() {
     }
 
     if (botBas.x < botBas.r || botBas.x > DUNYA_GENISLIK - botBas.r) bot.yon.x *= -1;
-    if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.y) bot.yon.y *= -1;
+    if (botBas.y < botBas.r || botBas.y > DUNYA_YUKSEKLIK - botBas.r) bot.yon.y *= -1;
     botBas.x = Math.max(botBas.r, Math.min(DUNYA_GENISLIK - botBas.r, botBas.x));
-    botBas.y = Math.max(botBas.r, Math.min(DUNYA_YUKSEKLIK - botBas.y, botBas.y));
+    botBas.y = Math.max(botBas.r, Math.min(DUNYA_YUKSEKLIK - botBas.r, botBas.y));
 
     for (let j = yemler.length - 1; j >= 0; j--) {
       const y = yemler[j];
@@ -1478,9 +1478,9 @@ function takimAviDongusu() {
     }
 
     if (bas.x < bas.r || bas.x > DUNYA_GENISLIK - bas.r) y.yon.x *= -1;
-    if (bas.y < bas.r || bas.y > DUNYA_YUKSEKLIK - bas.y) y.yon.y *= -1;
+    if (bas.y < bas.r || bas.y > DUNYA_YUKSEKLIK - bas.r) y.yon.y *= -1;
     bas.x = Math.max(bas.r, Math.min(DUNYA_GENISLIK - bas.r, bas.x));
-    bas.y = Math.max(bas.r, Math.min(DUNYA_YUKSEKLIK - bas.y, bas.y));
+    bas.y = Math.max(bas.r, Math.min(DUNYA_YUKSEKLIK - bas.r, bas.y));
 
     for (let j = y.segmentler.length - 1; j > 0; j--) {
       const dx2 = y.segmentler[j-1].x - y.segmentler[j].x;
