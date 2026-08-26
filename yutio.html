@@ -2,654 +2,262 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yutio - Stratejik Savaşlar</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.8);
-            --accent-color: #fbbf24; /* Sarı Takım */
-            --text-main: #f8fafc;
-            --neon-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            touch-action: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        canvas {
-            background-color: #020617;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            cursor: crosshair;
-        }
-
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .menu-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--panel-bg);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            text-align: center;
-            pointer-events: all;
-            min-width: 320px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-        }
-
-              h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: var(--accent-color);
-            text-shadow: var(--neon-shadow);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-        }
-
-        .menu-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .btn-primary {
-            background: var(--accent-color);
-            color: #000;
-        }
-
-        .btn-primary:hover {
-            background: #f59e0b;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
-        }
-
-        .difficulty-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .diff-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .diff-btn.active {
-            background: var(--accent-color);
-            color: #000;
-            border-color: var(--accent-color);
-        }
-
-        #hud {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: none;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        #leaderboard {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--panel-bg);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            display: none;
-            min**Sıradaki parçayı (Part 3) göndermemi ister misin?** (Not: Part 2'nin sonundaki CSS kısmı küçük bir kesilme yaşadı, Part 3'e başladığımda onu tamamlayarak devam edeceğim).
-
-                  width: 200px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            padding-bottom: 3px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        #joystick-container {
-            position: absolute;
-            bottom: 50px;
-            left: 50px;
-            width: 120px;
-            height: 120px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: none;
-            pointer-events: all;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        #joystick-knob {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 50px;
-            height: 50px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        body { margin: 0; padding: 0; background: #1a1a1a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        canvas { display: block; background: #000; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); padding: 30px; border-radius: 20px; text-align: center; pointer-events: all; border: 2px solid #ffcc00; box-shadow: 0 0 20px #ffcc00; }
+        h1 { color: #ffcc00; margin-bottom: 20px; font-size: 48px; text-shadow: 0 0 10px #ffcc00; }
+        .btn { padding: 15px 30px; margin: 10px; font-size: 20px; cursor: pointer; background: #ffcc00; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
+        .btn:hover { background: #fff; transform: scale(1.1); }
+        #hud { position: absolute; top: 20px; left: 20px; font-size: 24px; color: #ffcc00; display: none; }
+        #leaderboard { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 10px; display: none; text-align: right; }
+        .difficulty { margin-bottom: 20px; }
+        .diff-btn { padding: 10px; margin: 5px; cursor: pointer; background: #444; color: white; border: none; border-radius: 5px; }
+        .diff-btn.active { background: #ffcc00; color: black; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-        
-        <div class="ui-overlay">
-            <div id="hud">Skor: 0 | Takım: Sarı</div>
-            <div id="leaderboard">
-                <div style="text-align:center; font-weight:bold; margin-bottom:10px;">Sıralama</div>
-                <div id="leaderboard-list"></div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <div id="hud">Skor: 0 | Takım: Sarı</div>
+        <div id="leaderboard"><b>Sıralama</b><div id="list"></div></div>
+        <div id="main-menu" class="menu">
+            <h1>YUTIO</h1>
+            <div class="difficulty">
+                <button class="diff-btn" onclick="setDiff('easy', this)">Kolay</button>
+                <button class="diff-btn active" onclick="setDiff('medium', this)">Orta</button>
+                <button class="diff-btn" onclick="setDiff('hard', this)">Zor</button>
             </div>
-
-            <div id="main-menu" class="menu-panel">
-                <h1>YUTIO</h1>
-                <div class="difficulty-selector">
-                    <button class="diff-btn" data-diff="easy">Kolay</button>
-                    <button class="diff-btn active" data-diff="medium">Orta</button>
-                    <button class="diff-btn" data-diff="hard">Zor</button>
-                </div>
-                <div class="menu-options">
-                    <button class="btn btn-primary" id="btn-survival">Hayatta Kal</button>
-                    <button class="btn btn-primary" id="btn-team">Takım Avı</button>
-                </div>
-            </div>
-
-            <div id="joystick-container">
-                <div id="joystick-knob"></div>
-            </div>
+            <button class="btn" onclick="startGame('survival')">Hayatta Kal</button>
+            <button class="btn" onclick="startGame('team')">Takım Avı</button>
         </div>
     </div>
 
     <script>
-        // JAVASCRIPT BURADAN İTİBAREN BAŞLAYACAK
-
-              const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const hud = document.getElementById('hud');
-        const leaderboard = document.getElementById('leaderboard');
-        const leaderboardList = document.getElementById('leaderboard-list');
-
-        // Oyun Sabitleri
-        const CONFIG = {
-            GRID_SIZE: 20,
-            MAP_WIDTH: 3000, 
-            MAP_HEIGHT: 3000,
-            INITIAL_SPEED: 3,
-            BOOST_SPEED: 6,
-            MAX_BOTS_PER_TEAM: 10,
-            TEAMS: {
-                YELLOW: { color: '#fbbf24', name: 'Sarı' },
-                RED: { color: '#ef4444', name: 'Kırmızı' },
-                BLUE: { color: '#3b82f6', name: 'Mavi' }
-            }
-        };
+        const lb = document.getElementById('leaderboard');
+        const lbList = document.getElementById('list');
 
         let gameActive = false;
-        let gameMode = 'survival'; // 'survival' veya 'team'
-        let difficulty = 'medium';
-        let player = null;
+        let mode = 'survival';
+        let diff = 'medium';
+        let player;
         let snakes = [];
         let foods = [];
         let camera = { x: 0, y: 0 };
         let keys = {};
 
-        // Ekran Boyutu Ayarı
-        function resizeCanvas() {
+        const MAP_SIZE = 3000;
+        const TEAMS = {
+            YELLOW: { color: '#ffff00', name: 'Sarı' },
+            RED: { color: '#ff0000', name: 'Kırmızı' },
+            BLUE: { color: '#0000ff', name: 'Mavi' }
+        };
+
+        window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        });
+        window.dispatchEvent(new Event('resize'));
 
-        // Yardımcı Matematik Fonksiyonları
-        const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-        const distSq = (x1, y1, x2, y2) => (x1 - x2)**2 + (y1 - y2)**2; // Performans için kare mesafe
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => keys[e.key] = false);
+
+        function setDiff(val, btn) {
+            diff = val;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
 
         class Food {
             constructor() {
-                this.x = random(0, CONFIG.MAP_WIDTH);
-                this.y = random(0, CONFIG.MAP_HEIGHT);
-                this.size = random(3, 7);
-                this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
+                this.x = Math.random() * MAP_SIZE;
+                this.y = Math.random() * MAP_SIZE;
+                this.size = Math.random() * 4 + 2;
+                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
             }
-
             draw() {
+                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x - camera.x, this.y - camera.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
                 ctx.fill();
-                ctx.shadowBlur = 0;
             }
         }
 
         class Snake {
-            constructor(x, y, color, name, isBot = true, team = 'YELLOW') {
-                this.x = x;
-                this.y = y;
+            constructor(x, y, color, name, team, isBot = true) {
+                this.x = x; this.y = y;
                 this.color = color;
                 this.name = name;
-                this.isBot = isBot;
                 this.team = team;
+                this.isBot = isBot;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = 3;
+                this.length = isBot ? Math.floor(Math.random() * 10) + 5 : 5;
                 this.segments = [];
-                this.length = isBot ? random(5, 15) : 5; // Botlar değişken boyutla başlar
-                this.angle = random(0, Math.PI * 2);
-                this.speed = CONFIG.INITIAL_SPEED;
                 this.score = 0;
                 this.isDead = false;
-                this.boostActive = false;
-                this.target = null;
-                this.state = 'Sakin'; // Botlar için: Sakin, Avcı, Kaçış, Pusu
+                this.boost = false;
+                for (let i = 0; i < this.length; i++) this.segments.push({ x, y });
+            }
 
-                for (let i = 0; i < this.length; i++) {
-                    this.segments.push({ x: x, y: y });
-                }
-      }
-
-                  update() {
+            update() {
                 if (this.isDead) return;
 
                 if (this.isBot) {
-                    this.handleBotAI();
+                    this.runAI();
                 } else {
-                    this.handlePlayerInput();
+                    if (keys['ArrowLeft']) this.angle -= 0.1;
+                    if (keys['ArrowRight']) this.angle += 0.1;
+                    this.boost = keys['z'] || keys['Z'];
                 }
 
-                // Hareket hesaplama
-                const vx = Math.cos(this.angle) * this.speed;
-                const vy = Math.sin(this.angle) * this.speed;
-                this.x += vx;
-                this.y += vy;
+                let currentSpeed = this.boost ? 6 : 3;
+                this.x += Math.cos(this.angle) * currentSpeed;
+                this.y += Math.sin(this.angle) * currentSpeed;
 
-                // Sınır kontrolü
-                if (this.x < 0) this.x = CONFIG.MAP_WIDTH;
-                if (this.x > CONFIG.MAP_WIDTH) this.x = 0;
-                if (this.y < 0) this.y = CONFIG.MAP_HEIGHT;
-                if (this.y > CONFIG.MAP_HEIGHT) this.y = 0;
+                if (this.x < 0) this.x = MAP_SIZE; if (this.x > MAP_SIZE) this.x = 0;
+                if (this.y < 0) this.y = MAP_SIZE; if (this.y > MAP_SIZE) this.y = 0;
 
-                // Segment takibi
                 this.segments.unshift({ x: this.x, y: this.y });
-                if (this.segments.length > this.length) {
-                    this.segments.pop();
-                }
-
-                // Boost yönetimi
-                if (this.boostActive) {
-                    this.speed = CONFIG.BOOST_SPEED;
-                    this.length -= 0.01; // Boost harcadıkça hafif küçülme
-                    if (this.length < 5) this.boostActive = false;
-                } else {
-                    this.speed = CONFIG.INITIAL_SPEED;
-                }
+                if (this.segments.length > this.length) this.segments.pop();
             }
 
-            handlePlayerInput() {
-                if (keys['ArrowLeft']) this.angle -= 0.1;
-                if (keys['ArrowRight']) this.angle += 0.1;
-                this.boostActive = keys['z'] || keys['Z'];
-            }
+            runAI() {
+                // Performans için her karede değil, ara ara karar ver
+                if (Math.random() > 0.1) return;
 
-            handleBotAI() {
-                // Performans optimizasyonu: Her karede değil, 5 karede bir hedef güncelle
-                if (Math.random() > 0.2) return;
-
-                const nearestFood = this.findNearestFood();
-                const nearestEnemy = this.findNearestEnemy();
-                const nearestAlly = this.findNearestAlly();
-
-                // MOD KONTROLÜ: Hayatta Kalma modunda botlar sadece büyüme odaklıdır
-                if (gameMode === 'survival') {
-                    this.state = 'Sakin';
-                    if (nearestFood) this.steerTowards(nearestFood.x, nearestFood.y);
-                    if (nearestEnemy && distSq(this.x, this.y, nearestEnemy.x, nearestEnemy.y) < 40000) {
-                        this.state = 'Kaçış';
-                        this.steerAway(nearestEnemy.x, nearestEnemy.y);
-                    }
-                } else {
-                    // TAKIM AVI MODU: Stratejik Davranışlar
-                    if (nearestEnemy && distSq(this.x, this.y, nearestEnemy.x, nearestEnemy.y) < 300000) {
-                        // Pusu ve Tuzak Mantığı: Eğer rakip çok yakınsa ve ben yeterince büyüysem
-                        if (this.length > nearestEnemy.length + 5) {
-                            this.state = 'Avcı';
-                            this.steerTowards(nearestEnemy.x, nearestEnemy.y);
-                        } else {
-                            this.state = 'Pusu';
-                            // Rakibin önünü kesmek için yan yan gitme stratejisi
-                            const angleToEnemy = Math.atan2(nearestEnemy.y - this.y, nearestEnemy.x - this.x);
-                            this.angle = angleToEnemy + Math.PI / 4; 
-                        }
-                    } else if (nearestFood) {
-                        this.state = 'Sakin';
-                        this.steerTowards(nearestFood.x, nearestFood.y);
-                    }
-                }
-            }
-
-            steerTowards(tx, ty) {
-                const targetAngle = Math.atan2(ty - this.y, tx - this.x);
-                let diff = targetAngle - this.angle;
-                while (diff < -Math.PI) diff += Math.PI * 2;
-                while (diff > Math.PI) diff -= Math.PI * 2;
-                this.angle += diff * 0.1;
-            }
-
-            steerAway(tx, ty) {
-                const targetAngle = Math.atan2(ty - this.y, tx - this.x);
-                this.angle = targetAngle + Math.PI;
-            }
-
-            findNearestFood() {
-                let minDst = Infinity;
-                let closest = null;
-                for (let f of foods) {
-                    let d = distSq(this.x, this.y, f.x, f.y);
-                    if (d < minDst) { minDst = d; closest = f; }
-                }
-                return closest;
-            }
-
-            findNearestEnemy() {
-                let minDst = Infinity;
-                let closest = null;
-                for (let s of snakes) {
-                    if (s === this || s.team === this.team || s.isDead) continue;
-                    let d = distSq(this.x, this.y, s.x, s.y);
-                    if (d < minDst) { minDst = d; closest = s; }
-                }
-                return closest;
-            }
-
-            findNearestAlly() {
-                let minDst = Infinity;
-                let closest = null;
-                for (let s of snakes) {
-                    if (s === this || s.team !== this.team || s.isDead) continue;
-                    let d = distSq(this.x, this.y, s.x, s.y);
-                    if (d < minDst) { minDst = d; closest = s; }
-                }
-                return closest;
-                        }
-
-                  checkCollisions() {
-                if (this.isDead) return;
-
-                // 1. Yem Toplama
-                for (let i = foods.length - 1; i >= 0; i--) {
-                    if (distSq(this.x, this.y, foods[i].x, foods[i].y) < 400) {
-                        foods.splice(i, 1);
-                        this.length += 1;
-                        this.score += 10;
-                        foods.push(new Food()); 
-                    }
-                }
-
-                // 2. Diğer Yılanlarla Çarpışma
-                for (let s of snakes) {
-                    if (s.isDead) continue;
-
-                    // Kendi gövdesine çarpma
-                    if (s === this && this.segments.length > 10) {
-                        for (let i = 10; i < this.segments.length; i++) {
-                            if (distSq(this.x, this.y, this.segments[i].x, this.segments[i].y) < 100) {
-                                this.die();
-                                return;
-                            }
-                        }
-                    }
-
-                    // Başka yılanın gövdesine çarpma
-                    for (let seg of s.segments) {
-                        if (distSq(this.x, this.y, seg.x, seg.y) < 100) {
-                            this.die();
-                            return;
-                        }
-                    }
-                }
-            }
-
-            die() {
-                this.isDead = true;
-                this.segments.forEach((seg, index) => {
-                    if (index % 3 === 0) {
-                        let f = new Food();
-                        f.x = seg.x;
-                        f.y = seg.y;
-                        f.size = 8;
-                        foods.push(f);
-                    }
+                let closestFood = null, minDist = Infinity;
+                foods.forEach(f => {
+                    let d = Math.hypot(this.x - f.x, this.y - f.y);
+                    if (d < minDist) { minDist = d; closestFood = f; }
                 });
+
+                let closestEnemy = null, enemyDist = Infinity;
+                snakes.forEach(s => {
+                    if (s === this || s.isDead || s.team === this.team) return;
+                    let d = Math.hypot(this.x - s.x, this.y - s.y);
+                    if (d < enemyDist) { enemyDist = d; closestEnemy = s; }
+                });
+
+                if (mode === 'survival') {
+                    // Hayatta Kalma: Ana hedef büyüme, sadece çok yakınsa kaç
+                    if (closestEnemy && enemyDist < 200) {
+                        this.angle += Math.PI; // Kaç
+                    } else if (closestFood) {
+                        this.angle = Math.atan2(closestFood.y - this.y, closestFood.x - this.x);
+                    }
+                } else {
+                    // Takım Avı: Stratejik saldırı ve pusu
+                    if (closestEnemy) {
+                        if (this.length > closestEnemy.length + 5) {
+                            this.angle = Math.atan2(closestEnemy.y - this.y, closestEnemy.x - this.x);
+                        } else if (enemyDist < 150) {
+                            this.angle += Math.PI / 2; // Yan geçerek tuzak kur
+                        }
+                    } else if (closestFood) {
+                        this.angle = Math.atan2(closestFood.y - this.y, closestFood.x - this.x);
+                    }
+                }
             }
 
             draw() {
                 if (this.isDead) return;
-
-                ctx.lineWidth = 15;
                 ctx.strokeStyle = this.color;
+                ctx.lineWidth = 15;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-
                 ctx.beginPath();
                 ctx.moveTo(this.segments[0].x - camera.x, this.segments[0].y - camera.y);
                 for (let i = 1; i < this.segments.length; i++) {
                     ctx.lineTo(this.segments[i].x - camera.x, this.segments[i].y - camera.y);
                 }
                 ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                // Gözleri çiz
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(this.x - camera.x, this.y - camera.y, 4, 0, Math.PI * 2);
-                ctx.fill();
             }
-      }
+        }
 
-              function initGame() {
+        function startGame(m) {
+            mode = m;
+            gameActive = true;
             snakes = [];
             foods = [];
             
-            // 1. Player Spawn (Sol Üst Köşe)
-            player = new Snake(100, 100, CONFIG.TEAMS.YELLOW.color, "Siz", false, 'YELLOW');
+            // Player: Sol Üst Spawn
+            player = new Snake(50, 50, TEAMS.YELLOW.color, "Sen", 'YELLOW', false);
             snakes.push(player);
 
-            // 2. Bot Spawn (Sayı ve Renk Dengesi)
-            const teamConfigs = [
-                { team: 'YELLOW', color: CONFIG.TEAMS.YELLOW.color },
-                { team: 'RED', color: CONFIG.TEAMS.RED.color },
-                { team: 'BLUE', color: CONFIG.TEAMS.BLUE.color }
+            // Takımları oluştur (Her takım 10 kişi)
+            const teams = [
+                { id: 'YELLOW', color: TEAMS.YELLOW.color },
+                { id: 'RED', color: TEAMS.RED.color },
+                { id: 'BLUE', color: TEAMS.BLUE.color }
             ];
 
-            teamConfigs.forEach(config => {
-                let count = (config.team === 'YELLOW') ? CONFIG.MAX_BOTS_PER_TEAM - 1 : CONFIG.MAX_BOTS_PER_TEAM;
+            teams.forEach(t => {
+                let count = (t.id === 'YELLOW') ? 9 : 10;
                 for (let i = 0; i < count; i++) {
-                    snakes.push(new Snake(
-                        random(0, CONFIG.MAP_WIDTH),
-                        random(0, CONFIG.MAP_HEIGHT),
-                        config.color,
-                        `${config.team} Bot ${i+1}`,
-                        true,
-                        config.team
-                    ));
+                    snakes.push(new Snake(Math.random() * MAP_SIZE, Math.random() * MAP_SIZE, t.color, t.id + " Bot", t.id));
                 }
             });
 
-            for (let i = 0; i < 100; i++) foods.push(new Food());
+            for (let i = 0; i < 150; i++) foods.push(new Food());
 
-            gameActive = true;
+            document.getElementById('main-menu').style.display = 'none';
             hud.style.display = 'block';
-            leaderboard.style.display = 'block';
-            document.getElementById('main-menu').classList.add('hidden');
+            lb.style.display = 'block';
         }
 
-        function update() {
-            if (!gameActive) return;
+        function loop() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Kamera Takibi
-            camera.x = player.x - canvas.width / 2;
-            camera.y = player.y - canvas.height / 2;
+            if (gameActive) {
+                camera.x = player.x - canvas.width / 2;
+                camera.y = player.y - canvas.height / 2;
 
-            // Yılanları güncelle
-            snakes.forEach(s => {
-                s.update();
-                s.checkCollisions();
-            });
+                foods.forEach(f => f.draw());
 
-            // HUD güncelle
-            hud.innerText = `Skor: ${player.score} | Takım: Sarı`;
+                snakes.forEach(s => {
+                    s.update();
+                    // Çarpışma kontrolü
+                    if (!s.isDead) {
+                        snakes.forEach(other => {
+                            if (other.isDead) return;
+                            other.segments.forEach((seg, idx) => {
+                                if (s !== other && Math.hypot(s.x - seg.x, s.y - seg.y) < 10) {
+                                    s.isDead = true;
+                                }
+                            });
+                        });
+                        foods.forEach((f, idx) => {
+                            if (Math.hypot(s.x - f.x, s.y - f.y) < 15) {
+                                s.length++;
+                                s.score += 10;
+                                foods[idx] = new Food();
+                            }
+                        });
+                    }
+                    s.draw();
+                });
 
-            // Sıralama listesi
-            const sorted = [...snakes].sort((a, b) => b.score - a.score).slice(0, 5);
-            leaderboardList.innerHTML = sorted.map((s, i) => 
-                `<div class="leaderboard-entry"><span>${i+1}. ${s.name}</span><span>${Math.floor(s.length)}</span></div>`
-            ).join('');
-        }
+                if (player.isDead) {
+                    gameActive = false;
+                    document.getElementById('main-menu').style.display = 'block';
+                    document.querySelector('h1').innerText = "ÖLDÜN!";
+                }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Arka Plan Izgarası (Grid)
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 1;
-            for (let x = -camera.x % 100; x < canvas.width; x += 100) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+                hud.innerText = `Skor: ${player.score} | Takım: Sarı`;
+                const sorted = [...snakes].sort((a, b) => b.score - a.score).slice(0, 5);
+                lbList.innerHTML = sorted.map(s => `<div>${s.name}: ${s.score}</div>`).join('');
             }
-            for (let y = -camera.y % 100; y < canvas.height; y += 100) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
-
-            foods.forEach(f => f.draw());
-            snakes.forEach(s => s.draw());
-
-            if (player.isDead) {
-                gameActive = false;
-                document.getElementById('main-menu').classList.remove('hidden');
-                document.querySelector('h1').innerText = "OYUN BİTTİ!";
-            }
+            requestAnimationFrame(loop);
         }
-
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-                          }
-              // Klavye Dinleyicileri
-        window.addEventListener('keydown', e => keys[e.key] = true);
-        window.addEventListener('keyup', e => keys[e.key] = false);
-
-        // Menü Butonları
-        document.querySelectorAll('.diff-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                difficulty = btn.dataset.diff;
-            });
-        });
-
-        document.getElementById('btn-survival').addEventListener('click', () => {
-            gameMode = 'survival';
-            initGame();
-        });
-
-        document.getElementById('btn-team').addEventListener('click', () => {
-            gameMode = 'team';
-            initGame();
-        });
-
-        // Joystick Kontrolü (Basitleştirilmiş)
-        const joystick = document.getElementById('joystick-container');
-        const knob = document.getElementById('joystick-knob');
-        let isDragging = false;
-
-        if ('ontouchstart' in window) {
-            joystick.style.display = 'block';
-            joystick.addEventListener('touchstart', () => isDragging = true);
-            window.addEventListener('touchend', () => {
-                isDragging = false;
-                knob.style.left = '50%';
-                knob.style.top = '50%';
-            });
-            window.addEventListener('touchmove', e => {
-                if (!isDragging) return;
-                const touch = e.touches[0];
-                const rect = joystick.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                const angle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX);
-                player.angle = angle;
-                
-                const dist = Math.min(50, Math.hypot(touch.clientX - centerX, touch.clientY - centerY));
-                knob.style.left = `${50 + (Math.cos(angle) * dist / 60) * 100}%`;
-                knob.style.top = `${50 + (Math.sin(angle) * dist / 60) * 100}%`;
-            });
-        }
-
-        // Oyunu Başlat
-        gameLoop();
+        loop();
     </script>
 </body>
 </html>
