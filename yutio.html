@@ -723,7 +723,7 @@ function hayattaKalmaDongusu() {
     }
   }
 
-  // BOTLAR - GELİŞTİRİLMİŞ AVLANMA
+  // BOTLAR
   for (let i = 0; i < botlar.length; i++) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
@@ -820,7 +820,7 @@ function hayattaKalmaDongusu() {
   }
   Array.from(silinecekBotlar).sort((a,b)=>b-a).forEach(idx => { botlar.splice(idx, 1); botOlustur(); });
 
-  // Oyuncu-bot çarpışma
+  // Oyuncu-bot
   for (let i = botlar.length - 1; i >= 0; i--) {
     const bot = botlar[i];
     const botBas = bot.segmentler[0];
@@ -895,16 +895,15 @@ function yemUretHayattaKalma() {
       renk: YEM_RENKLERI[Math.floor(Math.random() * YEM_RENKLERI.length)]
     });
   }
-}
+      }
   // ============================================================
-// PART 6/8 - TAKIM AVI BAŞLATMA
+// PART 6/8 - TAKIM AVI BAŞLATMA (DÜZELTİLMİŞ)
 // ============================================================
 
 function takimAviBaslat() {
   const ayarlar = TAKIM_AYARLARI;
-  const takimBasi = 8;
-  const oyuncuR = ayarlar.baslangicBoyut;
-
+  const oyuncuR = 12 + rastgele(0, 6); // Oyuncu boyutu da farklı (12-18)
+  
   tumYilanlar = [];
   oyuncuOludu = false;
   oyuncuYilan = null;
@@ -921,7 +920,7 @@ function takimAviBaslat() {
   baslatBtn.disabled = true;
   oyuncuKolezyumda = false;
 
-  // OYUNCU (Sarı - Sol Üst)
+  // OYUNCU (SARI TAKIM - Sol Üst)
   const oyuncuTakimIndex = 0;
   oyuncuTakim = TAKIM_ANAHTARLARI[oyuncuTakimIndex];
   const oyuncuRenk = TAKIM_RENK_LISTESI[oyuncuTakimIndex];
@@ -930,7 +929,8 @@ function takimAviBaslat() {
   const oyuncuSeg = yilanOlusturRenkli(
     oyuncuKose.x + rastgele(-60, 60),
     oyuncuKose.y + rastgele(-60, 60),
-    8, 1, 0, oyuncuR, oyuncuRenk
+    Math.floor(rastgele(6, 12)), // Farklı uzunluk
+    1, 0, oyuncuR, oyuncuRenk
   );
   oyuncuSeg.trail = [];
   oyuncuSeg.maxTrail = 20;
@@ -962,11 +962,16 @@ function takimAviBaslat() {
     const takimAdi = TAKIM_ANAHTARLARI[i];
     const renkKodu = TAKIM_RENK_LISTESI[i];
     const kose = TAKIM_KOSE[i];
-    const botSayisi = (i === 0) ? 8 : takimBasi;
+    
+    // SARI TAKIM: 9 bot (oyuncu ile birlikte 10 kişi)
+    // DİĞER TAKIMLAR: 8 bot
+    let botSayisi = 8;
+    if (i === 0) botSayisi = 9; // Sarı takım 9 bot + oyuncu = 10
 
     for (let j = 0; j < botSayisi; j++) {
-      const r = oyuncuR + rastgele(-2, 4);
-      const uzunluk = Math.floor(rastgele(5, 10));
+      // Her yılanın boyutu farklı (12-18 arası)
+      const r = 12 + rastgele(0, 6);
+      const uzunluk = Math.floor(rastgele(5, 12)); // Farklı uzunluklar
       const yonX = rastgele(-1, 1) || 1;
       const yonY = rastgele(-1, 1) || 1;
       
@@ -996,7 +1001,7 @@ function takimAviBaslat() {
         kolezyumda: false,
         trail: [],
         maxTrail: 20,
-        spawnGecikmesi: 3 + Math.floor(rastgele(0, 8)),
+        spawnGecikmesi: Math.floor(rastgele(0, 5)),
         kolezyumHedefi: true,
         saldiriHedefi: null,
         tuzakModu: false,
@@ -1026,8 +1031,8 @@ function takimAviBaslat() {
 
   if (animasyonId) cancelAnimationFrame(animasyonId);
   takimAviDongusu();
-}
- // ============================================================
+      }
+  // ============================================================
 // PART 7/8 - TAKIM AVI DÖNGÜSÜ
 // ============================================================
 
@@ -1121,7 +1126,7 @@ function takimAviDongusu() {
     }
   }
 
-  // BOTLAR - KOLEZYUM'A SÜRÜNME VE TAKTİKSEL SAVAŞ
+  // BOTLAR
   for (let i = 0; i < tumYilanlar.length; i++) {
     const y = tumYilanlar[i];
     if (y.oyuncu) continue;
@@ -1451,7 +1456,7 @@ function takimAviDongusu() {
         continue;
       }
 
-      // BAŞ-GÖVDE ÇARPIŞMALARI
+      // BAŞ-GÖVDE
       for (let s = 1; s < y2.segmentler.length; s++) {
         const seg2 = y2.segmentler[s];
         const distToBody = mesafe(bas1, seg2);
@@ -1592,7 +1597,7 @@ function takimAviDongusu() {
   siralamaGuncelle();
   takimAviCizim();
   animasyonId = requestAnimationFrame(takimAviDongusu);
-      }
+  }
   // ============================================================
 // PART 8/8 - ÇİZİM VE KONTROLLER
 // ============================================================
